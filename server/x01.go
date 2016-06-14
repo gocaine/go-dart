@@ -19,7 +19,7 @@ func NewGamex01(score int) *Gamex01 {
 
 func (game *Gamex01) AddPlayer(name string) {
 	if !game.State.Ongoing {
-		game.State.Scores = append(game.State.Scores, common.Score{Player:name, Score: game.score})
+		game.State.Scores = append(game.State.Scores, common.Score{Player: name, Score: game.score})
 	} else {
 		panic("Game already started")
 	}
@@ -41,7 +41,7 @@ func (game *Gamex01) Start() {
 
 func (game *Gamex01) HandleDart(sector common.Sector) common.GameState {
 
-	point := 0//(sector.Name / 1) * (sector.Pos / 1)
+	point := 0 //(sector.Name / 1) * (sector.Pos / 1)
 	game.accu += point
 	state := game.State
 	if game.accu < state.Scores[state.CurrentPlayer].Score {
@@ -51,4 +51,3 @@ func (game *Gamex01) HandleDart(sector common.Sector) common.GameState {
 	}
 	return common.GameState{}
 }
-

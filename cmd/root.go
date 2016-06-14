@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var RootCmd = &cobra.Command{
@@ -18,6 +17,15 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
+}
+
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Begin a new game",
+	Long:  `Create a new game`,
+	Run: func(cmd *cobra.Command, arg []string) {
+		// API CALL
+	},
 }
 
 var versionCmd = &cobra.Command{

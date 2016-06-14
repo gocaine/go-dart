@@ -20,7 +20,7 @@ func NewGamex01(score int) *Gamex01 {
 
 func (game *Gamex01) AddPlayer(name string) {
 	if !game.started {
-		append(game.players, name)
+		game.players = append(game.players, name)
 	} else {
 		panic("Game already started")
 	}
@@ -40,6 +40,5 @@ func (game *Gamex01) Start() {
 
 func (game *Gamex01) HandleDart(sector common.Sector) common.GameState {
 
-	return nil
+	return {}
 }
-

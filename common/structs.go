@@ -39,3 +39,7 @@ type Sector struct {
 	Name SectorName
 	Pos SectorPos
 }
+
+type GameState struct {
+
+}

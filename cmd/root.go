@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+        "go-dart/client"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +18,7 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(addPlayerCmd)
 }
 
 var startCmd = &cobra.Command{
@@ -28,6 +30,13 @@ var startCmd = &cobra.Command{
 	},
 }
 
+var addPlayerCmd = &cobra.Command{
+	Use:   "add-player",
+	Short: "Add player to existing game",
+	Run: func(cmd *cobra.Command, arg []string) {
+            client.AddPlayer(arg[0])
+	},
+}
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Display version",

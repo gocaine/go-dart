@@ -32,7 +32,7 @@ func (game *Gamex01) Start() {
 		state.CurrentPlayer = 0
 		state.CurrentDart = 0
 		for i := range state.Scores {
-			state.Scores[i] = game.score
+			state.Scores[i].Score = game.score
 		}
 	} else {
 		panic("Game already started")
@@ -41,13 +41,13 @@ func (game *Gamex01) Start() {
 
 func (game *Gamex01) HandleDart(sector common.Sector) common.GameState {
 
-	point := sector.Name * sector.Pos
+	point := 0//(sector.Name / 1) * (sector.Pos / 1)
 	game.accu += point
 	state := game.State
 	if game.accu < state.Scores[state.CurrentPlayer].Score {
 
 	} else {
-		game.nextPlayer()
+		//game.NextPlayer()
 	}
 	return common.GameState{}
 }

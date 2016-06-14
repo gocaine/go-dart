@@ -15,13 +15,13 @@ var c = &http.Client{
 	Timeout:       time.Second * 3,
 }
 
-// create the game POST
-func startRequest() {
-	var body = "serialized JSON"
-	resp, err := c.Post(endpointUrl+"games", "application/json", strings.NewReader(body))
-	// TODO display the response and save it ?
+// POST request on API endpoint and return the answer
+func Request(cmd, body string) (*http.Response, error) {
+	resp, err := c.Post(endpointUrl+cmd, "application/json", strings.NewReader(body))
 	if err != nil {
 		fmt.Printf("%s\n", err)
+		return nil, err
 	}
 	fmt.Printf("%v\n", resp)
+	return resp, nil
 }

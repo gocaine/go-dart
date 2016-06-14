@@ -1,9 +1,5 @@
 package main
 
-<<<<<<< Updated upstream
-func main() {
-
-=======
 import (
 	"fmt"
 	"go-dart/cmd"
@@ -16,5 +12,4 @@ func main() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
->>>>>>> Stashed changes
 }

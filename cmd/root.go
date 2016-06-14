@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
-	"go-dart/client"
-	"go-dart/server"
 )
 
 var RootCmd = &cobra.Command{
@@ -18,41 +15,8 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(versionCmd)
 	RootCmd.AddCommand(serverCmd)
-	RootCmd.AddCommand(addPlayerCmd)
-}
-
-var serverCmd = &cobra.Command{
-	Use:   "server",
-	Short: "Start the server",
-	Run: func(cmd *cobra.Command, arg []string) {
-		server := server.NewServer()
-		server.Start()
-	},
-}
-
-var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "Begin a new game",
-	Long:  `Create a new game`,
-	Run: func(cmd *cobra.Command, arg []string) {
-		// API CALL
-	},
-}
-
-var addPlayerCmd = &cobra.Command{
-	Use:   "add-player",
-	Short: "Add player to existing game",
-	Run: func(cmd *cobra.Command, arg []string) {
-		client.AddPlayer(arg[0])
-	},
-}
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display version",
-	Long:  `Display current version`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("go-dart v0.0 HACKATON")
-	},
+	RootCmd.AddCommand(startCmd)
+	RootCmd.AddCommand(userCmd)
+	RootCmd.AddCommand(versionCmd)
 }

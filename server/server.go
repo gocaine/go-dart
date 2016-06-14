@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
 
@@ -37,6 +39,7 @@ func (server *Server) Start() {
 
 	http.Handle("/", r)
 
+	log.Println("Start server")
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -57,7 +60,12 @@ func (server *Server) gamesHandler(writer http.ResponseWriter, request *http.Req
 		fmt.Fprintf(writer, "go fuck yourself %s ! ", g.Style)
 	}
 	server.games[nextID] = theGame
-	fmt.Fprintf(writer, "%d yeah %+v ! ", nextID, server.games[nextID])
+
+	marshal, err := json.Marshal(theGame)
+	if err != nil {
+		fmt.Fprintf(writer, "go fuck yourself %s ! ", g.Style)
+	}
+	fmt.Fprint(writer, string(marshal))
 }
 
 func gameFactory(style string) (result Game, err error) {
@@ -74,11 +82,20 @@ func gameFactory(style string) (result Game, err error) {
 func (server *Server) gameHandler(writer http.ResponseWriter, request *http.Request) {
 
 	vars := mux.Vars(request)
-	gameID := vars["gameId"]
+	gameIDStr := vars["gameId"]
 
-	result, _ := json.Marshal(gameID)
+	gameID, err := strconv.Atoi(gameIDStr)
+	if err != nil {
+		fmt.Fprintf(writer, "go fuck yourself %s ! ", gameIDStr)
+	}
 
-	fmt.Fprint(writer, "gameID "+string(result))
+	currentGame := server.games[gameID]
+
+	result, err := json.Marshal(currentGame)
+	if err != nil {
+		fmt.Fprintf(writer, "go fuck yourself %s ! ", gameIDStr)
+	}
+	fmt.Fprint(writer, string(result))
 }
 
 func (server *Server) usersHandler(writer http.ResponseWriter, request *http.Request) {
@@ -89,7 +106,6 @@ func (server *Server) usersHandler(writer http.ResponseWriter, request *http.Req
 }
 
 func (server *Server) userHandler(writer http.ResponseWriter, request *http.Request) {
-
 	vars := mux.Vars(request)
 	gameID := vars["gameId"]
 	userID := vars["userId"]

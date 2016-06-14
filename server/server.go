@@ -63,7 +63,7 @@ func (server *Server) gamesHandler(writer http.ResponseWriter, request *http.Req
 func gameFactory(style string) (result Game, err error) {
 	switch style {
 	case "301":
-		result = NewGame(301)
+		result = NewGamex01(301)
 		return
 	default:
 		err = errors.New("prout")

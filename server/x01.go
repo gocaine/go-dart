@@ -39,6 +39,5 @@ func (game *Gamex01) Start() {
 }
 
 func (game *Gamex01) HandleDart(sector common.Sector) common.GameState {
-
-	return {}
+	return common.GameState{}
 }

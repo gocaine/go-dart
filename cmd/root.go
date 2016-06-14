@@ -18,7 +18,17 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(serverCmd)
 	RootCmd.AddCommand(addPlayerCmd)
+}
+
+var serverCmd = &cobra.Command{
+	Use:   "server",
+	Short: "Start the server",
+	Run: func(cmd *cobra.Command, arg []string) {
+		server := server.NewServer()
+		server.Start()
+	},
 }
 
 var startCmd = &cobra.Command{

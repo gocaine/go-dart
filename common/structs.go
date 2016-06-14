@@ -52,10 +52,8 @@ type GameState struct {
 	CurrentDart   int
 }
 
-func NewGameState() *GameState {
-	g := new(GameState)
-
-	g.Scores = make([]Score, 0, 4)
+func NewGameState() GameState {
+	g := GameState{Scores: make([]Score, 0, 4)}
 
 	return g
 }

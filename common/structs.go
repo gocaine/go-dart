@@ -37,9 +37,25 @@ const (
 
 type Sector struct {
 	Name SectorName
-	Pos SectorPos
+	Pos  SectorPos
+}
+
+type Score struct {
+	Player string
+	Score  int
 }
 
 type GameState struct {
+	Scores        []Score
+	Ongoing       bool
+	CurrentPlayer int
+	CurrentDart   int
+}
 
+func NewGameState() *GameState {
+	g := new(GameState)
+
+	g.Scores = make([]Score, 0, 4)
+
+	return g
 }

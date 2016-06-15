@@ -1,14 +1,13 @@
 package server
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
@@ -23,19 +22,19 @@ func NewServer() *Server {
 
 func (server *Server) Start() {
 	fmt.Println("Ready to Dart !!")
+	r := gin.Default()
 
-	r := mux.NewRouter()
 	// creation du jeu (POST) -  fournit le type de jeu
-	r.HandleFunc("/games", server.gamesHandler).Methods("POST") // retourne un id
+	r.POST("/games", server.createNewGameHandler) // retourne un id
 	// etat du jeu (GET)
-	r.HandleFunc("/games/{gameId}", server.gameHandler).Methods("GET")
-	// creation du joueur (POST) -> retourne joueur
-	r.HandleFunc("/games/{gameId}/user", server.usersHandler).Methods("POST")
-	// etat joueur
-	r.HandleFunc("/games/{gameId}/user/{userId}", server.userHandler).Methods("GET")
-
-	// POST : etat de la flechette
-	r.HandleFunc("/games/{gameId}/dart", server.dartHandler).Methods("POST")
+	r.GET("/games/:gameId", server.findGameByIdHandler)
+	// // creation du joueur (POST) -> retourne joueur
+	r.POST("/games/:gameId/players", server.addPlayerToGameHandler)
+	// // etat joueur
+	// r.GET("/games/{gameId}/user/{userId}", server.userHandler).Methods("GET")
+	//
+	// // POST : etat de la flechette
+	// r.POST("/games/{gameId}/dart", server.dartHandler).Methods("POST")
 
 	http.Handle("/", r)
 
@@ -48,24 +47,23 @@ type gameRepresentation struct {
 }
 
 ///GamesHandler
-func (server *Server) gamesHandler(writer http.ResponseWriter, request *http.Request) {
+func (server *Server) createNewGameHandler(c *gin.Context) {
 	var g gameRepresentation
-	decoder := json.NewDecoder(request.Body)
-	decoder.Decode(&g)
-	nextID := len(server.games) + 1
+	if c.BindJSON(&g) == nil {
+		nextID := len(server.games) + 1
 
-	theGame, err := gameFactory(g.Style)
+		theGame, err := gameFactory(g.Style)
 
-	if err != nil {
-		fmt.Fprintf(writer, "go fuck yourself %s ! ", g.Style)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+			return
+		}
+		server.games[nextID] = theGame
+
+		c.JSON(http.StatusOK, gin.H{"id": nextID, "game": theGame})
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
 	}
-	server.games[nextID] = theGame
-
-	marshal, err := json.Marshal(theGame)
-	if err != nil {
-		fmt.Fprintf(writer, "go fuck yourself %s ! ", g.Style)
-	}
-	fmt.Fprint(writer, string(marshal))
 }
 
 func gameFactory(style string) (result Game, err error) {
@@ -79,42 +77,49 @@ func gameFactory(style string) (result Game, err error) {
 	}
 }
 
-func (server *Server) gameHandler(writer http.ResponseWriter, request *http.Request) {
+func (server *Server) findGameByIdHandler(c *gin.Context) {
+	gameID, err := strconv.Atoi(c.Param("gameId"))
 
-	vars := mux.Vars(request)
-	gameIDStr := vars["gameId"]
-
-	gameID, err := strconv.Atoi(gameIDStr)
 	if err != nil {
-		fmt.Fprintf(writer, "go fuck yourself %s ! ", gameIDStr)
+		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+		return
+	}
+	log.Infof("flushing game w/ id {}", gameID)
+
+	currentGame, ok := server.games[gameID]
+	if !ok {
+		c.JSON(http.StatusNotFound, nil)
+		return
 	}
 
-	currentGame := server.games[gameID]
+	c.JSON(http.StatusOK, gin.H{"game": currentGame})
+}
 
-	result, err := json.Marshal(currentGame)
+type playerRepresentation struct {
+	Name string `json:"name"`
+}
+
+func (server *Server) addPlayerToGameHandler(c *gin.Context) {
+	gameID, err := strconv.Atoi(c.Param("gameId"))
+
 	if err != nil {
-		fmt.Fprintf(writer, "go fuck yourself %s ! ", gameIDStr)
+		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+		return
 	}
-	fmt.Fprint(writer, string(result))
-}
 
-func (server *Server) usersHandler(writer http.ResponseWriter, request *http.Request) {
+	log.Infof("flushing game w/ id {}", gameID)
 
-	vars := mux.Vars(request)
-	gameID := vars["gameID"]
-	fmt.Fprint(writer, "gameID "+gameID)
-}
+	currentGame, ok := server.games[gameID]
+	if !ok {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
 
-func (server *Server) userHandler(writer http.ResponseWriter, request *http.Request) {
-	vars := mux.Vars(request)
-	gameID := vars["gameId"]
-	userID := vars["userId"]
-	fmt.Fprint(writer, "gameID "+gameID+" userId"+userID)
-}
-
-func (server *Server) dartHandler(writer http.ResponseWriter, request *http.Request) {
-
-	vars := mux.Vars(request)
-	gameID := vars["gameId"]
-	fmt.Fprint(writer, "gameID "+gameID+" dart")
+	var p playerRepresentation
+	if c.BindJSON(&p) == nil {
+		currentGame.AddPlayer(p.Name)
+		c.JSON(http.StatusCreated, nil)
+	} else {
+		c.JSON(http.StatusBadRequest, nil)
+	}
 }

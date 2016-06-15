@@ -5,6 +5,17 @@ type Sector struct {
 	Pos int
 }
 
+func (s Sector) IsValid() bool {
+	if s.Val == 0 {
+		return s.Pos == 0
+	} else if s.Val > 0 && s.Val <= 20 {
+		return s.Pos > 0 && s.Pos <= 3
+	} else if s.Val == 25 {
+		return s.Pos == 1 || s.Pos == 2
+	}
+	return false
+}
+
 type Score struct {
 	Player string
 	Score  int

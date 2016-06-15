@@ -49,7 +49,11 @@ func (game *Gamex01) HandleDart(sector common.Sector) *common.GameState {
 		panic("Game is not started or is ended")
 	}
 
-	point := sector.Val * sector.Pos
+	if !sector.IsValid() {
+		panic("Sector is not a valid one")
+	}
+
+	point := int(sector.Val) * int(sector.Pos)
 	game.accu += point
 	state := game.State
 	state.Scores[state.CurrentPlayer].Score -= point
@@ -75,10 +79,10 @@ func (game *Gamex01) winner() {
 	state := game.State
 	state.Scores[state.CurrentPlayer].Rank = game.rank + 1
 	game.rank++
-	if game.rank == len(state.Scores) - 1 {
+	if game.rank == len(state.Scores)-1 {
 		state.Ongoing = false
 		sort.Sort(common.ByRank(state.Scores))
-		state.Scores[len(state.Scores) - 1].Rank = game.rank + 1
+		state.Scores[len(state.Scores)-1].Rank = game.rank + 1
 	}
 }
 

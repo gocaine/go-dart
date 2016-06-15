@@ -2,30 +2,23 @@
 
 # Contributors
 
- - Guillaume GERBAUD
- - Mathieu POUSSE
+- Guillaume GERBAUD
+- Mathieu POUSSE
+- Maximilien RICHER
+- Jeremie HUCHET
 
-# specifications
+# API
 
-// creation du jeu (POST)
-
-r.HandleFunc("/games", GamesHandler) // retourne un id
-
-
-// etat du jeu (GET)
-
-r.HandleFunc("/games/{id}", GamesHandler)
-
-
-// creation du joueur (POST) -> retourne joueur
-
-r.HandleFunc("/games/{id}/user", GamesHandler)
-
-
-// etat joueur
-
-r.HandleFunc("/games/{id}/user/{id}", GamesHandler)
-
-
-// POST : etat de la flechette
-r.HandleFunc("/games/{id}/dart", GamesHandler)
+- Create a game
+  + `POST "/games"`
+  + return game ID
+- Get the current game state
+  + `GET "/games/{id}"
+  + return a GameState
+- Create player
+  + `POST "/games/{id}/user"`
+  + return User ID 
+- Player state 
+  + `GET "/games/{id}/user/{id}"`
+- Dart state
+  + `POST "/games/{id}/dart"`

@@ -1,22 +1,28 @@
 package server
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"go-dart/common"
 	"sort"
-	log "github.com/Sirupsen/logrus"
 )
 
 type Gamex01 struct {
-	score int
-	State *common.GameState
-	accu  int
-	rank  int
+	score     int
+	doubleOut bool
+	State     *common.GameState
+	accu      int
+	rank      int
 }
 
-func NewGamex01(score int) *Gamex01 {
-	g := new(Gamex01)
+type Optionx01 struct {
+	Score     int
+	DoubleOut bool
+}
 
-	g.score = score
+func NewGamex01(opt Optionx01) *Gamex01 {
+	g := new(Gamex01)
+	g.doubleOut = opt.DoubleOut
+	g.score = opt.Score
 	g.State = common.NewGameState()
 
 	return g
@@ -64,7 +70,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) *common.GameState {
 		panic("Sector is not a valid one")
 	}
 
-	point := int(sector.Val) * int(sector.Pos)
+	point := sector.Val * sector.Pos
 	game.accu += point
 	state := game.State
 
@@ -72,10 +78,10 @@ func (game *Gamex01) HandleDart(sector common.Sector) *common.GameState {
 
 	state.Scores[state.CurrentPlayer].Score -= point
 
-	if state.Scores[state.CurrentPlayer].Score > 0 {
+	if state.Scores[state.CurrentPlayer].Score > 0 && (!game.doubleOut || state.Scores[state.CurrentPlayer].Score > 1) {
 		game.nextDart()
 
-	} else if state.Scores[state.CurrentPlayer].Score == 0 {
+	} else if state.Scores[state.CurrentPlayer].Score == 0 && (!game.doubleOut || sector.Pos == 2) {
 		game.winner()
 		if game.State.Ongoing == common.PLAYING {
 			game.nextPlayer()
@@ -93,10 +99,10 @@ func (game *Gamex01) winner() {
 	state := game.State
 	state.Scores[state.CurrentPlayer].Rank = game.rank + 1
 	game.rank++
-	if game.rank == len(state.Scores) - 1 {
+	if game.rank == len(state.Scores)-1 {
 		game.State.Ongoing = common.OVER
 		sort.Sort(common.ByRank(state.Scores))
-		state.Scores[len(state.Scores) - 1].Rank = game.rank + 1
+		state.Scores[len(state.Scores)-1].Rank = game.rank + 1
 	}
 }
 

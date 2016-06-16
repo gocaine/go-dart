@@ -67,7 +67,7 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 func gameFactory(style string) (result Game, err error) {
 	switch style {
 	case "301":
-		result = NewGamex01(301)
+		result = NewGamex01(Optionx01{Score: 301})
 		return
 	default:
 		err = errors.New("prout")
@@ -116,14 +116,14 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	var p playerRepresentation
 	if c.BindJSON(&p) == nil {
 		currentGame.AddPlayer(p.Name)
-		c.JSON(http.StatusCreated, "http://localhost:8080/games/" + strconv.Itoa(gameID) + "/players")
+		c.JSON(http.StatusCreated, "http://localhost:8080/games/"+strconv.Itoa(gameID)+"/players")
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}
 }
 
 type dartRepresentation struct {
-	Sector    int `json:"sector"`
+	Sector     int `json:"sector"`
 	Multiplier int `json:"multiplier"`
 }
 
@@ -145,7 +145,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 
 	var d dartRepresentation
 	if c.BindJSON(&d) == nil {
-		currentGame.HandleDart(common.Sector{Val:d.Sector, Pos:d.Multiplier})
+		currentGame.HandleDart(common.Sector{Val: d.Sector, Pos: d.Multiplier})
 		c.JSON(http.StatusOK, currentGame)
 	} else {
 		c.JSON(http.StatusBadRequest, nil)

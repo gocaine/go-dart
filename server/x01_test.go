@@ -13,10 +13,9 @@ func TestGamex01End(t *testing.T) {
 	game := NewGamex01(1)
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
-	game.Start()
 	state := game.HandleDart(common.Sector{Val: 5, Pos: 1})
 
-	if !state.Ongoing {
+	if state.Ongoing != common.PLAYING {
 		t.Error("Game should not be ended")
 	}
 
@@ -32,7 +31,7 @@ func TestGamex01End(t *testing.T) {
 
 	state = game.HandleDart(common.Sector{Val: 1, Pos: 1})
 
-	if state.Ongoing {
+	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
 	}
 
@@ -53,8 +52,6 @@ func TestGame301(t *testing.T) {
 	game.AddPlayer("Bob")
 	game.AddPlayer("Charly")
 	game.AddPlayer("Dan")
-
-	game.Start()
 
 	// Visit 1, Player 0
 	state := game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -164,7 +161,7 @@ func TestGame301(t *testing.T) {
 	verifyCurrents(state, 1, 1, t)
 	state = game.HandleDart(common.Sector{Val: 5, Pos: 2})
 
-	if state.Ongoing {
+	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
 	}
 

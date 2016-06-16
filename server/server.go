@@ -123,7 +123,7 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 }
 
 type dartRepresentation struct {
-	Section    int `json:"section"`
+	Sector    int `json:"sector"`
 	Multiplier int `json:"multiplier"`
 }
 
@@ -143,12 +143,10 @@ func (server *Server) dartHandler(c *gin.Context) {
 		return
 	}
 
-	currentGame.HandleDart(common.Sector{})
-
 	var d dartRepresentation
 	if c.BindJSON(&d) == nil {
-		currentGame.HandleDart(common.Sector{Val:d.Section, Pos:d.Multiplier})
-		c.JSON(http.StatusCreated, nil)
+		currentGame.HandleDart(common.Sector{Val:d.Sector, Pos:d.Multiplier})
+		c.JSON(http.StatusOK, currentGame)
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}

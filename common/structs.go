@@ -41,9 +41,18 @@ func (r ByRank) Less(i, j int) bool {
 	}
 }
 
+type State int
+
+const (
+	INITIALIZING State = iota
+	READY
+	PLAYING
+	OVER
+)
+
 type GameState struct {
 	Scores        []Score
-	Ongoing       bool
+	Ongoing       State
 	CurrentPlayer int
 	CurrentDart   int
 }
@@ -51,7 +60,7 @@ type GameState struct {
 func NewGameState() *GameState {
 
 	g := new(GameState)
-
+	g.Ongoing = INITIALIZING
 	g.Scores = make([]Score, 0, 4)
 
 	return g

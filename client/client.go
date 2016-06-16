@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -17,15 +18,27 @@ var c = &http.Client{
 }
 
 // Post request on API endpoint and return the answer
-func Post(cmd, body string) (*http.Response, error) {
+func Post(cmd, body string) ([]byte, error) {
 	var endpointURL = "http://" + viper.GetString("server") + "/"
 	resp, err := c.Post(endpointURL+cmd, "application/json", strings.NewReader(body))
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return nil, err
 	}
-	fmt.Printf("%v\n", resp)
-	return resp, nil
+
+	rawBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return nil, err
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return nil, err
+	}
+
+	return rawBody, nil
 }
 
 // Get request on API endpoint and return the answer

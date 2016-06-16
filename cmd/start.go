@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"go-dart/client"
 
@@ -19,7 +20,24 @@ var startCmd = &cobra.Command{
 	},
 }
 
-// Start a new game
+type game struct {
+	ID int
+}
+
+// Start a new game and display the corresponding ID
 func Start(style string) {
-	client.Post("games", "{\"style\": \""+style+"\"}")
+	resp, err := client.Post("games", "{\"style\": \""+style+"\"}")
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+
+	var respJSON game
+	err = json.Unmarshal(resp, &respJSON)
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+
+	fmt.Printf("Game id: %d\n", respJSON.ID)
 }

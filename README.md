@@ -22,3 +22,14 @@
   + `GET "/games/{id}/user/{id}"`
 - Dart state
   + `POST "/games/{id}/dart"`
+
+# Scenario
+
+Create a new game
+
+    curl -X POST -d '{"style": "301"}' http://localhost:8080/games
+
+Add players
+
+    curl -X POST -d '{"name": "player 1"}' http://localhost:8080/games/1/players
+    curl -X POST -d '{"name": "player 2"}' http://localhost:8080/games/1/players

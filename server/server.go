@@ -8,6 +8,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	"go-dart/common"
 )
 
 type Server struct {
@@ -34,12 +35,9 @@ func (server *Server) Start() {
 	// r.GET("/games/{gameId}/user/{userId}", server.userHandler).Methods("GET")
 	//
 	// // POST : etat de la flechette
-	// r.POST("/games/{gameId}/dart", server.dartHandler).Methods("POST")
+	r.POST("/games/:gameId/darts", server.dartHandler)
 
-	http.Handle("/", r)
-
-	log.Println("Start server")
-	http.ListenAndServe(":8080", nil)
+	r.Run(":8080")
 }
 
 type gameRepresentation struct {
@@ -118,6 +116,38 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	var p playerRepresentation
 	if c.BindJSON(&p) == nil {
 		currentGame.AddPlayer(p.Name)
+		c.JSON(http.StatusCreated, "http://localhost:8080/games/" + strconv.Itoa(gameID) + "/players")
+	} else {
+		c.JSON(http.StatusBadRequest, nil)
+	}
+}
+
+type dartRepresentation struct {
+	Section    int `json:"section"`
+	Multiplier int `json:"multiplier"`
+}
+
+func (server *Server) dartHandler(c *gin.Context) {
+	gameID, err := strconv.Atoi(c.Param("gameId"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+		return
+	}
+
+	log.Infof("flushing game w/ id {}", gameID)
+
+	currentGame, ok := server.games[gameID]
+	if !ok {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	currentGame.HandleDart(common.Sector{})
+
+	var d dartRepresentation
+	if c.BindJSON(&d) == nil {
+		currentGame.HandleDart(common.Sector{Val:d.Section, Pos:d.Multiplier})
 		c.JSON(http.StatusCreated, nil)
 	} else {
 		c.JSON(http.StatusBadRequest, nil)

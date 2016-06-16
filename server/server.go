@@ -53,24 +53,34 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 		theGame, err := gameFactory(g.Style)
 
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
 			return
 		}
 		server.games[nextID] = theGame
 
 		c.JSON(http.StatusOK, gin.H{"id": nextID, "game": theGame})
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content"})
 	}
 }
 
 func gameFactory(style string) (result Game, err error) {
 	switch style {
 	case "301":
-		result = NewGamex01(Optionx01{Score: 301})
+		result = NewGamex01(Optionx01{Score: 301, DoubleOut: false})
 		return
+	case "301-double-out":
+		result = NewGamex01(Optionx01{Score: 301, DoubleOut: true})
+		return
+	case "501":
+		result = NewGamex01(Optionx01{Score: 501, DoubleOut: false})
+		return
+	case "501-double-out":
+		result = NewGamex01(Optionx01{Score: 501, DoubleOut: true})
+		return
+
 	default:
-		err = errors.New("prout")
+		err = errors.New("game of type " + style + " is not yet supported")
 		return
 	}
 }
@@ -79,7 +89,7 @@ func (server *Server) findGameByIdHandler(c *gin.Context) {
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
 		return
 	}
 	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
@@ -101,7 +111,7 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
 		return
 	}
 
@@ -116,7 +126,7 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	var p playerRepresentation
 	if c.BindJSON(&p) == nil {
 		currentGame.AddPlayer(p.Name)
-		c.JSON(http.StatusCreated, "http://localhost:8080/games/"+strconv.Itoa(gameID)+"/players")
+		c.JSON(http.StatusCreated, "http://localhost:8080/games/" + strconv.Itoa(gameID) + "/players")
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}
@@ -131,7 +141,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
 		return
 	}
 

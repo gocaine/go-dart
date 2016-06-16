@@ -1,5 +1,6 @@
 #!/bin/bash
 
+curl -X POST -d '{"style": "701"}' http://localhost:8080/games
 curl -X POST -d '{"style": "301"}' http://localhost:8080/games
 
 curl -X POST -d '{"name": "player 1"}' http://localhost:8080/games/1/players

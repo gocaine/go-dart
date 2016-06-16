@@ -21,6 +21,6 @@ func init() {
 	RootCmd.AddCommand(startCmd)
 	RootCmd.AddCommand(userCmd)
 	RootCmd.AddCommand(versionCmd)
-	RootCmd.PersistentFlags().StringP("server", "s", "localhost:80", "Server address")
-	viper.BindPFlag("host", RootCmd.PersistentFlags().Lookup("host"))
+	RootCmd.PersistentFlags().StringP("server", "s", "localhost:8080", "Server address")
+	viper.BindPFlag("server", RootCmd.PersistentFlags().Lookup("server"))
 }

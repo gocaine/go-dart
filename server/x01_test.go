@@ -254,10 +254,8 @@ func TestGame301DoubleOut(t *testing.T) {
 	// Visit 3, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
 	verifyCurrents(state, 1, 1, t)
-	verifyScore(state, 91, 1, t)
 	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 1, 2, t)
-	verifyScore(state, 31, 1, t)
 	state , _= game.HandleDart(common.Sector{Val: 17, Pos: 2})
 
 	if state.Ongoing != common.OVER {

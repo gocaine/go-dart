@@ -82,7 +82,7 @@ func (server *Server) findGameByIdHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"stats": "illegal content"})
 		return
 	}
-	log.Infof("flushing game w/ id {}", gameID)
+	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
 
 	currentGame, ok := server.games[gameID]
 	if !ok {
@@ -135,7 +135,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 		return
 	}
 
-	log.Infof("flushing game w/ id {}", gameID)
+	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
 
 	currentGame, ok := server.games[gameID]
 	if !ok {
@@ -145,8 +145,13 @@ func (server *Server) dartHandler(c *gin.Context) {
 
 	var d dartRepresentation
 	if c.BindJSON(&d) == nil {
-		currentGame.HandleDart(common.Sector{Val: d.Sector, Pos: d.Multiplier})
-		c.JSON(http.StatusOK, currentGame)
+		state, err := currentGame.HandleDart(common.Sector{Val:d.Sector, Pos:d.Multiplier})
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusOK, state)
+		}
+
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}

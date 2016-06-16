@@ -33,3 +33,9 @@ Add players
 
     curl -X POST -d '{"name": "player 1"}' http://localhost:8080/games/1/players
     curl -X POST -d '{"name": "player 2"}' http://localhost:8080/games/1/players
+
+Throw darts
+
+    curl -X POST -d '{"sector": 20, "multiplier": 1}' http://localhost:8080/games/1/darts
+    curl -X POST -d '{"sector": 20, "multiplier": 2}' http://localhost:8080/games/1/darts
+    curl -X POST -d '{"sector": 19, "multiplier": 1}' http://localhost:8080/games/1/darts

@@ -4,6 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"go-dart/common"
 	"sort"
+	"errors"
 )
 
 type Gamex01 struct {
@@ -28,18 +29,19 @@ func NewGamex01(opt Optionx01) *Gamex01 {
 	return g
 }
 
-func (game *Gamex01) AddPlayer(name string) {
+func (game *Gamex01) AddPlayer(name string) (error error) {
 	if game.State.Ongoing == common.INITIALIZING || game.State.Ongoing == common.READY {
-		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game", name)
+		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
 		game.State.Scores = append(game.State.Scores, common.Score{Player: name, Score: game.score})
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
 		game.State.Ongoing = common.READY
 	} else {
-		panic("Game already started")
+		error = errors.New("Game cannot be started")
 	}
+	return
 }
 
-func (game *Gamex01) Start() {
+func (game *Gamex01) Start() (error error) {
 	if game.State.Ongoing == common.READY && len(game.State.Scores) > 0 && game.score > 0 {
 		state := game.State
 		state.Ongoing = common.PLAYING
@@ -50,24 +52,31 @@ func (game *Gamex01) Start() {
 		}
 		log.Infof("The game is now started")
 	} else {
-		panic("Game cannot start")
+		error = errors.New("Game cannot start")
 	}
+	return
 }
 
-func (game *Gamex01) HandleDart(sector common.Sector) *common.GameState {
+func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.State.Ongoing == common.READY {
 		// first dart starts the game
-		game.Start()
+		err := game.Start()
+		if err != nil {
+			error = err
+			return
+		}
 	}
 
 	if game.State.Ongoing != common.PLAYING {
-		panic("Game is not started or is ended")
+		error = errors.New("Game is not started or is ended")
+		return
 	}
 
 	if !sector.IsValid() {
 		log.WithFields(log.Fields{"sector": sector}).Error("Invalid sector")
-		panic("Sector is not a valid one")
+		error = errors.New("Sector is not a valid one")
+		return
 	}
 
 	point := sector.Val * sector.Pos
@@ -91,8 +100,8 @@ func (game *Gamex01) HandleDart(sector common.Sector) *common.GameState {
 		game.resetVisit()
 		game.nextPlayer()
 	}
-
-	return state
+	result = state
+	return
 }
 
 func (game *Gamex01) winner() {

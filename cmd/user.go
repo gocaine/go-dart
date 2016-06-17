@@ -1,25 +1,36 @@
 package cmd
 
 import (
-  "fmt"
-  "net/http"
-  "net/url"
-  "strings"
+	"fmt"
+	"go-dart/client"
+	"strconv"
+
 	"github.com/spf13/cobra"
 )
 
-var userCmd = &cobra.Command{
-	Use:   "user",
+var addPlayerCmd = &cobra.Command{
+	Use:   "addplayer <gameID>",
 	Short: "Add player to existing game",
 	Run: func(cmd *cobra.Command, arg []string) {
-    name := arg[0]
-    endpointUrl := "http://localhost:8080/"
-    endpoint := fmt.Sprintf(endpointUrl+"games/%s/user", url.QueryEscape(name))
-    resp, err := http.Post(endpoint, "application/json", strings.NewReader("gné"))
-    if err != nil {
-      fmt.Printf("%s\n", err)
-    } else {
-      fmt.Printf("%v\n", resp)
-    }
+		if len(arg) < 1 {
+			fmt.Println("Missing argument. Please provide game ID!")
+		} else {
+			gameID := arg[0]
+			if i, err := strconv.Atoi(gameID); err == nil {
+				AddPlayer(i)
+			} else {
+				fmt.Println("Provided <gameID> must be an integer")
+			}
+		}
 	},
+}
+
+// AddPlayer to the game
+func AddPlayer(gameID int) {
+	resp, err := client.Get("game/" + strconv.Itoa(gameID) + "/user")
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+	fmt.Printf("%s\n", string(resp))
 }

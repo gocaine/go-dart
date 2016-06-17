@@ -16,13 +16,13 @@
   + `POST "/games"`
   + return game ID
 - Get the current game state
-  + `GET "/games/{id}"
+  + `GET "/games/{id}"`
   + return a GameState
 - Create player
-  + `POST "/games/{id}/user"`
-  + return User ID 
-- Player state 
-  + `GET "/games/{id}/user/{id}"`
+  + `POST "/games/{id}/players"`
+  + return User ID
+- Player state
+  + `GET "/games/{id}/players/{id}"`
 - Dart state
   + `POST "/games/{id}/dart"`
 

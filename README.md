@@ -1,11 +1,14 @@
 # go-dart
 
+[![Build Status](https://travis-ci.org/Zenika/go-dart.svg?branch=master)](https://travis-ci.org/Zenika/go-dart)
+
 # Contributors
 
 - Guillaume GERBAUD
+- Jeremie HUCHET
 - Mathieu POUSSE
 - Maximilien RICHER
-- Jeremie HUCHET
+- Erwann THEBAULT
 
 # API
 

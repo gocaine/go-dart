@@ -1,0 +1,5 @@
+package: go-dart
+import:
+- package: github.com/Sirupsen/logrus
+- package: github.com/gin-gonic/gin
+- package: github.com/spf13/cobra

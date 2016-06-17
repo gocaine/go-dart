@@ -19,8 +19,8 @@ var RootCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(serverCmd)
 	RootCmd.AddCommand(startCmd)
-	RootCmd.AddCommand(userCmd)
+	RootCmd.AddCommand(addPlayerCmd)
 	RootCmd.AddCommand(versionCmd)
-	RootCmd.PersistentFlags().StringP("server", "s", "localhost:8080", "Server address")
+	RootCmd.PersistentFlags().StringP("server", "s", "http://localhost:8080/", "Server address")
 	viper.BindPFlag("server", RootCmd.PersistentFlags().Lookup("server"))
 }

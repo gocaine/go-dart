@@ -19,7 +19,7 @@ var c = &http.Client{
 
 // Post request on API endpoint and return the answer
 func Post(cmd, body string) ([]byte, error) {
-	var endpointURL = "http://" + viper.GetString("server") + "/"
+	var endpointURL = viper.GetString("server")
 	resp, err := c.Post(endpointURL+cmd, "application/json", strings.NewReader(body))
 	if err != nil {
 		fmt.Printf("%s\n", err)

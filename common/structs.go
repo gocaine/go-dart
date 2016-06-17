@@ -55,6 +55,8 @@ type GameState struct {
 	Ongoing       State
 	CurrentPlayer int
 	CurrentDart   int
+	LastMsg       string
+	LastSector    Sector
 }
 
 func NewGameState() *GameState {

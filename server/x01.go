@@ -1,16 +1,17 @@
 package server
 
 import (
+	"errors"
 	log "github.com/Sirupsen/logrus"
 	"go-dart/common"
 	"sort"
-	"errors"
+	"fmt"
 )
 
 type Gamex01 struct {
+	AGame
 	score     int
 	doubleOut bool
-	State     *common.GameState
 	accu      int
 	rank      int
 }
@@ -83,20 +84,35 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 	game.accu += point
 	state := game.State
 
+	state.LastSector = sector
+
 	log.WithFields(log.Fields{"player": state.CurrentPlayer, "score": point}).Info("Scored")
 
 	state.Scores[state.CurrentPlayer].Score -= point
 
-	if state.Scores[state.CurrentPlayer].Score > 0 && (!game.doubleOut || state.Scores[state.CurrentPlayer].Score > 1) {
-		game.nextDart()
-
-	} else if state.Scores[state.CurrentPlayer].Score == 0 && (!game.doubleOut || sector.Pos == 2) {
-		game.winner()
-		if game.State.Ongoing == common.PLAYING {
+	if state.Scores[state.CurrentPlayer].Score > 0 {
+		if game.doubleOut && state.Scores[state.CurrentPlayer].Score == 1 {
+			state.LastMsg = "You should end with a double"
+			game.resetVisit()
 			game.nextPlayer()
+		} else {
+			game.nextDart()
+		}
+
+	} else if state.Scores[state.CurrentPlayer].Score == 0 {
+		if game.doubleOut && sector.Pos != 2 {
+			state.LastMsg = "You should end with a double"
+			game.resetVisit()
+			game.nextPlayer()
+		} else {
+			game.winner()
+			if game.State.Ongoing == common.PLAYING {
+				game.nextPlayer()
+			}
 		}
 
 	} else {
+		state.LastMsg = "You went beyond the target dude !"
 		game.resetVisit()
 		game.nextPlayer()
 	}
@@ -107,6 +123,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 func (game *Gamex01) winner() {
 	state := game.State
 	state.Scores[state.CurrentPlayer].Rank = game.rank + 1
+	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank + 1)
 	game.rank++
 	if game.rank == len(state.Scores)-1 {
 		game.State.Ongoing = common.OVER

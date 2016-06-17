@@ -42,13 +42,24 @@ func Post(cmd, body string) ([]byte, error) {
 }
 
 // Get request on API endpoint and return the answer
-func Get(cmd, body string) (*http.Response, error) {
+func Get(cmd string) ([]byte, error) {
 	var endpointURL = "http://" + viper.GetString("server") + "/"
 	resp, err := c.Get(endpointURL + cmd)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return nil, err
 	}
-	fmt.Printf("%v\n", resp)
-	return resp, nil
+	rawBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return nil, err
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return nil, err
+	}
+
+	return rawBody, nil
 }

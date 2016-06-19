@@ -75,6 +75,18 @@ func gameFactory(style string) (result Game, err error) {
 	case "501-double-out":
 		result = NewGamex01(Optionx01{Score: 501, DoubleOut: true})
 		return
+	case "highest-3":
+		result = NewGameHighest(OptionHighest{Rounds: 3})
+		return
+	case "highest-5":
+		result = NewGameHighest(OptionHighest{Rounds: 5})
+		return
+	case "countup-300":
+		result = NewGameCountUp(OptionCountUp{Target: 300})
+		return
+	case "countup-900":
+		result = NewGameCountUp(OptionCountUp{Target: 900})
+		return
 
 	default:
 		err = errors.New("game of type " + style + " is not yet supported")

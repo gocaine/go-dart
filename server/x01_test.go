@@ -3,8 +3,6 @@ package server
 import (
 	"fmt"
 	"go-dart/common"
-	"log"
-	"runtime"
 	"testing"
 )
 
@@ -21,7 +19,7 @@ func TestGamex01End(t *testing.T) {
 		t.Error("Game should not be ended")
 	}
 
-	alice := state.Scores[0]
+	alice := state.Players[0]
 
 	if alice.Score != 1 {
 		t.Error("Alice should have the same score : 1")
@@ -37,9 +35,9 @@ func TestGamex01End(t *testing.T) {
 		t.Error("Game should be ended")
 	}
 
-	bob := state.Scores[0]
+	bob := state.Players[0]
 
-	if bob.Player != "Bob" {
+	if bob.Name != "Bob" {
 		t.Error("Bob should be first")
 	}
 
@@ -150,7 +148,7 @@ func TestGame301(t *testing.T) {
 	verifyRank(state, 2, 2, t)
 
 	// Visit 3, Player 3
-	state, _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 3, 1, t)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 3, 2, t)
@@ -166,16 +164,16 @@ func TestGame301(t *testing.T) {
 	verifyScore(state, 11, 1, t)
 
 	// Visit 4, Player 3
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 3, 1, t)
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 3, 2, t)
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 1, 0, t)
 	verifyScore(state, 121, 3, t)
 
 	// Visit 5, Player 1
-	state , _= game.HandleDart(common.Sector{Val: 3, Pos: 2})
+	state, _ = game.HandleDart(common.Sector{Val: 3, Pos: 2})
 	verifyCurrents(state, 1, 1, t)
 	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 1})
 
@@ -209,9 +207,9 @@ func TestGame301DoubleOut(t *testing.T) {
 	game.AddPlayer("Bob")
 
 	// Visit 1, Player 0
-	state , _:= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 0, 1, t)
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 0, 2, t)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 1, 0, t)
@@ -220,43 +218,43 @@ func TestGame301DoubleOut(t *testing.T) {
 	// Visit 1, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
 	verifyCurrents(state, 1, 1, t)
-	state , _= game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
 	verifyCurrents(state, 1, 2, t)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
 	verifyCurrents(state, 0, 0, t)
 	verifyScore(state, 151, 1, t)
 
 	// Visit 2, Player 0
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 0, 1, t)
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 1, 0, t)
 	verifyScore(state, 121, 0, t)
 
 	// Visit 2, Player 1
-	state , _= game.HandleDart(common.Sector{Val: 0, Pos: 0})
+	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
 	verifyCurrents(state, 1, 1, t)
-	state , _= game.HandleDart(common.Sector{Val: 0, Pos: 0})
+	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
 	verifyCurrents(state, 1, 2, t)
-	state , _= game.HandleDart(common.Sector{Val: 0, Pos: 0})
+	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
 	verifyCurrents(state, 0, 0, t)
 	verifyScore(state, 151, 1, t)
 
 	// Visit 3, Player 0
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 0, 1, t)
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
 	verifyCurrents(state, 0, 2, t)
-	state , _= game.HandleDart(common.Sector{Val: 4, Pos: 1})
+	state, _ = game.HandleDart(common.Sector{Val: 4, Pos: 1})
 	verifyCurrents(state, 1, 0, t)
 	verifyScore(state, 121, 0, t)
 
 	// Visit 3, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
 	verifyCurrents(state, 1, 1, t)
-	state , _= game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	verifyCurrents(state, 1, 2, t)
-	state , _= game.HandleDart(common.Sector{Val: 17, Pos: 2})
+	state, _ = game.HandleDart(common.Sector{Val: 17, Pos: 2})
 
 	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
@@ -280,30 +278,20 @@ func verifyCurrents(state *common.GameState, p, d int, t *testing.T) {
 }
 
 func verifyScore(state *common.GameState, score, player int, t *testing.T) {
-	if state.Scores[player].Score != score {
-		fatalStack(t, "Score should be %d but was %d for Player %d", score, state.Scores[player].Score, player)
+	if state.Players[player].Score != score {
+		fatalStack(t, "Score should be %d but was %d for Player %d", score, state.Players[player].Score, player)
 	}
 }
 
 func verifyRank(state *common.GameState, rank, player int, t *testing.T) {
-	if state.Scores[player].Rank != rank {
-		fatalStack(t, "Rank should be %d but was %d for Player %d", rank, state.Scores[player].Rank, player)
+	if state.Players[player].Rank != rank {
+		fatalStack(t, "Rank should be %d but was %d for Player %d", rank, state.Players[player].Rank, player)
 	}
 }
 
 func verifyPlayer(state *common.GameState, name string, player int, t *testing.T) {
-	if state.Scores[player].Player != name {
-		fatalStack(t, "Name should be %s but was %s for Player %d", name, state.Scores[player].Player, player)
+	if state.Players[player].Name != name {
+		fatalStack(t, "Name should be %s but was %s for Player %d", name, state.Players[player].Name, player)
 
 	}
-}
-
-func fatalStack(t *testing.T, format string, args ...interface{}) {
-	//stack trace
-	var stack [4096]byte
-	runtime.Stack(stack[:], false)
-	log.Printf("%s\n", stack[:])
-
-	//fatal error
-	t.Fatalf(format, args...)
 }

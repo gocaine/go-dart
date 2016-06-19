@@ -8,31 +8,28 @@ import (
 	"sort"
 )
 
-type Gamex01 struct {
+type GameCountUp struct {
 	AGame
-	score     int
-	doubleOut bool
-	accu      int
+	target int
 }
 
-type Optionx01 struct {
-	Score     int
-	DoubleOut bool
+type OptionCountUp struct {
+	Target int
 }
 
-func NewGamex01(opt Optionx01) *Gamex01 {
-	g := new(Gamex01)
-	g.doubleOut = opt.DoubleOut
-	g.score = opt.Score
+func NewGameCountUp(opt OptionCountUp) *GameCountUp {
+
+	g := new(GameCountUp)
+	g.target = opt.Target
 	g.State = common.NewGameState()
 
 	return g
 }
 
-func (game *Gamex01) AddPlayer(name string) (error error) {
+func (game *GameCountUp) AddPlayer(name string) (error error) {
 	if game.State.Ongoing == common.INITIALIZING || game.State.Ongoing == common.READY {
 		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
-		game.State.Players = append(game.State.Players, common.PlayerState{Name: name, Score: game.score})
+		game.State.Players = append(game.State.Players, common.PlayerState{Name: name})
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
 		game.State.Ongoing = common.READY
 	} else {
@@ -41,15 +38,16 @@ func (game *Gamex01) AddPlayer(name string) (error error) {
 	return
 }
 
-func (game *Gamex01) Start() (error error) {
-	if game.State.Ongoing == common.READY && len(game.State.Players) > 0 && game.score > 0 {
+func (game *GameCountUp) Start() (error error) {
+	if game.State.Ongoing == common.READY && len(game.State.Players) > 0 {
 		state := game.State
 		state.Ongoing = common.PLAYING
 		state.CurrentPlayer = 0
 		state.CurrentDart = 0
 		for i := range state.Players {
-			state.Players[i].Score = game.score
+			state.Players[i].Score = 0
 		}
+		state.Round = 1
 		log.Infof("The game is now started")
 	} else {
 		error = errors.New("Game cannot start")
@@ -57,7 +55,7 @@ func (game *Gamex01) Start() (error error) {
 	return
 }
 
-func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *GameCountUp) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.State.Ongoing == common.READY {
 		// first dart starts the game
@@ -80,79 +78,47 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 	}
 
 	point := sector.Val * sector.Pos
-	game.accu += point
 	state := game.State
 
 	state.LastSector = sector
 
 	log.WithFields(log.Fields{"player": state.CurrentPlayer, "score": point}).Info("Scored")
 
-	state.Players[state.CurrentPlayer].Score -= point
+	state.Players[state.CurrentPlayer].Score += point
 
-	if state.Players[state.CurrentPlayer].Score > 0 {
-		if game.doubleOut && state.Players[state.CurrentPlayer].Score == 1 {
-			state.LastMsg = "You should end with a double"
-			game.resetVisit()
+	if state.Players[state.CurrentPlayer].Score >= game.target {
+		game.winner()
+		if game.State.Ongoing == common.PLAYING {
 			game.nextPlayer()
-		} else {
-			game.nextDart()
-		}
-
-	} else if state.Players[state.CurrentPlayer].Score == 0 {
-		if game.doubleOut && sector.Pos != 2 {
-			state.LastMsg = "You should end with a double"
-			game.resetVisit()
-			game.nextPlayer()
-		} else {
-			game.winner()
-			if game.State.Ongoing == common.PLAYING {
-				game.nextPlayer()
-			}
 		}
 
 	} else {
-		state.LastMsg = "You went beyond the target dude !"
-		game.resetVisit()
 		game.nextPlayer()
 	}
 	result = state
 	return
 }
 
-func (game *Gamex01) winner() {
+func (game *GameCountUp) winner() {
 	state := game.State
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
 	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
 	game.rank++
-	if game.rank == len(state.Players)-1 {
+	if game.rank >= len(state.Players)-1 {
 		game.State.Ongoing = common.OVER
 		sort.Sort(common.ByRank(state.Players))
-		state.Players[len(state.Players)-1].Rank = game.rank + 1
+		if len(state.Players) > 1 {
+			state.Players[len(state.Players)-1].Rank = game.rank + 1
+		}
 	}
 }
 
-func (game *Gamex01) nextPlayer() {
-	game.accu = 0
+func (game *GameCountUp) nextPlayer() {
 	state := game.State
 	state.CurrentDart = 0
 	state.CurrentPlayer = (state.CurrentPlayer + 1) % len(state.Players)
-	for state.Players[state.CurrentPlayer].Score == 0 {
+	for state.Players[state.CurrentPlayer].Score >= game.target {
 		state.CurrentPlayer = (state.CurrentPlayer + 1) % len(state.Players)
 	}
 	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
-}
-
-func (game *Gamex01) nextDart() {
-	state := game.State
-	if state.CurrentDart == 2 {
-		game.nextPlayer()
-	} else {
-		state.CurrentDart += 1
-		log.WithFields(log.Fields{"player": state.CurrentPlayer, "dart": state.CurrentDart}).Info("One more dart")
-	}
-}
-
-func (game *Gamex01) resetVisit() {
-	state := game.State
-	state.Players[state.CurrentPlayer].Score += game.accu
 }

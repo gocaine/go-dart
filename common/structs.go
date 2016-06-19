@@ -16,14 +16,14 @@ func (s Sector) IsValid() bool {
 	return false
 }
 
-type Score struct {
-	Player string
-	Score  int
-	Rank   int
+type PlayerState struct {
+	Name  string
+	Score int
+	Rank  int
 }
 
-// ByScore implements sort.Interface
-type ByRank []Score
+// ByRank implements sort.Interface
+type ByRank []PlayerState
 
 func (r ByRank) Len() int {
 	return len(r)
@@ -41,6 +41,19 @@ func (r ByRank) Less(i, j int) bool {
 	}
 }
 
+// ByScore implements sort.Interface
+type ByScore []PlayerState
+
+func (r ByScore) Len() int {
+	return len(r)
+}
+func (r ByScore) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+func (r ByScore) Less(i, j int) bool {
+	return r[i].Score > r[j].Score
+}
+
 type State int
 
 const (
@@ -51,19 +64,20 @@ const (
 )
 
 type GameState struct {
-	Scores        []Score
+	Players       []PlayerState
 	Ongoing       State
 	CurrentPlayer int
 	CurrentDart   int
 	LastMsg       string
 	LastSector    Sector
+	Round         int
 }
 
 func NewGameState() *GameState {
 
 	g := new(GameState)
 	g.Ongoing = INITIALIZING
-	g.Scores = make([]Score, 0, 4)
+	g.Players = make([]PlayerState, 0, 4)
 
 	return g
 }

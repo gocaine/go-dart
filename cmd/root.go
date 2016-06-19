@@ -12,15 +12,13 @@ var RootCmd = &cobra.Command{
 	Long: `A better dart game than the chinese one.
 	Complete doc at voir http://github.com/Zenika/go-dart.`,
 	Run: func(cmd *cobra.Command, args []string) {
-
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(serverCmd)
-	//	RootCmd.AddCommand(startCmd)
-	//	RootCmd.AddCommand(addPlayerCmd)
-	//	RootCmd.AddCommand(versionCmd)
-	RootCmd.PersistentFlags().StringP("host", "h", "http://localhost:8080/", "Server address")
+	RootCmd.AddCommand(sampleCmd)
+	RootCmd.AddCommand(versionCmd)
+	RootCmd.PersistentFlags().StringP("server", "s", "http://localhost:8080/", "Server address")
 	viper.BindPFlag("server", RootCmd.PersistentFlags().Lookup("server"))
 }

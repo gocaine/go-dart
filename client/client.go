@@ -1,65 +1,81 @@
 package client
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
+	"go-dart/common"
 	"net/http"
-	"strings"
 	"time"
 
+	"github.com/dghubble/sling"
 	"github.com/spf13/viper"
 )
 
-var c = &http.Client{
-	Transport:     nil,
-	CheckRedirect: nil,
-	Jar:           nil,
-	Timeout:       time.Second * 3,
+type DartClient struct {
+	base *sling.Sling
 }
 
-// Post request on API endpoint and return the answer
-func Post(cmd, body string) ([]byte, error) {
+func NewClient() *DartClient {
+
+	var c = &http.Client{
+		Transport:     nil,
+		CheckRedirect: nil,
+		Jar:           nil,
+		Timeout:       time.Second * 3,
+	}
+
 	var endpointURL = viper.GetString("server")
-	resp, err := c.Post(endpointURL+cmd, "application/json", strings.NewReader(body))
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return nil, err
-	}
-
-	rawBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return nil, err
-	}
-
-	err = resp.Body.Close()
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return nil, err
-	}
-
-	return rawBody, nil
+	client := DartClient{}
+	client.base = sling.New().Base(endpointURL).Client(c)
+	return &client
 }
 
-// Get request on API endpoint and return the answer
-func Get(cmd string) ([]byte, error) {
-	var endpointURL = "http://" + viper.GetString("server") + "/"
-	resp, err := c.Get(endpointURL + cmd)
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return nil, err
-	}
-	rawBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return nil, err
-	}
+func (client *DartClient) CreateGame(style string) (response GameResponse, err error) {
+	var failure Failure
+	game := common.GameRepresentation{Style: style}
+	rawResponse, err := client.base.New().Post("games").BodyJSON(game).Receive(&response, &failure)
+	err = client.manageFailure(rawResponse, failure, err)
+	return
+}
 
-	err = resp.Body.Close()
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return nil, err
-	}
+func (client *DartClient) GetState(gameId int) (response GameResponse, err error) {
+	var failure Failure
+	path := fmt.Sprintf("games/%d", gameId)
+	rawResponse, err := client.base.New().Get(path).Receive(&response, &failure)
+	err = client.manageFailure(rawResponse, failure, err)
+	return
+}
 
-	return rawBody, nil
+func (client *DartClient) CreatePlayer(gameId int, name string) (resource string, err error) {
+	var failure Failure
+	player := common.PlayerRepresentation{Name: name}
+
+	path := fmt.Sprintf("games/%d/players", gameId)
+	rawResponse, err := client.base.New().Post(path).BodyJSON(player).Receive(&resource, &failure)
+	err = client.manageFailure(rawResponse, failure, err)
+	return
+}
+
+func (client *DartClient) FireDart(gameId int, sector int, multiplier int) (state common.GameState, err error) {
+	var failure Failure
+	dartRep := common.DartRepresentation{Sector: sector, Multiplier: multiplier}
+
+	path := fmt.Sprintf("games/%d/darts", gameId)
+	rawResponse, err := client.base.New().Post(path).BodyJSON(dartRep).Receive(&state, &failure)
+	err = client.manageFailure(rawResponse, failure, err)
+	return
+}
+
+//manageFailure convert server failure or error into error
+// if no failure is returned and no 200 HTTP code, an error is returned
+//FIXME manage other good HTTP status code
+func (client *DartClient) manageFailure(rawResponse *http.Response, failure Failure, err error) error {
+	if rawResponse.StatusCode >= 400 && failure.Status == "" {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(rawResponse.Body)
+		return fmt.Errorf("Technical error -> http code  %d, response %s ", rawResponse.StatusCode, buf.String())
+	} else if failure.Status != "" {
+		return fmt.Errorf("Status : %s, Error :  %s", failure.Status, failure.Error)
+	}
+	return nil
 }

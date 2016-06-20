@@ -10,6 +10,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Display version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("go-dart v0.0 HACKATON")
+		fmt.Println("go-dart v1.0")
 	},
 }

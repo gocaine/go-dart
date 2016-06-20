@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"go-dart/common"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	"go-dart/common"
 )
 
 type Server struct {
@@ -40,13 +41,9 @@ func (server *Server) Start() {
 	r.Run(":8080")
 }
 
-type gameRepresentation struct {
-	Style string `json:"style"`
-}
-
 ///GamesHandler
 func (server *Server) createNewGameHandler(c *gin.Context) {
-	var g gameRepresentation
+	var g common.GameRepresentation
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
 
@@ -103,10 +100,6 @@ func (server *Server) findGameByIdHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"game": currentGame})
 }
 
-type playerRepresentation struct {
-	Name string `json:"name"`
-}
-
 func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
@@ -123,18 +116,13 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 		return
 	}
 
-	var p playerRepresentation
+	var p common.PlayerRepresentation
 	if c.BindJSON(&p) == nil {
 		currentGame.AddPlayer(p.Name)
-		c.JSON(http.StatusCreated, "http://localhost:8080/games/" + strconv.Itoa(gameID) + "/players")
+		c.JSON(http.StatusCreated, "http://localhost:8080/games/"+strconv.Itoa(gameID)+"/players")
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}
-}
-
-type dartRepresentation struct {
-	Sector     int `json:"sector"`
-	Multiplier int `json:"multiplier"`
 }
 
 func (server *Server) dartHandler(c *gin.Context) {
@@ -151,11 +139,12 @@ func (server *Server) dartHandler(c *gin.Context) {
 	if !ok {
 		c.JSON(http.StatusNotFound, nil)
 		return
+
 	}
 
-	var d dartRepresentation
+	var d common.DartRepresentation
 	if c.BindJSON(&d) == nil {
-		state, err := currentGame.HandleDart(common.Sector{Val:d.Sector, Pos:d.Multiplier})
+		state, err := currentGame.HandleDart(common.Sector{Val: d.Sector, Pos: d.Multiplier})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {

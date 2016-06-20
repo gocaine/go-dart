@@ -2,3 +2,5 @@ go-dart
 .idea
 /go-dart.iml
 *.lock
+vendor
+

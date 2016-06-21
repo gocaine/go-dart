@@ -43,6 +43,35 @@ func TestGamex01End(t *testing.T) {
 
 }
 
+func TestGamex01SoloEnd(t *testing.T) {
+	fmt.Println()
+	fmt.Println("TestGamex01SoloEnd")
+
+	game := NewGamex01(Optionx01{Score: 501, DoubleOut: true})
+	game.AddPlayer("Jack")
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 19, Pos: 3})
+	state, _ := game.HandleDart(common.Sector{Val: 12, Pos: 2})
+
+	if state.Ongoing != common.OVER {
+		t.Error("Game should be Over")
+	}
+
+	ps := state.Players[0]
+
+	AssertScore(t, ps, 0)
+	AssertRank(t, ps, 1)
+}
+
 func TestGame301(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301")

@@ -124,10 +124,12 @@ func (game *Gamex01) winner() {
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
 	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
 	game.rank++
-	if game.rank == len(state.Players)-1 {
+	if game.rank >= len(state.Players)-1 {
 		game.State.Ongoing = common.OVER
 		sort.Sort(common.ByRank(state.Players))
-		state.Players[len(state.Players)-1].Rank = game.rank + 1
+		if len(state.Players) > 1 {
+			state.Players[len(state.Players)-1].Rank = game.rank + 1
+		}
 	}
 }
 

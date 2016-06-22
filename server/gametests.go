@@ -25,6 +25,12 @@ func AssertName(t *testing.T, ps common.PlayerState, name string) {
 	}
 }
 
+func AssertCurrents(t *testing.T, state *common.GameState, p, d int) {
+	if state.CurrentPlayer != p || state.CurrentDart != d {
+		fatalStack(t, "Player should be %d and Dart %d, but was %d and %d -- %+v", p, d, state.CurrentPlayer, state.CurrentDart, state)
+	}
+}
+
 func fatalStack(t *testing.T, format string, args ...interface{}) {
 	//stack trace
 	var stack [4096]byte

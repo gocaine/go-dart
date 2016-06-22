@@ -84,146 +84,146 @@ func TestGame301(t *testing.T) {
 
 	// Visit 1, Player 0
 	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 0, 1, t)
+	AssertCurrents(t, state, 0, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 0, 2, t)
+	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 121, 0, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[0], 121)
 
 	// Visit 1, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	verifyCurrents(state, 1, 1, t)
+	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	verifyCurrents(state, 1, 2, t)
+	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	verifyCurrents(state, 2, 0, t)
-	verifyScore(state, 151, 1, t)
+	AssertCurrents(t, state, 2, 0)
+	AssertScore(t, state.Players[1], 151)
 
 	// Visit 1, Player 2
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 2})
-	verifyCurrents(state, 2, 1, t)
+	AssertCurrents(t, state, 2, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 2, 2, t)
+	AssertCurrents(t, state, 2, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	verifyCurrents(state, 3, 0, t)
-	verifyScore(state, 213, 2, t)
+	AssertCurrents(t, state, 3, 0)
+	AssertScore(t, state.Players[2], 213)
 
 	// Visit 1, Player 3
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 3, 1, t)
+	AssertCurrents(t, state, 3, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 3, 2, t)
+	AssertCurrents(t, state, 3, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 0, 0, t)
-	verifyScore(state, 301, 3, t)
+	AssertCurrents(t, state, 0, 0)
+	AssertScore(t, state.Players[3], 301)
 
 	// Visit 2, Player 0
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 0, 1, t)
+	AssertCurrents(t, state, 0, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 7, Pos: 3})
-	verifyCurrents(state, 0, 2, t)
+	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 2})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 0, 0, t)
-	verifyRank(state, 1, 0, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[0], 0)
+	AssertRank(t, state.Players[0], 1)
 
 	// Visit 2, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 1, t)
-	verifyScore(state, 91, 1, t)
+	AssertCurrents(t, state, 1, 1)
+	AssertScore(t, state.Players[1], 91)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 2, t)
-	verifyScore(state, 31, 1, t)
+	AssertCurrents(t, state, 1, 2)
+	AssertScore(t, state.Players[1], 31)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 2})
-	verifyCurrents(state, 2, 0, t)
-	verifyScore(state, 151, 1, t)
+	AssertCurrents(t, state, 2, 0)
+	AssertScore(t, state.Players[1], 151)
 
 	// Visit 2, Player 2
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 2, 1, t)
+	AssertCurrents(t, state, 2, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 2, 2, t)
+	AssertCurrents(t, state, 2, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 3, 0, t)
-	verifyScore(state, 33, 2, t)
+	AssertCurrents(t, state, 3, 0)
+	AssertScore(t, state.Players[2], 33)
 
 	// Visit 2, Player 3
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 3, 1, t)
+	AssertCurrents(t, state, 3, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 3, 2, t)
+	AssertCurrents(t, state, 3, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 301, 3, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[3], 301)
 
 	// Visit 3, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 1, t)
+	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 2, t)
+	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 1})
-	verifyCurrents(state, 2, 0, t)
-	verifyScore(state, 11, 1, t)
+	AssertCurrents(t, state, 2, 0)
+	AssertScore(t, state.Players[1], 11)
 
 	// Visit 3, Player 2
 	state, _ = game.HandleDart(common.Sector{Val: 10, Pos: 3})
-	verifyCurrents(state, 2, 1, t)
+	AssertCurrents(t, state, 2, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 1})
-	verifyCurrents(state, 2, 2, t)
+	AssertCurrents(t, state, 2, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 2})
-	verifyCurrents(state, 3, 0, t)
-	verifyScore(state, 0, 2, t)
-	verifyRank(state, 2, 2, t)
+	AssertCurrents(t, state, 3, 0)
+	AssertScore(t, state.Players[2], 0)
+	AssertRank(t, state.Players[2], 2)
 
 	// Visit 3, Player 3
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 3, 1, t)
+	AssertCurrents(t, state, 3, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 3, 2, t)
+	AssertCurrents(t, state, 3, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 121, 3, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[3], 121)
 
 	// Visit 4, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 3})
-	verifyCurrents(state, 1, 1, t)
+	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 2})
-	verifyCurrents(state, 3, 0, t)
-	verifyScore(state, 11, 1, t)
+	AssertCurrents(t, state, 3, 0)
+	AssertScore(t, state.Players[1], 11)
 
 	// Visit 4, Player 3
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 3, 1, t)
+	AssertCurrents(t, state, 3, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 3, 2, t)
+	AssertCurrents(t, state, 3, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 121, 3, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[3], 121)
 
 	// Visit 5, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 3, Pos: 2})
-	verifyCurrents(state, 1, 1, t)
+	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 1})
 
 	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
 	}
 
-	verifyScore(state, 0, 0, t)
-	verifyScore(state, 0, 1, t)
-	verifyScore(state, 0, 2, t)
-	verifyScore(state, 121, 3, t)
+	AssertScore(t, state.Players[0], 0)
+	AssertScore(t, state.Players[1], 0)
+	AssertScore(t, state.Players[2], 0)
+	AssertScore(t, state.Players[3], 121)
 
-	verifyRank(state, 1, 0, t)
-	verifyRank(state, 2, 1, t)
-	verifyRank(state, 3, 2, t)
-	verifyRank(state, 4, 3, t)
+	AssertRank(t, state.Players[0], 1)
+	AssertRank(t, state.Players[1], 2)
+	AssertRank(t, state.Players[2], 3)
+	AssertRank(t, state.Players[3], 4)
 
-	verifyPlayer(state, "Alice", 0, t)
-	verifyPlayer(state, "Charly", 1, t)
-	verifyPlayer(state, "Bob", 2, t)
-	verifyPlayer(state, "Dan", 3, t)
+	AssertName(t, state.Players[0], "Alice")
+	AssertName(t, state.Players[1], "Charly")
+	AssertName(t, state.Players[2], "Bob")
+	AssertName(t, state.Players[3], "Dan")
 
 }
 
@@ -237,90 +237,65 @@ func TestGame301DoubleOut(t *testing.T) {
 
 	// Visit 1, Player 0
 	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 0, 1, t)
+	AssertCurrents(t, state, 0, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 0, 2, t)
+	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 121, 0, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[0], 121)
 
 	// Visit 1, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	verifyCurrents(state, 1, 1, t)
+	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	verifyCurrents(state, 1, 2, t)
+	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	verifyCurrents(state, 0, 0, t)
-	verifyScore(state, 151, 1, t)
+	AssertCurrents(t, state, 0, 0)
+	AssertScore(t, state.Players[1], 151)
 
 	// Visit 2, Player 0
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 0, 1, t)
+	AssertCurrents(t, state, 0, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 121, 0, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[0], 121)
 
 	// Visit 2, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 1, 1, t)
+	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 1, 2, t)
+	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	verifyCurrents(state, 0, 0, t)
-	verifyScore(state, 151, 1, t)
+	AssertCurrents(t, state, 0, 0)
+	AssertScore(t, state.Players[1], 151)
 
 	// Visit 3, Player 0
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 0, 1, t)
+	AssertCurrents(t, state, 0, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
-	verifyCurrents(state, 0, 2, t)
+	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 4, Pos: 1})
-	verifyCurrents(state, 1, 0, t)
-	verifyScore(state, 121, 0, t)
+	AssertCurrents(t, state, 1, 0)
+	AssertScore(t, state.Players[0], 121)
 
 	// Visit 3, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
-	verifyCurrents(state, 1, 1, t)
+	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	verifyCurrents(state, 1, 2, t)
+	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 17, Pos: 2})
 
 	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
 	}
 
-	verifyScore(state, 0, 0, t)
-	verifyScore(state, 121, 1, t)
+	AssertScore(t, state.Players[0], 0)
+	AssertScore(t, state.Players[1], 121)
 
-	verifyRank(state, 1, 0, t)
-	verifyRank(state, 2, 1, t)
+	AssertRank(t, state.Players[0], 1)
+	AssertRank(t, state.Players[1], 2)
 
-	verifyPlayer(state, "Bob", 0, t)
-	verifyPlayer(state, "Alice", 1, t)
+	AssertName(t, state.Players[0], "Bob")
+	AssertName(t, state.Players[1], "Alice")
 
-}
-
-func verifyCurrents(state *common.GameState, p, d int, t *testing.T) {
-	if state.CurrentPlayer != p || state.CurrentDart != d {
-		fatalStack(t, "Player should be %d and Dart %d, but was %d and %d -- %+v", p, d, state.CurrentPlayer, state.CurrentDart, state)
-	}
-}
-
-func verifyScore(state *common.GameState, score, player int, t *testing.T) {
-	if state.Players[player].Score != score {
-		fatalStack(t, "Score should be %d but was %d for Player %d", score, state.Players[player].Score, player)
-	}
-}
-
-func verifyRank(state *common.GameState, rank, player int, t *testing.T) {
-	if state.Players[player].Rank != rank {
-		fatalStack(t, "Rank should be %d but was %d for Player %d", rank, state.Players[player].Rank, player)
-	}
-}
-
-func verifyPlayer(state *common.GameState, name string, player int, t *testing.T) {
-	if state.Players[player].Name != name {
-		fatalStack(t, "Name should be %s but was %s for Player %d", name, state.Players[player].Name, player)
-
-	}
 }

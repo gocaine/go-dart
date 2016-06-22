@@ -93,7 +93,7 @@ func (game *GameCountUp) HandleDart(sector common.Sector) (result *common.GameSt
 		}
 
 	} else {
-		game.nextPlayer()
+		game.nextDart()
 	}
 	result = state
 	return

@@ -9,7 +9,7 @@ import (
 
 func AssertScore(t *testing.T, ps common.PlayerState, target int) {
 	if ps.Score != target {
-		fatalStack(t, "Player score should be %d but was %d", target, ps.Score)
+		fatalStack(t, "Player score should be %d but was %d -- %+v", target, ps.Score, ps)
 	}
 }
 
@@ -29,6 +29,19 @@ func AssertCurrents(t *testing.T, state *common.GameState, p, d int) {
 	if state.CurrentPlayer != p || state.CurrentDart != d {
 		fatalStack(t, "Player should be %d and Dart %d, but was %d and %d -- %+v", p, d, state.CurrentPlayer, state.CurrentDart, state)
 	}
+}
+
+func AssertEquals(t *testing.T, expected, actual interface{}) {
+	if actual != expected {
+		fatalStack(t, "Expected : %+v, Was : %+v", expected, actual)
+	}
+}
+
+func AssertGameState(t *testing.T, state *common.GameState, expected common.State) {
+	if state.Ongoing != expected {
+		fatalStack(t, "Game state should be %d but was %d -- %+v", expected, state.Ongoing, state)
+	}
+
 }
 
 func fatalStack(t *testing.T, format string, args ...interface{}) {

@@ -87,7 +87,15 @@ func gameFactory(style string) (result Game, err error) {
 	case "countup-900":
 		result = NewGameCountUp(OptionCountUp{Target: 900})
 		return
-
+	case "cricket":
+		result = NewGameCricket(OptionCricket{})
+		return
+	case "cut-throat-cricket":
+		result = NewGameCricket(OptionCricket{CutThroat: true})
+		return
+	case "no-score-cricket":
+		result = NewGameCricket(OptionCricket{NoScore: true})
+		return
 	default:
 		err = errors.New("game of type " + style + " is not yet supported")
 		return

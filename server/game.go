@@ -69,5 +69,12 @@ func (game *AGame) nextPlayer() {
 		state.CurrentPlayer = 0
 		state.Round++
 	}
+	for state.Players[state.CurrentPlayer].Rank > 0 {
+		state.CurrentPlayer = state.CurrentPlayer + 1
+		if state.CurrentPlayer >= len(state.Players) {
+			state.CurrentPlayer = 0
+			state.Round++
+		}
+	}
 	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
 }

@@ -24,23 +24,29 @@ func NewServer() *Server {
 
 func (server *Server) Start() {
 	fmt.Println("Ready to Dart !!")
-	r := gin.Default()
+	engine := gin.Default()
+	apiRouter := engine.Group("api")
 
 	// les styles de jeu possibles
-	r.GET("/styles", server.getStylesHandler) // retourne la liste des styles
+	apiRouter.GET("/styles", server.getStylesHandler) // retourne la liste des styles
 	// creation du jeu (POST) -  fournit le type de jeu
-	r.POST("/games", server.createNewGameHandler) // retourne un id
+	apiRouter.POST("/games", server.createNewGameHandler) // retourne un id
 	// etat du jeu (GET)
-	r.GET("/games/:gameId", server.findGameByIdHandler)
+	apiRouter.GET("/games/:gameId", server.findGameByIdHandler)
 	// // creation du joueur (POST) -> retourne joueur
-	r.POST("/games/:gameId/players", server.addPlayerToGameHandler)
+	apiRouter.POST("/games/:gameId/players", server.addPlayerToGameHandler)
 	// // etat joueur
 	// r.GET("/games/{gameId}/user/{userId}", server.userHandler).Methods("GET")
 	//
 	// // POST : etat de la flechette
-	r.POST("/games/:gameId/darts", server.dartHandler)
+	apiRouter.POST("/games/:gameId/darts", server.dartHandler)
 
-	r.Run(":8080")
+	engine.Any("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "web")
+	})
+	engine.Static("web", "./webapp/dist")
+
+	engine.Run(":8080")
 }
 
 ///GamesHandler
@@ -57,7 +63,7 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 		}
 		server.games[nextID] = theGame
 
-		c.JSON(http.StatusOK, gin.H{"id": nextID, "game": theGame})
+		c.JSON(http.StatusCreated, gin.H{"id": nextID, "game": theGame})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content"})
 	}
@@ -173,7 +179,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
-			c.JSON(http.StatusOK, state)
+			c.JSON(http.StatusOK, gin.H{"state": state})
 		}
 
 	} else {

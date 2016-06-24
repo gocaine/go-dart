@@ -58,15 +58,25 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
 
+	AssertCurrents(t, game.State, 0, 0)
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.State, 0, 1)
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.State, 0, 2)
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.State, 1, 0)
+
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.State, 0, 0)
+
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 0, Pos: 0})
+	AssertCurrents(t, game.State, 1, 0)
+
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})

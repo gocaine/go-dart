@@ -25,18 +25,6 @@ func NewGameHighest(opt OptionHighest) *GameHighest {
 	return g
 }
 
-func (game *GameHighest) AddPlayer(name string) (error error) {
-	if game.State.Ongoing == common.INITIALIZING || game.State.Ongoing == common.READY {
-		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
-		game.State.Players = append(game.State.Players, common.PlayerState{Name: name})
-		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
-		game.State.Ongoing = common.READY
-	} else {
-		error = errors.New("Game cannot be started")
-	}
-	return
-}
-
 func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.State.Ongoing == common.READY {
@@ -90,26 +78,5 @@ func (game *GameHighest) winner() {
 		for i := 0; i < len(state.Players); i++ {
 			state.Players[i].Rank = i + 1
 		}
-	}
-}
-
-func (game *GameHighest) nextPlayer() {
-	state := game.State
-	state.CurrentDart = 0
-	state.CurrentPlayer = state.CurrentPlayer + 1
-	if state.CurrentPlayer >= len(state.Players) {
-		state.CurrentPlayer = 0
-		state.Round++
-	}
-	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
-}
-
-func (game *GameHighest) nextDart() {
-	state := game.State
-	if state.CurrentDart == 2 {
-		game.nextPlayer()
-	} else {
-		state.CurrentDart += 1
-		log.WithFields(log.Fields{"player": state.CurrentPlayer, "dart": state.CurrentDart}).Info("One more dart")
 	}
 }

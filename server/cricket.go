@@ -29,6 +29,13 @@ func NewGameCricket(opt OptionCricket) *GameCricket {
 	g.noScore = opt.NoScore
 	g.cutThroat = opt.CutThroat
 	g.State = common.NewGameState()
+	dStyle := "Cricket"
+	if opt.CutThroat {
+		dStyle = "Cut-Throat Cricket"
+	} else if opt.NoScore {
+		dStyle = "No Score Cricket"
+	}
+	g.DisplayStyle = dStyle
 	g.memory = make(map[string]int)
 
 	return g

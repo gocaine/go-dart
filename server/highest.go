@@ -5,6 +5,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"go-dart/common"
 	"sort"
+	"fmt"
 )
 
 type GameHighest struct {
@@ -21,6 +22,8 @@ func NewGameHighest(opt OptionHighest) *GameHighest {
 	g := new(GameHighest)
 	g.rounds = opt.Rounds
 	g.State = common.NewGameState()
+
+	g.DisplayStyle = fmt.Sprintf("%d visits HighScore", opt.Rounds)
 
 	return g
 }

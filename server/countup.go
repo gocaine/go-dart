@@ -23,6 +23,8 @@ func NewGameCountUp(opt OptionCountUp) *GameCountUp {
 	g.target = opt.Target
 	g.State = common.NewGameState()
 
+	g.DisplayStyle = fmt.Sprintf("Count-Up %d", opt.Target)
+
 	return g
 }
 

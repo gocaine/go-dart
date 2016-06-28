@@ -82,3 +82,25 @@ func NewGameState() *GameState {
 
 	return g
 }
+
+type GameStyle struct {
+	Code string
+	Desc string
+}
+
+var (
+	GS_301    GameStyle = GameStyle{"301", "301"}
+	GS_301_DO GameStyle = GameStyle{"301-double-out", "301 Double-Out"}
+	GS_501    GameStyle = GameStyle{"501", "501"}
+	GS_501_DO GameStyle = GameStyle{"501-double-out", "501 Double-Out"}
+	GS_HIGH_3 GameStyle = GameStyle{"highest-3", "3 visits HighScore"}
+	GS_HIGH_5 GameStyle = GameStyle{"highest-5", "5 visits HighScore"}
+	GS_COUNTUP_300 GameStyle = GameStyle{"countup-300", "Count-Up 300"}
+	GS_COUNTUP_500 GameStyle = GameStyle{"countup-500", "Count-Up 500"}
+	GS_COUNTUP_900 GameStyle = GameStyle{"countup-900", "Count-Up 900"}
+	GS_CRICKET GameStyle = GameStyle{"cricket", "Cricket"}
+	GS_CRICKET_CUTTHROAT GameStyle = GameStyle{"cut-throat-cricket", "CutThroat Cricket"}
+	GS_CRICKET_NOSCORE GameStyle = GameStyle{"no-score-cricket", "No Score Cricket"}
+)
+
+var GS_STYLES = [...]GameStyle{GS_301, GS_301_DO, GS_501, GS_501_DO, GS_HIGH_3, GS_HIGH_5, GS_COUNTUP_300, GS_COUNTUP_500, GS_COUNTUP_900, GS_CRICKET, GS_CRICKET_CUTTHROAT, GS_CRICKET_NOSCORE}

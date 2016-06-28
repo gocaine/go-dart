@@ -14,8 +14,9 @@ type Game interface {
 }
 
 type AGame struct {
-	State *common.GameState
-	rank  int
+	State        *common.GameState
+	DisplayStyle string
+	rank         int
 }
 
 func (game *AGame) GetState() *common.GameState {

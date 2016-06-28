@@ -26,6 +26,12 @@ func NewGamex01(opt Optionx01) *Gamex01 {
 	g.score = opt.Score
 	g.State = common.NewGameState()
 
+	dStyle := ""
+	if opt.DoubleOut {
+		dStyle = " Double-Out"
+	}
+	g.DisplayStyle = fmt.Sprintf("%d%s", opt.Score, dStyle)
+
 	return g
 }
 

@@ -26,6 +26,8 @@ func (server *Server) Start() {
 	fmt.Println("Ready to Dart !!")
 	r := gin.Default()
 
+	// les styles de jeu possibles
+	r.GET("/styles", server.getStylesHandler) // retourne la liste des styles
 	// creation du jeu (POST) -  fournit le type de jeu
 	r.POST("/games", server.createNewGameHandler) // retourne un id
 	// etat du jeu (GET)
@@ -63,37 +65,40 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 
 func gameFactory(style string) (result Game, err error) {
 	switch style {
-	case "301":
+	case common.GS_301.Code:
 		result = NewGamex01(Optionx01{Score: 301, DoubleOut: false})
 		return
-	case "301-double-out":
+	case common.GS_301_DO.Code:
 		result = NewGamex01(Optionx01{Score: 301, DoubleOut: true})
 		return
-	case "501":
+	case common.GS_501.Code:
 		result = NewGamex01(Optionx01{Score: 501, DoubleOut: false})
 		return
-	case "501-double-out":
+	case common.GS_501_DO.Code:
 		result = NewGamex01(Optionx01{Score: 501, DoubleOut: true})
 		return
-	case "highest-3":
+	case common.GS_HIGH_3.Code:
 		result = NewGameHighest(OptionHighest{Rounds: 3})
 		return
-	case "highest-5":
+	case common.GS_HIGH_5.Code:
 		result = NewGameHighest(OptionHighest{Rounds: 5})
 		return
-	case "countup-300":
+	case common.GS_COUNTUP_300.Code:
 		result = NewGameCountUp(OptionCountUp{Target: 300})
 		return
-	case "countup-900":
+	case common.GS_COUNTUP_500.Code:
+		result = NewGameCountUp(OptionCountUp{Target: 500})
+		return
+	case common.GS_COUNTUP_900.Code:
 		result = NewGameCountUp(OptionCountUp{Target: 900})
 		return
-	case "cricket":
+	case common.GS_CRICKET.Code:
 		result = NewGameCricket(OptionCricket{})
 		return
-	case "cut-throat-cricket":
+	case common.GS_CRICKET_CUTTHROAT.Code:
 		result = NewGameCricket(OptionCricket{CutThroat: true})
 		return
-	case "no-score-cricket":
+	case common.GS_CRICKET_NOSCORE.Code:
 		result = NewGameCricket(OptionCricket{NoScore: true})
 		return
 	default:
@@ -174,4 +179,9 @@ func (server *Server) dartHandler(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}
+}
+
+func (server *Server) getStylesHandler(c *gin.Context) {
+
+	c.JSON(http.StatusOK, gin.H{"styles": common.GS_STYLES})
 }

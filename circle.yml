@@ -1,0 +1,28 @@
+machine:
+  node:
+    version: 5.1.0
+  environment:
+    GOPATH: $GOPATH:$HOME/$CIRCLE_PROJECT_REPONAME
+dependencies:
+  pre:
+    - npm install -g bower
+    - yes | sudo add-apt-repository ppa:masterminds/glide && sudo apt-get update
+    - sudo apt-get install glide
+    - go get golang.org/x/tools/cmd/cover
+    - go get github.com/mattn/goveralls
+    - go get github.com/mjibson/esc
+  override:
+    - npm install webapp
+    #- bower install
+    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && glide install
+  post:
+    #- esc -o server/statics.go -pkg="server" -prefix="webapp/dist" webapp/dist
+    - go build -v main.go # statics.go
+test:
+  pre:
+    - go vet $(glide novendor)
+  override:
+    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && go test -v $(glide novendor)
+    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && go test -v -covermode=count -coverprofile=coverage.out ./server/
+  post:
+    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && goveralls -coverprofile=coverage.out -service=circle-ci -repotoken=JCX7F5QsfvcK7eodbMPFPmmR43uoX7oSM

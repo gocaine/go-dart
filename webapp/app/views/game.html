@@ -30,6 +30,9 @@
 </div>
   <br>
 </div>
+<div ng-show="game.State.Ongoing == 3">
+  <a type="button" class="btn btn-success btn" ng-href="#/game/new">New Game</a>
+</div>
 
 <h4>Players</h4><hr>
 <ng-form ng-show="game.State.Ongoing < 2">

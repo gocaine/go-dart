@@ -44,7 +44,7 @@ func (server *Server) Start() {
 	engine.Any("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "web")
 	})
-	engine.Static("web", "./webapp/dist")
+	engine.StaticFS("web", FS(false))
 
 	engine.Run(":8080")
 }

@@ -5,10 +5,30 @@
 # Contributors
 
 - Guillaume GERBAUD
-- Jeremie HUCHET
 - Mathieu POUSSE
-- Maximilien RICHER
 - Erwann THEBAULT
+- Jeremie HUCHET
+- Maximilien RICHER
+
+# Bundle resources
+
+First generate resources
+
+```
+cd webapp
+#npm install
+docker run --rm -v $PWD:/data ggerbaud/node-bower-grunt:5 npm install
+# bower install
+docker run --rm -v $PWD:/data ggerbaud/node-bower-grunt:5 bower install
+# grunt build
+docker run --rm -v $PWD:/data ggerbaud/node-bower-grunt:5 grunt build
+```
+
+Then generate bundle
+
+`esc -o server/statics.go -pkg="server" -prefix="webapp/dist" webapp/dist`
+
+(esc should be in $GOPATH/bin)
 
 # API
 

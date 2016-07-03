@@ -4,3 +4,4 @@ go-dart
 *.lock
 vendor
 
+/server/statics.go

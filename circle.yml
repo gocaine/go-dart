@@ -2,7 +2,7 @@ machine:
   node:
     version: 5.1.0
   environment:
-    GOPATH: $GOPATH:$HOME/$CIRCLE_PROJECT_REPONAME
+    GOPATH: $HOME
 dependencies:
   pre:
     - npm install -g bower

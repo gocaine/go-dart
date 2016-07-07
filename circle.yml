@@ -14,7 +14,7 @@ dependencies:
   override:
     - npm install webapp
     #- bower install
-    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && glide install
+    - cd $HOME/$CIRCLE_PROJECT_REPONAME && glide install
   post:
     #- esc -o server/statics.go -pkg="server" -prefix="webapp/dist" webapp/dist
     - go build -v main.go # statics.go

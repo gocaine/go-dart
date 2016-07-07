@@ -22,7 +22,7 @@ test:
   pre:
     - go vet $(glide novendor)
   override:
-    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && go test -v $(glide novendor)
-    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && go test -v -covermode=count -coverprofile=coverage.out ./server/
+    - go test -v $(glide novendor)
+    - go test -v -covermode=count -coverprofile=coverage.out ./server/
   post:
-    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && goveralls -coverprofile=coverage.out -service=circle-ci -repotoken=JCX7F5QsfvcK7eodbMPFPmmR43uoX7oSM
+    - goveralls -coverprofile=coverage.out -service=circle-ci -repotoken=JCX7F5QsfvcK7eodbMPFPmmR43uoX7oSM

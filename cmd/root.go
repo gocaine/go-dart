@@ -19,6 +19,7 @@ func init() {
 	RootCmd.AddCommand(serverCmd)
 	RootCmd.AddCommand(sampleCmd)
 	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(hardwareCmd())
 	RootCmd.PersistentFlags().StringP("server", "s", "http://localhost:8080/", "Server address")
 	viper.BindPFlag("server", RootCmd.PersistentFlags().Lookup("server"))
 }

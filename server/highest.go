@@ -2,10 +2,10 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"go-dart/common"
 	"sort"
-	"fmt"
 )
 
 type GameHighest struct {

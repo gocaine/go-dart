@@ -3,15 +3,14 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 )
 
 // RootCmd is the default command
 var RootCmd = &cobra.Command{
-	Use:   "go-dart",
-	Short: "go-dart is cool",
-	Long: `A better dart game than the chinese one.
-	Complete doc at voir http://github.com/Zenika/go-dart.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Usage()
+		os.Exit(-1)
 	},
 }
 

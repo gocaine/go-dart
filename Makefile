@@ -1,3 +1,6 @@
+VERSION=0.1.0-alpha
+PROJECT_URL=https://github.com/gocaine/go-dart
+
 # Go parameters
 GOCMD=go
 GOBUILD=$(GOCMD) build
@@ -8,30 +11,46 @@ GODEP=$(GOTEST) -i
 GOFMT=gofmt -w
 
 TOPLEVEL_PKG=go-dart
-GOARGS=GOARCH=arm GOOS=linux
+GCGLAGS=
+GOARGS=
 DIST=dist
 BINARY=go-dart
 TARGET=$(DIST)/$(BINARY)
+LDFLAGS=-ldflags "-X go-dart/cmd.GitHash=`git rev-parse HEAD` -X go-dart/cmd.BuildDate=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -X go-dart/cmd.Version=$(VERSION) -X go-dart/cmd.ProjectUrl=$(PROJECT_URL)"
+
+SOURCES=$(shell git ls-files '*.go')
 
 # Set the pi user
 RPI_USER?=pi
 # Set the rpi ip address to hostname rpi in /etc/hosts
 RPI=rpi
-all: build
 
-local:
-	$(eval GOARGS = )
-	$(eval BIN_ARGS = "hardware" )
+all: clean format build test
 
-run-client: build
-	$(TARGET) $(BIN_ARGS)
+bootstrap:
+	glide install
+	go get -u -v github.com/golang/lint/golint
 
-run-server: build
-	$(TARGET) $(BIN_ARGS) server
+clean:
+	if [ -f ${TARGET} ] ; then rm ${TARGET} ; fi
+
+verbose:
+	$(eval GCGLAGS=-x -gcflags=-m)
+
+arm:
+	$(eval GOARGS=GOARCH=arm GOOS=linux)
+
+test:
+	$(GOTEST) -v `glide novendor`
+
+format:
+	gofmt -s -l -w $(SOURCES)
 
 build:
 	mkdir -p $(DIST)
-	$(GOARGS) $(GOBUILD) -o $(TARGET) $(TOPLEVEL_PKG)
+	$(GOARGS) $(GOBUILD) $(LDFLAGS) $(GCGLAGS) -o $(TARGET) $(TOPLEVEL_PKG)
 
-deploy: build
+deploy: arm clean build
 	scp shell/clean-i2c.sh $(TARGET) $(RPI_USER)@$(RPI):~/
+
+.PHONY: arm clean

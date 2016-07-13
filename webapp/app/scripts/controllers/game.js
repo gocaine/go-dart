@@ -8,7 +8,7 @@
  * Controller of the gdApp
  */
 angular.module('gdApp')
-  .controller('GameCtrl', ['$scope', '$routeParams', 'game', 'dataService', function ($scope, $routeParams, game, dataService) {
+  .controller('GameCtrl', ['$scope', '$routeParams', '$timeout', 'game', 'dataService', function ($scope, $routeParams, $timeout, game, dataService) {
 
     $scope.debug = true;
     $scope.dart = {Val: 20, Pos: 3};
@@ -32,8 +32,8 @@ angular.module('gdApp')
     $scope.game = game;
 
     $scope.getDarts = function (p) {
-      if (game.State.CurrentPlayer === p) {
-        return new Array(game.State.CurrentDart + 1);
+      if ($scope.game.State.CurrentPlayer === p) {
+        return new Array($scope.game.State.CurrentDart + 1);
       }
       return [];
     };
@@ -70,17 +70,34 @@ angular.module('gdApp')
         );
     };
 
+    var cancelled = false;
+    var timer;
     var refresh = function () {
       dataService
         .game($routeParams.id)
         .then(
           function (game) {
             $scope.game = game;
+            timeout();
           },
           function (failure) {
             $scope.alerts.push({type: 'danger', msg: failure});
+            timeout();
           }
         );
     };
+
+    var timeout = function () {
+      if(!cancelled) {
+        $timeout.cancel(timer);
+        timer = $timeout(refresh, 2000);
+      }
+    };
+
+    $scope.$on('$destroy', function () {
+      cancelled = true;
+      $timeout.cancel(timer);
+    });
+    timeout();
 
   }]);

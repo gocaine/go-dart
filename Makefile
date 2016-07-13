@@ -30,6 +30,7 @@ all: clean format build test
 bootstrap:
 	glide install
 	go get -u -v github.com/golang/lint/golint
+	go get -u github.com/jteeuwen/go-bindata/...
 
 clean:
 	if [ -f ${TARGET} ] ; then rm ${TARGET} ; fi
@@ -46,7 +47,10 @@ test:
 format:
 	gofmt -s -l -w $(SOURCES)
 
-build:
+generate:
+	$(GOCMD) generate
+
+build: generate
 	mkdir -p $(DIST)
 	$(GOARGS) $(GOBUILD) $(LDFLAGS) $(GCGLAGS) -o $(TARGET) $(TOPLEVEL_PKG)
 

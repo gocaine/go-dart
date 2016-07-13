@@ -7,8 +7,10 @@ import (
 	"strconv"
 
 	"go-dart/common"
+	"go-dart/server/autogen"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,9 +24,14 @@ func NewServer() *Server {
 	return server
 }
 
+// Start prepares and start the web server
 func (server *Server) Start() {
 	fmt.Println("Ready to Dart !!")
 	engine := gin.Default()
+
+	assetsRouter := engine.Group("/")
+	assetsRouter.StaticFS("/", &assetfs.AssetFS{Asset: autogen.Asset, AssetDir: autogen.AssetDir, AssetInfo: autogen.AssetInfo, Prefix: ""})
+
 	apiRouter := engine.Group("api")
 
 	// les styles de jeu possibles
@@ -44,7 +51,6 @@ func (server *Server) Start() {
 	engine.Any("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "web")
 	})
-	engine.StaticFS("web", FS(false))
 
 	engine.Run(":8080")
 }

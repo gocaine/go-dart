@@ -17,7 +17,8 @@ dependencies:
     - rm -rf  $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
     - mkdir -p $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
     - cp -r $HOME/$CIRCLE_PROJECT_REPONAME $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
-    - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && glide install
+    - ls -la  $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
+    - cd $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && glide install
   post:
     #- esc -o server/statics.go -pkg="server" -prefix="webapp/dist" webapp/dist
     - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && go build -v main.go # statics.go

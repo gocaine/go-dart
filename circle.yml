@@ -14,6 +14,7 @@ dependencies:
   override:
     - npm install webapp
     #- bower install
+    - rm -rf  $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
     - ln -sf $HOME/$CIRCLE_PROJECT_REPONAME $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
     - cd ~/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && glide install
   post:

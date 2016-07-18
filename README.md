@@ -8,29 +8,16 @@
 - Guillaume GERBAUD
 - Mathieu POUSSE
 - Erwann THEBAULT
-- Jeremie HUCHET
-- Maximilien RICHER
 
-# Bundle resources
+# Build
 
-First generate resources
+First of all, ensure you have checked out the project your `${GOPATH}/github.com/gocaine/go-dart`.
 
-```
-cd webapp
-#npm install
-docker run --rm -v $PWD:/data ggerbaud/node-bower-grunt:5 npm install
-# bower install
-docker run --rm -v $PWD:/data ggerbaud/node-bower-grunt:5 bower install
-# grunt build
-docker run --rm -v $PWD:/data ggerbaud/node-bower-grunt:5 grunt build
-```
+Simply run the command `make binary`
 
-Then generate bundle
+As the build process relies on docker, please first configure it on your local.
 
-`esc -o server/statics.go -pkg="server" -prefix="webapp/dist" webapp/dist`
-
-(esc should be in $GOPATH/bin)
-
+If you don't want to use docker, simply run `make dev binary` rely on your local version of `go` and `npm`.
 
 ## Contributors
 

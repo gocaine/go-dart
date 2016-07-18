@@ -1,4 +1,4 @@
 #!/bin/bash -e
 
-go test -v -covermode=count -coverprofile=coverage.out ./server/
-goveralls -coverprofile=coverage.out -service=circle-ci -repotoken=JCX7F5QsfvcK7eodbMPFPmmR43uoX7oSM
+mkdir -p reports
+go test -v -covermode=count -coverprofile=reports/coverage.out ./server/

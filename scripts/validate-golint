@@ -1,16 +1,15 @@
 #!/bin/bash -e
 
-source "$(dirname "$BASH_SOURCE")/.validate"
-
 IFS=' '
 SOURCES=( $(git ls-files '*.go') )
 unset IFS
 
 errors=()
 for f in ${SOURCES[@]}; do
-	failedVet=$(go vet "$f")
-	if [ "$failedVet" ]; then
-		errors+=( "$failedVet" )
+	# we use "git show" here to validate that what's committed passes go vet
+	failedLint=$(golint "$f")
+	if [ "$failedLint" ]; then
+		errors+=( "$failedLint" )
 	fi
 done
 
@@ -18,12 +17,12 @@ if [ ${#errors[@]} -eq 0 ]; then
 	echo 'Congratulations!  All Go source files have been linted.'
 else
 	{
-		echo "Errors from govet:"
+		echo "Errors from golint:"
 		for err in "${errors[@]}"; do
 			echo "$err"
 		done
 		echo
-		echo 'Please fix the above errors. You can test via "go vet" and commit the result.'
+		echo 'Please fix the above errors. You can test via "golint" and commit the result.'
 		echo
 	} >&2
 	false

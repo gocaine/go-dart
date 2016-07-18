@@ -11,7 +11,5 @@ install:
   - make binary
 
 script:
-  - make test
-  
-after_success:
-  - goveralls -coverprofile=coverage.out -service=travis-ci
+  - make test-coverage
+  - bash <(curl -s https://codecov.io/bash) -s reports

@@ -4,3 +4,4 @@ go-dart
 vendor
 /server/autogen/statics.go
 *.log
+reports

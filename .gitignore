@@ -3,5 +3,4 @@ go-dart
 /go-dart.iml
 *.lock
 vendor
-
 /server/autogen/statics.go

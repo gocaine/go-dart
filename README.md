@@ -1,7 +1,7 @@
 # go-dart
 
 [![Build Status](https://travis-ci.org/gocaine/go-dart.svg?branch=master)](https://travis-ci.org/gocaine/go-dart)
-Prepare circle ci
+[![Coverage Status](https://coveralls.io/repos/github/gocaine/go-dart/badge.svg?branch=master)](https://coveralls.io/github/gocaine/go-dart?branch=master)
 
 # Authors
 
@@ -69,3 +69,4 @@ Throw darts
     curl -X POST -d '{"sector": 20, "multiplier": 1}' http://localhost:8080/games/1/darts
     curl -X POST -d '{"sector": 20, "multiplier": 2}' http://localhost:8080/games/1/darts
     curl -X POST -d '{"sector": 19, "multiplier": 1}' http://localhost:8080/games/1/darts
+

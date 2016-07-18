@@ -1,6 +1,7 @@
 # go-dart
 
 [![Build Status](https://travis-ci.org/gocaine/go-dart.svg?branch=master)](https://travis-ci.org/gocaine/go-dart)
+Prepare circle ci
 
 # Authors
 

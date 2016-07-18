@@ -1,0 +1,18 @@
+#!/bin/bash -e
+
+if ! test -e server/autogen/statics.go; then
+	echo >&2 'error: generate must be run before binary'
+	false
+fi
+
+if [ -z "$VERSION"]; then
+	VERSION=0.1.0-alpha
+fi
+
+if [ -z "$PROJECT_URL"]; then
+	PROJECT_URL=https://github.com/gocaine/go-dart
+fi
+
+rm -f dist/go-dart
+
+go build -ldflags "-X github.com/gocaine/go-dart/cmd.GitHash=`git rev-parse HEAD` -X github.com/gocaine/go-dart/cmd.BuildDate=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -X github.com/gocaine/go-dart/cmd.Version=$VERSION -X github.com/gocaine/go-dart/cmd.ProjectUrl=$PROJECT_URL" -o dist/go-dart

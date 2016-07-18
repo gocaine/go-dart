@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -9,7 +10,7 @@ import (
 // RootCmd is the default command
 var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Usage()
+		fmt.Printf("%s", cmd.UsageTemplate())
 		os.Exit(-1)
 	},
 }

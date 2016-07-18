@@ -1,8 +1,8 @@
-package: go-dart
+package: github.com/gocaine/go-dart
 import:
 - package: github.com/Sirupsen/logrus
 - package: github.com/gin-gonic/gin
 - package: github.com/spf13/cobra
 - package: github.com/dghubble/sling
 - package: github.com/kidoman/embd
-- package: github.com/mjibson/esc
+- package: github.com/elazarl/go-bindata-assetfs

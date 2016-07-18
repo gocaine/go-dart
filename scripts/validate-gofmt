@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+gofmt -s -l -w $(glide novendor --no-subdir)

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"go-dart/common"
-	"go-dart/server/autogen"
+	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/server/autogen"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/elazarl/go-bindata-assetfs"

@@ -3,7 +3,7 @@ package client
 import (
 	"bytes"
 	"fmt"
-	"go-dart/common"
+	"github.com/gocaine/go-dart/common"
 	"net/http"
 	"time"
 

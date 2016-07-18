@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"go-dart/client"
-	"go-dart/hardware"
+	"github.com/gocaine/go-dart/client"
+	"github.com/gocaine/go-dart/hardware"
 
 	"github.com/spf13/cobra"
 

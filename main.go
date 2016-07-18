@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"go-dart/cmd"
+	"github.com/gocaine/go-dart/cmd"
 	"os"
 )
 

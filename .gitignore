@@ -4,3 +4,4 @@ go-dart
 *.lock
 vendor
 /server/autogen/statics.go
+*.log

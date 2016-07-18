@@ -2,19 +2,20 @@ machine:
   node:
     version: 5.1.0
 dependencies:
+  cache_directories:
+    - "webapp/bower_components"
+    - "webapp/node_modules"
   pre:
-    - npm install -g bower
+    - npm install -g bower grunt
     - yes | sudo add-apt-repository ppa:masterminds/glide && sudo apt-get update
     - sudo apt-get install glide
     - go get golang.org/x/tools/cmd/cover
     - go get github.com/mattn/goveralls
-    - go get github.com/mjibson/esc
+    - go get github.com/jteeuwen/go-bindata/...
   override:
-    - npm install webapp
-    #- bower install
+    - cd webapp && ls -al && npm install && bower install && cd ..
     - rm -rf  $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
-    - mkdir -p $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
-    - cp -r $HOME/$CIRCLE_PROJECT_REPONAME/* $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
+    - cp -pr $HOME/$CIRCLE_PROJECT_REPONAME $HOME/.go_workspace/src/
     - ls -la  $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME
     - cd $HOME/.go_workspace/src/$CIRCLE_PROJECT_REPONAME && glide install
   post:

@@ -47,7 +47,10 @@ test:
 format:
 	gofmt -s -l -w $(SOURCES)
 
-generate:
+build-web:
+	cd webapp && grunt build
+
+generate: build-web
 	$(GOCMD) generate
 
 build: generate

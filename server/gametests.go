@@ -1,7 +1,7 @@
 package server
 
 import (
-	"go-dart/common"
+	"github.com/gocaine/go-dart/common"
 	"log"
 	"runtime"
 	"testing"

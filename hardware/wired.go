@@ -3,7 +3,7 @@ package hardware
 import (
 	"time"
 
-	"go-dart/common"
+	"github.com/gocaine/go-dart/common"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/kidoman/embd"

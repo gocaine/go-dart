@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-	"go-dart/hardware"
+	"github.com/gocaine/go-dart/hardware"
 
 	log "github.com/Sirupsen/logrus"
 )

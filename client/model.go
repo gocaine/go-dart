@@ -1,6 +1,6 @@
 package client
 
-import "go-dart/common"
+import "github.com/gocaine/go-dart/common"
 
 //Failure is structure for failure response
 type Failure struct {

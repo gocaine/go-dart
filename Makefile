@@ -1,56 +1,37 @@
 VERSION=0.1.0-alpha
 PROJECT_URL=https://github.com/gocaine/go-dart
 
-# Go parameters
-GOCMD=go
-GOBUILD=$(GOCMD) build
-GOCLEAN=$(GOCMD) clean
-GOINSTALL=$(GOCMD) install
-GOTEST=$(GOCMD) test
-GODEP=$(GOTEST) -i
-GOFMT=gofmt -w
-
-TOPLEVEL_PKG=go-dart
-GCGLAGS=
-GOARGS=
-DIST=dist
-BINARY=go-dart
-TARGET=$(DIST)/$(BINARY)
-LDFLAGS=-ldflags "-X go-dart/cmd.GitHash=`git rev-parse HEAD` -X go-dart/cmd.BuildDate=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -X go-dart/cmd.Version=$(VERSION) -X go-dart/cmd.ProjectUrl=$(PROJECT_URL)"
-
 SOURCES=$(shell git ls-files '*.go')
+GO_DART_BUILD_IMAGE=go-dart.build:latest
+GO_DART_RUN_IMAGE=docker run --rm go-dart.build:latest
+
+GO_DART_UI_RUN_IMAGE=docker run --rm -v $(PWD)/webapp:/data ggerbaud/node-bower-grunt:5
 
 # Set the pi user
 RPI_USER?=pi
 # Set the rpi ip address to hostname rpi in /etc/hosts
 RPI=rpi
 
-all: clean format build test
+all: binary
 
-bootstrap:
-	glide install
-	go get -u -v github.com/golang/lint/golint
-
-clean:
-	if [ -f ${TARGET} ] ; then rm ${TARGET} ; fi
-
-verbose:
-	$(eval GCGLAGS=-x -gcflags=-m)
-
-arm:
-	$(eval GOARGS=GOARCH=arm GOOS=linux)
+binary: go-dart.ui.make go-dart.make
 
 test:
-	$(GOTEST) -v `glide novendor`
+	$(GO_DART_RUN_IMAGE) scripts/make.sh generate test-unit
 
-format:
-	gofmt -s -l -w $(SOURCES)
+go-dart.build-image:
+	docker build -t $(GO_DART_BUILD_IMAGE) -f Dockerfile.build .
 
-build:
-	mkdir -p $(DIST)
-	$(GOARGS) $(GOBUILD) $(LDFLAGS) $(GCGLAGS) -o $(TARGET) $(TOPLEVEL_PKG)
+go-dart.make: go-dart.build-image
+	$(GO_DART_RUN_IMAGE) scripts/make.sh generate binary
 
-deploy: arm clean build
-	scp shell/clean-i2c.sh $(TARGET) $(RPI_USER)@$(RPI):~/
+go-dart.ui.build-image:
+	echo "using remote image"
 
-.PHONY: arm clean
+go-dart.ui.make: go-dart.ui.build-image
+	$(GO_DART_UI_RUN_IMAGE) npm install && \
+	$(GO_DART_UI_RUN_IMAGE)  bower install && \
+	$(GO_DART_UI_RUN_IMAGE)  grunt build
+
+deploy:
+	scp shell/clean-i2c.sh dist/go-dart $(RPI_USER)@$(RPI):~/

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"go-dart/client"
+	"github.com/gocaine/go-dart/client"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"

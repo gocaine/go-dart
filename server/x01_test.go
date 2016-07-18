@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"go-dart/common"
+	"github.com/gocaine/go-dart/common"
 	"testing"
 )
 

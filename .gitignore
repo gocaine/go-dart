@@ -1,6 +1,6 @@
 go-dart
 .idea
 /go-dart.iml
-*.lock
 vendor
-
+/server/autogen/statics.go
+*.log

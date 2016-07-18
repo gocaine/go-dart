@@ -29,9 +29,6 @@ func (server *Server) Start() {
 	fmt.Println("Ready to Dart !!")
 	engine := gin.Default()
 
-	assetsRouter := engine.Group("/")
-	assetsRouter.StaticFS("/", &assetfs.AssetFS{Asset: autogen.Asset, AssetDir: autogen.AssetDir, AssetInfo: autogen.AssetInfo, Prefix: ""})
-
 	apiRouter := engine.Group("api")
 
 	// les styles de jeu possibles
@@ -47,6 +44,9 @@ func (server *Server) Start() {
 	//
 	// // POST : etat de la flechette
 	apiRouter.POST("/games/:gameId/darts", server.dartHandler)
+
+	assetsRouter := engine.Group("/web")
+	assetsRouter.StaticFS("/", &assetfs.AssetFS{Asset: autogen.Asset, AssetDir: autogen.AssetDir, AssetInfo: autogen.AssetInfo, Prefix: "webapp/dist"})
 
 	engine.Any("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "web")

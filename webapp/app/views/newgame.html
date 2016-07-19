@@ -9,3 +9,8 @@
 <div class="row">
   <div ng-repeat="s in styles"><button type="button" class="btn btn-success btn-lg  btn-block" ng-click="newGame(s.Code)">{{s.Desc}}</button><br/></div>
 </div>
+
+<div class="row">
+  <h2>Or join</h2>
+  <div ng-repeat="g in games"><button type="button" class="btn btn-success btn-lg  btn-block" ng-click="joinGame(g)">{{g}}</button><br/></div>
+</div>

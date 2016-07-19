@@ -1,3 +1,10 @@
 #!/bin/bash -e
 
-gofmt -s -l -w $(glide novendor --no-subdir)
+IFS=' '
+SOURCES=( $(git ls-files '*.go') )
+unset IFS
+
+errors=()
+for f in ${SOURCES[@]}; do
+    gofmt -s -l -w $f
+done

@@ -1,8 +1,8 @@
 FROM golang:1.6.2
 
 RUN go get github.com/Masterminds/glide \
-&& go get github.com/jteeuwen/go-bindata/... \
-&& go get github.com/golang/lint/golint
+ && go get github.com/jteeuwen/go-bindata/... \
+ && go get github.com/golang/lint/golint
 
 WORKDIR /go/src/github.com/gocaine/go-dart
 

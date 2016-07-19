@@ -2,36 +2,71 @@ VERSION=0.1.0-alpha
 PROJECT_URL=https://github.com/gocaine/go-dart
 
 SOURCES=$(shell git ls-files '*.go')
-GO_DART_BUILD_IMAGE=go-dart.build:latest
-GO_DART_RUN_IMAGE=docker run --rm go-dart.build:latest
 
-GO_DART_UI_RUN_IMAGE=docker run --rm -v $(PWD)/webapp:/data ggerbaud/node-bower-grunt:5
+BUILD_IMAGE=go-dart.build:latest
+RUN_IMAGE=docker run --rm -v $(CURDIR)/reports:/go/src/github.com/gocaine/go-dart/reports go-dart.build:latest
+
+UI_BUILD_IMAGE=ggerbaud/node-bower-grunt:5
+UI_RUN_IMAGE=docker run --rm -v $(PWD)/webapp:/data $(UI_BUILD_IMAGE)
+UI_RUN_PRESTEP=
 
 # Set the pi user
 RPI_USER?=pi
 # Set the rpi ip address to hostname rpi in /etc/hosts
 RPI=rpi
 
+PHONY: dev
+
+dev:
+	@echo "Configuring dev build..."
+	$(eval USE_LOCAL=local)
+	$(eval RUN_IMAGE :=)
+	$(eval UI_RUN_IMAGE :=)
+	$(eval UI_RUN_PRESTEP := cd webapp &&)
+
+
 all: binary
 
-binary: go-dart.ui.make go-dart.make
+mock.ui: 
+	mkdir -p webapp/dist
+	echo "void starts here" > webapp/dist/index.html
 
-test:
-	$(GO_DART_RUN_IMAGE) scripts/make.sh generate test-unit
+binary-noui: mock.ui build.go ## package the core w/o ui
 
-go-dart.build-image:
-	docker build -t $(GO_DART_BUILD_IMAGE) -f Dockerfile.build .
+binary: build.ui build.go ## package the webui and the core
 
-go-dart.make: go-dart.build-image
-	$(GO_DART_RUN_IMAGE) scripts/make.sh generate binary
+test: ## run all tests
+	$(RUN_IMAGE) scripts/make.sh generate test-unit
 
-go-dart.ui.build-image:
-	echo "using remote image"
+test-coverage: ## run all tests w/ coverage
+	$(RUN_IMAGE) scripts/make.sh generate test-coverage
 
-go-dart.ui.make: go-dart.ui.build-image
-	$(GO_DART_UI_RUN_IMAGE) npm install && \
-	$(GO_DART_UI_RUN_IMAGE)  bower install && \
-	$(GO_DART_UI_RUN_IMAGE)  grunt build
+test-coverage-report:
+	$(RUN_IMAGE) scripts/make.sh generate test-coverage-report
 
-deploy:
+build.go-image:
+	@if [ "$(USE_LOCAL)" != "local" ]; then \
+		docker build -t $(BUILD_IMAGE) -f Dockerfile.build . ;\
+	fi
+
+build.go: build.go-image
+	$(RUN_IMAGE) scripts/make.sh generate binary
+
+build.ui-image:
+	@if [ "$(USE_LOCAL)" != "local" ]; then \
+		echo "using remote image" ;\
+	fi
+
+build.ui: build.ui-image
+	$(UI_RUN_PRESTEP) $(UI_RUN_IMAGE) npm install && \
+	$(UI_RUN_IMAGE)  bower install && \
+	$(UI_RUN_IMAGE)  grunt build
+
+validate:
+	scripts/make.sh validate-gofmt validate-govet validate-golint
+
+deploy: ## actually deploy on rpi
 	scp shell/clean-i2c.sh dist/go-dart $(RPI_USER)@$(RPI):~/
+
+help: ## this help
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)

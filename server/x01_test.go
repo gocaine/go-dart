@@ -2,15 +2,16 @@ package server
 
 import (
 	"fmt"
-	"github.com/gocaine/go-dart/common"
 	"testing"
+
+	"github.com/gocaine/go-dart/common"
 )
 
 func TestGamex01End(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01End")
 
-	game := NewGamex01(Optionx01{Score: 1})
+	game := NewGamex01("test_board", Optionx01{Score: 1})
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
 	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
@@ -47,7 +48,7 @@ func TestGamex01SoloEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01SoloEnd")
 
-	game := NewGamex01(Optionx01{Score: 501, DoubleOut: true})
+	game := NewGamex01("test_board", Optionx01{Score: 501, DoubleOut: true})
 	game.AddPlayer("Jack")
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -76,7 +77,7 @@ func TestGame301(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301")
 
-	game := NewGamex01(Optionx01{Score: 301})
+	game := NewGamex01("test_board", Optionx01{Score: 301})
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
 	game.AddPlayer("Charly")
@@ -231,7 +232,7 @@ func TestGame301DoubleOut(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301DoubleOut")
 
-	game := NewGamex01(Optionx01{Score: 301, DoubleOut: true})
+	game := NewGamex01("test_board", Optionx01{Score: 301, DoubleOut: true})
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
 

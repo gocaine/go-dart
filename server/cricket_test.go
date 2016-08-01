@@ -2,15 +2,16 @@ package server
 
 import (
 	"fmt"
-	"github.com/gocaine/go-dart/common"
 	"testing"
+
+	"github.com/gocaine/go-dart/common"
 )
 
 func TestRegular2Players(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestRegular2Players")
 
-	game := NewGameCricket(OptionCricket{})
+	game := NewGameCricket("test_board", OptionCricket{})
 
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
@@ -100,7 +101,7 @@ func TestCutThroat3Players(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestCutThroat3Players")
 
-	game := NewGameCricket(OptionCricket{CutThroat: true})
+	game := NewGameCricket("test_board", OptionCricket{CutThroat: true})
 
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")

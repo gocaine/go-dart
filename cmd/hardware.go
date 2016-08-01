@@ -5,6 +5,7 @@ import (
 	"github.com/gocaine/go-dart/hardware"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"os"
 	"os/signal"
@@ -68,6 +69,9 @@ func hardwareCmd() *cobra.Command {
 
 	hardwareCmd.Flags().BoolP("no-wire", "m", false, "mock the hardware (for dev pupose only)")
 	hardwareCmd.Flags().Bool("no-server", false, "mock the server (for dev pupose only)")
+
+	hardwareCmd.Flags().StringP("board", "b", "test", "name of the board")
+	viper.BindPFlag("board", hardwareCmd.Flags().Lookup("board"))
 
 	return hardwareCmd
 }

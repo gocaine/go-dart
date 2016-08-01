@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
 )
@@ -11,12 +12,15 @@ type Game interface {
 	AddPlayer(name string) error
 	HandleDart(sector common.Sector) (*common.GameState, error)
 	GetState() *common.GameState
+	Board() string
+	SetBoard(board string)
 }
 
 type AGame struct {
 	State        *common.GameState
 	DisplayStyle string
 	rank         int
+	board        string
 }
 
 func (game *AGame) GetState() *common.GameState {
@@ -78,4 +82,12 @@ func (game *AGame) nextPlayer() {
 		}
 	}
 	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
+}
+
+func (game *AGame) Board() string {
+	return game.board
+}
+
+func (game *AGame) SetBoard(board string) {
+	game.board = board
 }

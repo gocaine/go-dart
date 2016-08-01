@@ -28,11 +28,11 @@ function DataApi(cacheService, $q, $http) {
     });
   };
 
-  this.newGame = function (style) {
+  this.newGame = function (style, board) {
     var q = $q.defer();
 
     $http
-      .post('/api/games', {'Style': style})
+      .post('/api/games', {'Style': style, 'Board': board})
       .then(
         function (response) {
           console.log(response);

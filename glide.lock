@@ -1,10 +1,10 @@
-hash: 17f9d9a59e5a10d3cceef467519ca927b711e95badacc161b8bf4a8083ebf47a
-updated: 2016-07-18T16:44:16.229294312+02:00
+hash: 8a90687e0dd068b5b550e6d86d6babfc92bd7a48d04a9e32e4f128a697050367
+updated: 2016-07-30T16:13:44.813229297+02:00
 imports:
 - name: github.com/BurntSushi/toml
   version: 99064174e013895bbd9b025c31100bd1d9b590ca
 - name: github.com/dghubble/sling
-  version: 3db1177a9ec00dae4266e45abb504e2e13d7dc04
+  version: 9da07f0db0226d82803fc7374dba08506d29da00
 - name: github.com/elazarl/go-bindata-assetfs
   version: 57eb5e1fc594ad4b0b1dbea7b286d299e0cb43c2
 - name: github.com/fsnotify/fsnotify
@@ -24,6 +24,8 @@ imports:
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
   - query
+- name: github.com/google/uuid
+  version: f3f4b54b2fabcf1f11dcc939025bb0c109b00ed8
 - name: github.com/hashicorp/hcl
   version: d8c773c4cba11b11539e3d45f93daeaa5dcf1fa1
   subpackages:
@@ -43,7 +45,7 @@ imports:
   - host/rpi
   - host/generic
 - name: github.com/magiconair/properties
-  version: af14024f63beeb153d0048591b39c5788f21cc24
+  version: b3f6dd549956e8a61ea4a686a1c02a33d5bdda4b
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
 - name: github.com/mitchellh/mapstructure
@@ -51,15 +53,15 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: a283a10442df8dc09befd873fab202bf8a253d6a
 - name: github.com/spf13/cast
-  version: 27b586b42e29bec072fe7379259cc719e1289da6
+  version: e31f36ffc91a2ba9ddb72a4b6a607ff9b3d3cb63
 - name: github.com/spf13/cobra
-  version: b24564e919247d7c870fe0ed3738c98d8741aca4
+  version: f62e98d28ab7ad31d707ba837a966378465c7b57
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
 - name: github.com/spf13/pflag
-  version: 367864438f1b1a3c7db4da06a2f55b144e6784e0
+  version: 1560c1005499d61b80f865c04d39ca7505bf7f0b
 - name: github.com/spf13/viper
-  version: c1ccc378a054ea8d4e38d8c67f6938d4760b53dd
+  version: b53595fb56a492ecef90ee0457595a999eb6ec15
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:

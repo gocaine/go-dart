@@ -14,7 +14,7 @@ type InputEventProducer interface {
 
 // InputEventConsumer can consume InputEvent
 type InputEventConsumer interface {
-	Prepare() error
+	// Prepare() error
 	Consume(event InputEvent)
 	Shutdown()
 }

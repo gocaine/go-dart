@@ -39,7 +39,7 @@ func (server *Server) Start() {
 	apiRouter.GET("/styles", server.getStylesHandler) // retourne la liste des styles
 	// creation du jeu (POST) -  fournit le type de jeu
 	apiRouter.POST("/games", server.createNewGameHandler) // retourne un id
-	// creation du jeu (POST) -  fournit le type de jeu
+	// retourne la liste des jeux (GET) -  fournit le type de jeu
 	apiRouter.GET("/games", server.listeGamesHandler) // retourne un id
 	// etat du jeu (GET)
 	apiRouter.GET("/games/:gameId", server.findGameByIDHandler)

@@ -19,7 +19,7 @@ func NewGameHub(game game.Game) *GameHub {
 }
 
 func (gh *GameHub) handle(connection *websocket.Conn) {
-	log.Warnf("new ws connection for this fucker")
+	log.Warnf("new ws connection for this user")
 	gh.clients = append(gh.clients, connection)
 	status, _ := json.Marshal(gh.game.GetState())
 	connection.Write([]byte(status))

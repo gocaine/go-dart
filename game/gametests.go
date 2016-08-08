@@ -1,4 +1,4 @@
-package server
+package game
 
 import (
 	"github.com/gocaine/go-dart/common"

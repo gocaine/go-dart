@@ -28,8 +28,10 @@ dev:
 all: binary
 
 mock.ui: 
-	mkdir -p webapp/dist
-	echo "void starts here" > webapp/dist/index.html
+	if [ ! -e webapp/dist/index.html ]; then \
+		mkdir -p webapp/dist; \
+		echo "void starts here" > webapp/dist/index.html; \
+	fi
 
 binary-noui: mock.ui build.go ## package the core w/o ui
 

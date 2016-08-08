@@ -24,6 +24,14 @@ angular.module('gdApp')
         $scope.alerts.push({type: 'danger', msg: rejection});
       });
 
+    dataService.games().then(
+      function (data) {
+        $scope.games = data;
+      },
+      function (rejection) {
+        $scope.alerts.push({type: 'danger', msg: rejection});
+      });
+
     $scope.newGame = function (style) {
       console.log('New Game of style : ', style);
       dataService.newGame(style).then(
@@ -35,6 +43,10 @@ angular.module('gdApp')
           $scope.alerts.push({type: 'danger', msg: reject});
         }
       );
+    };
+
+    $scope.joinGame = function (gameId) {
+      $location.url('game/' + gameId);
     };
 
   }]);

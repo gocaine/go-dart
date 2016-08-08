@@ -77,7 +77,7 @@ angular.module('gdApp')
         .joinGame($routeParams.id)
         .then(
             function (ws) {
-            console.log("got a fucking ws to bind")
+            console.log("got a ws to bind")
             ws.onmessage = function(event) {
               console.log("got something from space", event)
               $scope.game.State = JSON.parse(event.data);

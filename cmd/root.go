@@ -10,7 +10,7 @@ import (
 // RootCmd is the default command
 var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("%s", cmd.UsageTemplate())
+		fmt.Printf("%s", cmd.UsageFunc()(cmd))
 		os.Exit(-1)
 	},
 }

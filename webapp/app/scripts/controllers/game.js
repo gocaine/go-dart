@@ -8,7 +8,7 @@
  * Controller of the gdApp
  */
 angular.module('gdApp')
-  .controller('GameCtrl', ['$scope', '$routeParams', '$timeout', 'game', 'dataService', function ($scope, $routeParams, $timeout, game, dataService) {
+  .controller('GameCtrl', ['$scope', '$routeParams', 'game', 'dataService', function ($scope, $routeParams, game, dataService) {
 
     $scope.debug = true;
     $scope.dart = {Val: 20, Pos: 3};
@@ -45,7 +45,7 @@ angular.module('gdApp')
         .then(
           function (success) {
             if (success) {
-              refresh();
+             // refresh();
               delete $scope.newPlayer;
             } else {
               $scope.alerts.push({type: 'danger', msg: 'An error occurs'});
@@ -71,33 +71,22 @@ angular.module('gdApp')
     };
 
     var cancelled = false;
-    var timer;
-    var refresh = function () {
-      dataService
-        .game($routeParams.id)
+   
+    // join websocket
+    dataService
+        .joinGame($routeParams.id)
         .then(
-          function (game) {
-            $scope.game = game;
-            timeout();
+            function (ws) {
+            console.log("got a ws to bind")
+            ws.onmessage = function(event) {
+              console.log("got something from space", event)
+              $scope.game.State = JSON.parse(event.data);
+              $scope.$apply()
+            }
           },
           function (failure) {
             $scope.alerts.push({type: 'danger', msg: failure});
-            timeout();
           }
         );
-    };
-
-    var timeout = function () {
-      if(!cancelled) {
-        $timeout.cancel(timer);
-        timer = $timeout(refresh, 2000);
-      }
-    };
-
-    $scope.$on('$destroy', function () {
-      cancelled = true;
-      $timeout.cancel(timer);
-    });
-    timeout();
 
   }]);

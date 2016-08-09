@@ -1,4 +1,4 @@
 #!/bin/bash -e
 
 mkdir -p reports
-go test -v -covermode=count -coverprofile=reports/coverage.out ./server/
+go test -v -covermode=count -coverprofile=reports/coverage.out ./game/

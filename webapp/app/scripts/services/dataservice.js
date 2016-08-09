@@ -28,7 +28,30 @@ function DataApi(cacheService, $q, $http) {
     });
   };
 
-  this.newGame = function (style, board) {
+
+this.games = function () {
+
+    return $http
+        .get('/api/games')
+        .then(
+          function (res) {
+            return res.data;
+          });
+  };
+
+  this.joinGame = function (game) {
+    var q = $q.defer();
+
+    var ws = new WebSocket("ws://localhost:8080/api/games/"+ game +"/ws")
+    ws.onopen = function() {
+       q.resolve (ws);
+    }
+
+    return q.promise;
+  }
+
+  this.newGame = function (style) {
+
     var q = $q.defer();
 
     $http

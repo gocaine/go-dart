@@ -28,7 +28,17 @@ angular.module('gdApp')
         $scope.alerts.push({type: 'danger', msg: rejection});
       });
 
-    $scope.newGame = function (style,board) {
+
+    dataService.games().then(
+      function (data) {
+        $scope.games = data;
+      },
+      function (rejection) {
+        $scope.alerts.push({type: 'danger', msg: rejection});
+      });
+
+    $scope.newGame = function (style) {
+
       console.log('New Game of style : ', style);
       console.log('Board : ', board)
       dataService.newGame(style,board).then(
@@ -40,6 +50,10 @@ angular.module('gdApp')
           $scope.alerts.push({type: 'danger', msg: reject});
         }
       );
+    };
+
+    $scope.joinGame = function (gameId) {
+      $location.url('game/' + gameId);
     };
 
   }]);

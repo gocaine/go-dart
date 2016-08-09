@@ -199,9 +199,11 @@ func (server *Server) dartHandler(c *gin.Context) {
 	if c.BindJSON(&d) == nil {
 
 		var currentGame game.Game
-		for _, game := range server.games {
+		var currentGameID int
+		for gameId, game := range server.games {
 			if game.Board() == d.Board {
 				currentGame = game
+				currentGameID = gameId
 			}
 		}
 
@@ -215,6 +217,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusOK, gin.H{"state": state})
+			server.hubs[currentGameID].refresh()
 		}
 
 	} else {

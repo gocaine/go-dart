@@ -37,7 +37,7 @@ angular.module('gdApp')
         $scope.alerts.push({type: 'danger', msg: rejection});
       });
 
-    $scope.newGame = function (style) {
+    $scope.newGame = function (style,board) {
 
       console.log('New Game of style : ', style);
       console.log('Board : ', board)

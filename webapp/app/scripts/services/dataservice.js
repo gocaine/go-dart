@@ -50,7 +50,7 @@ this.games = function () {
     return q.promise;
   }
 
-  this.newGame = function (style) {
+  this.newGame = function (style,board) {
 
     var q = $q.defer();
 

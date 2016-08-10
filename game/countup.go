@@ -9,15 +9,18 @@ import (
 	"github.com/gocaine/go-dart/common"
 )
 
+// GameCountUp is a highscore Game, winner is the first to obtain a given score or more
 type GameCountUp struct {
 	AGame
 	target int
 }
 
+// OptionCountUp is the struct to handle GameCountUp parameters
 type OptionCountUp struct {
 	Target int
 }
 
+// NewGameCountUp : GameCountUp constructor using a OptionCountUp
 func NewGameCountUp(board string, opt OptionCountUp) *GameCountUp {
 
 	g := new(GameCountUp)
@@ -30,6 +33,7 @@ func NewGameCountUp(board string, opt OptionCountUp) *GameCountUp {
 	return g
 }
 
+// HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
 func (game *GameCountUp) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.State.Ongoing == common.READY {

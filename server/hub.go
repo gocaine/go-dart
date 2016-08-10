@@ -8,12 +8,14 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// GameHub handle websocket connections for a Game
 type GameHub struct {
 	clients []*websocket.Conn
 	output  chan bool
 	game    game.Game
 }
 
+// NewGameHub is GameHub constructor
 func NewGameHub(game game.Game) *GameHub {
 	hub := GameHub{game: game, clients: make([]*websocket.Conn, 0)}
 	return &hub

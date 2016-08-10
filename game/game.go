@@ -7,15 +7,21 @@ import (
 	"github.com/gocaine/go-dart/common"
 )
 
+// Game interface, should be implemented by all game (rules) implems
 type Game interface {
+	// Start start the game, Darts will be handled
 	Start() error
+	// AddPlayer add a new player to the game
 	AddPlayer(name string) error
+	// HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
 	HandleDart(sector common.Sector) (*common.GameState, error)
+	// GetState, get the current GameState
 	GetState() *common.GameState
 	Board() string
 	SetBoard(board string)
 }
 
+// AGame common Game struct
 type AGame struct {
 	State        *common.GameState
 	DisplayStyle string
@@ -23,10 +29,12 @@ type AGame struct {
 	board        string
 }
 
+// GetState : get the current GameState
 func (game *AGame) GetState() *common.GameState {
 	return game.State
 }
 
+// Start start the game, Darts will be handled
 func (game *AGame) Start() (error error) {
 	if game.State.Ongoing == common.READY && len(game.State.Players) > 0 {
 		state := game.State
@@ -44,6 +52,7 @@ func (game *AGame) Start() (error error) {
 	return
 }
 
+// AddPlayer add a new player to the game
 func (game *AGame) AddPlayer(name string) (error error) {
 	if game.State.Ongoing == common.INITIALIZING || game.State.Ongoing == common.READY {
 		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
@@ -61,7 +70,7 @@ func (game *AGame) nextDart() {
 	if state.CurrentDart == 2 {
 		game.nextPlayer()
 	} else {
-		state.CurrentDart += 1
+		state.CurrentDart++
 		log.WithFields(log.Fields{"player": state.CurrentPlayer, "dart": state.CurrentDart}).Info("One more dart")
 	}
 }
@@ -84,10 +93,12 @@ func (game *AGame) nextPlayer() {
 	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
 }
 
+// Board is the board getter
 func (game *AGame) Board() string {
 	return game.board
 }
 
+// SetBoard is the board setter
 func (game *AGame) SetBoard(board string) {
 	game.board = board
 }

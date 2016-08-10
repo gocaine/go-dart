@@ -7,16 +7,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+//WrappedClient is structure for manipulate Client
 type WrappedClient struct {
-	CurrentGameId   int
+	CurrentGameID   int
 	LatestGameState GameState
 	client          *DartClient
 }
 
+//NewWrappedClient is WrappedClient constructor
 func NewWrappedClient() *WrappedClient {
 	return &WrappedClient{client: NewClient()}
 }
 
+// Consume is
 func (wrapped *WrappedClient) Consume(event hardware.InputEvent) {
 	// simply delegate to the client
 	board := viper.GetString("board")
@@ -24,6 +27,7 @@ func (wrapped *WrappedClient) Consume(event hardware.InputEvent) {
 	wrapped.client.FireDart(board, event.Sector, event.Multiplier)
 }
 
+// Shutdown is
 func (wrapped *WrappedClient) Shutdown() {
 	log.Info("Mocked client is shuting down")
 }

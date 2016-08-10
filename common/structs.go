@@ -1,10 +1,12 @@
 package common
 
+// Sector the representation of a position hit by the dart on the board
 type Sector struct {
 	Val int
 	Pos int
 }
 
+// IsValid tells if a Sector really exists (Triple 25 is not by example)
 func (s Sector) IsValid() bool {
 	if s.Val == 0 {
 		return s.Pos == 0
@@ -16,6 +18,7 @@ func (s Sector) IsValid() bool {
 	return false
 }
 
+// PlayerState the player data (name, score, rank, ...)
 type PlayerState struct {
 	Name  string
 	Score int
@@ -55,15 +58,21 @@ func (r ByScore) Less(i, j int) bool {
 	return r[i].Score > r[j].Score
 }
 
+// State the state of a Game : INITIALIZING, READY, PLAYING or OVER
 type State int
 
 const (
+	// INITIALIZING Initial State of a Game
 	INITIALIZING State = iota
+	// READY Ready means the game could be start, the required number of player is achieved
 	READY
+	// PLAYING game has start
 	PLAYING
+	// OVER game has ended
 	OVER
 )
 
+// GameState the structured state of a Game, with all players and game data
 type GameState struct {
 	Players       []PlayerState
 	Ongoing       State
@@ -74,6 +83,7 @@ type GameState struct {
 	Round         int
 }
 
+// NewGameState the GameState constructor
 func NewGameState() *GameState {
 
 	g := new(GameState)
@@ -83,24 +93,38 @@ func NewGameState() *GameState {
 	return g
 }
 
+// GameStyle the representation of a Game variant
 type GameStyle struct {
 	Code string
 	Desc string
 }
 
 var (
-	GS_301               GameStyle = GameStyle{"301", "301"}
-	GS_301_DO            GameStyle = GameStyle{"301-double-out", "301 Double-Out"}
-	GS_501               GameStyle = GameStyle{"501", "501"}
-	GS_501_DO            GameStyle = GameStyle{"501-double-out", "501 Double-Out"}
-	GS_HIGH_3            GameStyle = GameStyle{"highest-3", "3 visits HighScore"}
-	GS_HIGH_5            GameStyle = GameStyle{"highest-5", "5 visits HighScore"}
-	GS_COUNTUP_300       GameStyle = GameStyle{"countup-300", "Count-Up 300"}
-	GS_COUNTUP_500       GameStyle = GameStyle{"countup-500", "Count-Up 500"}
-	GS_COUNTUP_900       GameStyle = GameStyle{"countup-900", "Count-Up 900"}
-	GS_CRICKET           GameStyle = GameStyle{"cricket", "Cricket"}
-	GS_CRICKET_CUTTHROAT GameStyle = GameStyle{"cut-throat-cricket", "CutThroat Cricket"}
-	GS_CRICKET_NOSCORE   GameStyle = GameStyle{"no-score-cricket", "No Score Cricket"}
+	// Gs301 normal 301
+	Gs301 = GameStyle{"301", "301"}
+	// Gs301DO official Double-Out 301
+	Gs301DO = GameStyle{"301-double-out", "301 Double-Out"}
+	// Gs501 normal 501
+	Gs501 = GameStyle{"501", "501"}
+	// Gs501DO official Double-Out 501
+	Gs501DO = GameStyle{"501-double-out", "501 Double-Out"}
+	// GsHigh3 3 visits HighScore
+	GsHigh3 = GameStyle{"highest-3", "3 visits HighScore"}
+	// GsHigh5 5 visits HighScore
+	GsHigh5 = GameStyle{"highest-5", "5 visits HighScore"}
+	// GsCountup300 Count-Up 300
+	GsCountup300 = GameStyle{"countup-300", "Count-Up 300"}
+	// GsCountup500 Count-Up 500
+	GsCountup500 = GameStyle{"countup-500", "Count-Up 500"}
+	// GsCountup900 Count-Up 900
+	GsCountup900 = GameStyle{"countup-900", "Count-Up 900"}
+	// GsCricket Cricket
+	GsCricket = GameStyle{"cricket", "Cricket"}
+	// GsCricketCutThroat CutThroat Cricket
+	GsCricketCutThroat = GameStyle{"cut-throat-cricket", "CutThroat Cricket"}
+	// GsCricketNoScore No Score Cricket
+	GsCricketNoScore = GameStyle{"no-score-cricket", "No Score Cricket"}
 )
 
-var GS_STYLES = [...]GameStyle{GS_301, GS_301_DO, GS_501, GS_501_DO, GS_HIGH_3, GS_HIGH_5, GS_COUNTUP_300, GS_COUNTUP_500, GS_COUNTUP_900, GS_CRICKET, GS_CRICKET_CUTTHROAT, GS_CRICKET_NOSCORE}
+// GsStyles all the supported game flavor
+var GsStyles = [...]GameStyle{Gs301, Gs301DO, Gs501, Gs501DO, GsHigh3, GsHigh5, GsCountup300, GsCountup500, GsCountup900, GsCricket, GsCricketCutThroat, GsCricketNoScore}

@@ -12,10 +12,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+// DartClient the API client
 type DartClient struct {
 	base *sling.Sling
 }
 
+// NewClient the client constructor
 func NewClient() *DartClient {
 
 	var c = &http.Client{
@@ -31,6 +33,7 @@ func NewClient() *DartClient {
 	return &client
 }
 
+// FireDart sends a Dart to the server
 func (client *DartClient) FireDart(board string, sector int, multiplier int) (state common.GameState, err error) {
 	var failure Failure
 	dartRep := common.DartRepresentation{Board: board, Sector: sector, Multiplier: multiplier}

@@ -16,11 +16,13 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// Server is used to handle games
 type Server struct {
 	games map[int]game.Game
 	hubs  map[int]*GameHub
 }
 
+// NewServer Server instantiation
 func NewServer() *Server {
 	server := new(Server)
 	server.games = make(map[int]game.Game)
@@ -105,40 +107,40 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 
 func gameFactory(style string, board string) (result game.Game, err error) {
 	switch style {
-	case common.GS_301.Code:
+	case common.Gs301.Code:
 		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: false})
 		return
-	case common.GS_301_DO.Code:
+	case common.Gs301DO.Code:
 		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: true})
 		return
-	case common.GS_501.Code:
+	case common.Gs501.Code:
 		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: false})
 		return
-	case common.GS_501_DO.Code:
+	case common.Gs501DO.Code:
 		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: true})
 		return
-	case common.GS_HIGH_3.Code:
+	case common.GsHigh3.Code:
 		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 3})
 		return
-	case common.GS_HIGH_5.Code:
+	case common.GsHigh5.Code:
 		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 5})
 		return
-	case common.GS_COUNTUP_300.Code:
+	case common.GsCountup300.Code:
 		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 300})
 		return
-	case common.GS_COUNTUP_500.Code:
+	case common.GsCountup500.Code:
 		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 500})
 		return
-	case common.GS_COUNTUP_900.Code:
+	case common.GsCountup900.Code:
 		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 900})
 		return
-	case common.GS_CRICKET.Code:
+	case common.GsCricket.Code:
 		result = game.NewGameCricket(board, game.OptionCricket{})
 		return
-	case common.GS_CRICKET_CUTTHROAT.Code:
+	case common.GsCricketCutThroat.Code:
 		result = game.NewGameCricket(board, game.OptionCricket{CutThroat: true})
 		return
-	case common.GS_CRICKET_NOSCORE.Code:
+	case common.GsCricketNoScore.Code:
 		result = game.NewGameCricket(board, game.OptionCricket{NoScore: true})
 		return
 	default:
@@ -200,10 +202,10 @@ func (server *Server) dartHandler(c *gin.Context) {
 
 		var currentGame game.Game
 		var currentGameID int
-		for gameId, game := range server.games {
+		for gameID, game := range server.games {
 			if game.Board() == d.Board {
 				currentGame = game
-				currentGameID = gameId
+				currentGameID = gameID
 			}
 		}
 
@@ -227,5 +229,5 @@ func (server *Server) dartHandler(c *gin.Context) {
 
 func (server *Server) getStylesHandler(c *gin.Context) {
 
-	c.JSON(http.StatusOK, gin.H{"styles": common.GS_STYLES})
+	c.JSON(http.StatusOK, gin.H{"styles": common.GsStyles})
 }

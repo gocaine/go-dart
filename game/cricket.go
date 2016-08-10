@@ -10,8 +10,9 @@ import (
 	"github.com/gocaine/go-dart/common"
 )
 
-var SECTORS = [...]string{"15", "16", "17", "18", "19", "20", "25"}
+var sectors = [...]string{"15", "16", "17", "18", "19", "20", "25"}
 
+// GameCricket is a cricket series Game (Cricket, Cut-throat)
 type GameCricket struct {
 	AGame
 	noScore   bool
@@ -19,11 +20,13 @@ type GameCricket struct {
 	memory    map[string]int
 }
 
+// OptionCricket is the struct to handle GameCricket parameters
 type OptionCricket struct {
 	NoScore   bool
 	CutThroat bool
 }
 
+// NewGameCricket : GameCricket constructor using a OptionCricket
 func NewGameCricket(board string, opt OptionCricket) *GameCricket {
 
 	g := new(GameCricket)
@@ -43,6 +46,7 @@ func NewGameCricket(board string, opt OptionCricket) *GameCricket {
 	return g
 }
 
+// AddPlayer add a new player to the game
 func (game *GameCricket) AddPlayer(name string) (error error) {
 
 	error = game.AGame.AddPlayer(name)
@@ -53,11 +57,12 @@ func (game *GameCricket) AddPlayer(name string) (error error) {
 	return
 }
 
+// Start start the game, Darts will be handled
 func (game *GameCricket) Start() (error error) {
 
 	error = game.AGame.Start()
 	if error == nil {
-		for _, key := range SECTORS {
+		for _, key := range sectors {
 			game.memory[key] = len(game.State.Players)
 		}
 		log.WithFields(log.Fields{"memory": game.memory}).Info("Start")
@@ -65,6 +70,7 @@ func (game *GameCricket) Start() (error error) {
 	return
 }
 
+// HandleDart the implementation has to handle the Dart regarding the current player, the cricket rules, and the context. Return a GameState
 func (game *GameCricket) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.State.Ongoing == common.READY {
@@ -95,7 +101,7 @@ func (game *GameCricket) HandleDart(sector common.Sector) (result *common.GameSt
 	log.WithFields(log.Fields{"player": state.CurrentPlayer, "sector": sector}).Info("Hit")
 
 	if sector.Val >= 15 {
-		var count int = state.Players[state.CurrentPlayer].Histo[sVal]
+		var count = state.Players[state.CurrentPlayer].Histo[sVal]
 		log.WithFields(log.Fields{"count": count, "val": sector.Val}).Info("Hit Count")
 		if count == 3 {
 			open := game.memory[sVal] > 0
@@ -162,8 +168,8 @@ func (game *GameCricket) checkWinner() {
 	log.WithFields(log.Fields{"state": game.State}).Info("checkWinner")
 	player := game.State.Players[game.State.CurrentPlayer]
 	remain := false
-	for key := 0; key < len(SECTORS) && !remain; key++ {
-		remain = player.Histo[SECTORS[key]] != 3
+	for key := 0; key < len(sectors) && !remain; key++ {
+		remain = player.Histo[sectors[key]] != 3
 	}
 	// The player has opened everything if for none of the sector hits are missing
 	if !remain {

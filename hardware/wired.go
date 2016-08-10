@@ -1,12 +1,12 @@
 package hardware
 
 import (
-	"time"
-
-	"github.com/gocaine/go-dart/common"
-
+	"encoding/json"
 	log "github.com/Sirupsen/logrus"
+	"github.com/gocaine/go-dart/common"
 	"github.com/kidoman/embd"
+	"io/ioutil"
+	"time"
 	// Configure for rpi
 	_ "github.com/kidoman/embd/host/rpi"
 )
@@ -17,50 +17,41 @@ type WiredHardware struct {
 	eventReciever chan InputEvent
 	inputs        []embd.DigitalPin
 	outputs       []embd.DigitalPin
+	board         *board
 }
 
-var sectors = [7][10]common.Sector{
-	{common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}}, /*  initializers for row indexed by 0 */
-	{common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}}, /*  initializers for row indexed by 0 */
-	{common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}}, /*  initializers for row indexed by 0 */
-	{common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}}, /*  initializers for row indexed by 0 */
-	{common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}}, /*  initializers for row indexed by 0 */
-	{common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}}, /*  initializers for row indexed by 0 */
-	{common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}, common.Sector{Val: 1, Pos: 1}}, /*  initializers for row indexed by 0 */
+type board struct {
+	sectors [][]common.Sector
 }
 
 // NewWiredHardware create a new NewWiredHardware.
-func NewWiredHardware() *WiredHardware {
+func NewWiredHardware(runCalibration bool) *WiredHardware {
 	hardware := &WiredHardware{}
-	hardware.init()
+	if !runCalibration {
+		// Not running a calibration, load the board dataset
+		content, err := ioutil.ReadFile("boards/default.json")
+		if err != nil {
+			panic("Missing board configuration")
+		}
+		hardware.board = &board{}
+		err = json.Unmarshal(content, &hardware.board.sectors)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Infof("board: %v", hardware.board.sectors)
+	}
 	return hardware
 }
 
-func (hardware *WiredHardware) init() {
-	log.Infoln("hello from on board led")
-
-	defer embd.CloseLED()
-	for index := 0; index < 8; index++ {
-		embd.LEDToggle("LED0")
-		time.Sleep(250 * time.Millisecond)
-	}
-	embd.LEDToggle("LED0")
-	hardware.over = make(chan bool)
-}
-
-// Produce is the main event-loop reading the hardware matrix and producing InputEvent.
-func (hardware *WiredHardware) Produce(inputEventChannel chan InputEvent) {
-	hardware.eventReciever = inputEventChannel
-	defer hardware.releaseGPIO()
+func (hardware *WiredHardware) bootstrap() {
 	hardware.outputs = make([]embd.DigitalPin, 7)
 	hardware.inputs = make([]embd.DigitalPin, 10)
-	var err error
 
-	err = embd.InitGPIO()
+	err := embd.InitGPIO()
 	if err != nil {
 		log.Fatalf("oops %v", err)
 	}
-	for i, n := range []int{2, 3, 4, 5, 6, 7, 8} {
+	for i, n := range []int{2, 3, 4, 10, 9, 11, 5} {
 		log.Infof("preparing output #%d GPIO_%d", i, n)
 		hardware.outputs[i], err = embd.NewDigitalPin(n)
 		if err != nil {
@@ -71,18 +62,29 @@ func (hardware *WiredHardware) Produce(inputEventChannel chan InputEvent) {
 		hardware.outputs[i].Write(0)
 	}
 
-	for i, n := range []int{9, 10, 11, 12, 13, 16, 17, 18, 19, 20} {
+	for i, n := range []int{18, 23, 24, 25, 17, 22, 12, 16, 20, 21} {
 		log.Infof("preparing input #%d GPIO_%d", i, n)
 		hardware.inputs[i], err = embd.NewDigitalPin(n)
 		if err != nil {
 			log.Fatalf("oops %v", err)
 		}
 		hardware.inputs[i].PullUp()
-		hardware.inputs[i].ActiveLow(true)
+		hardware.inputs[i].ActiveLow(false)
 		hardware.inputs[i].SetDirection(embd.In)
 	}
 
+}
+
+// Produce is the main event-loop reading the hardware matrix and producing InputEvent.
+func (hardware *WiredHardware) Produce(inputEventChannel chan InputEvent) {
+	hardware.eventReciever = inputEventChannel
+
+	hardware.bootstrap()
+
+	defer hardware.releaseGPIO()
+
 	down := 0
+
 	//var total uint = 0
 	for {
 		select {
@@ -97,34 +99,41 @@ func (hardware *WiredHardware) Produce(inputEventChannel chan InputEvent) {
 		hardware.outputs[down].Write(1)
 		time.Sleep(5 * time.Microsecond)
 
-		var i uint
+		var i int
 		for i = 0; i < 10; i++ {
 			v, err := hardware.inputs[i].Read()
 			if err != nil {
 				log.Fatalf("oops %v", err)
 			}
-			if v == 0 {
-				log.Infof("hit %d %d", i, down)
+			if v == 1 {
+				hardware.notify(i, down)
 			}
 		}
 	}
 }
 
-func (hardware *WiredHardware) notify(in int, out byte) {
-	log.WithFields(log.Fields{"in": in, "out": out}).Warn("hit !")
+func (hardware *WiredHardware) notify(in int, out int) {
+	log.WithFields(log.Fields{"in": in, "out": out}).Warn("hit")
+	if hardware.board != nil {
+		sector := hardware.board.sectors[out][in]
+		log.WithFields(log.Fields{"sector": sector.Pos, "multiplier": sector.Val}).Warn("hit")
+		hardware.eventReciever <- InputEvent{sector.Pos, sector.Val}
+	} else {
+		hardware.eventReciever <- InputEvent{out, in}
+	}
+	time.Sleep(500 * time.Millisecond)
 }
 
 func (hardware *WiredHardware) releaseGPIO() {
 	log.Warn("end of event-loop, releasing")
 	for _, pin := range hardware.inputs {
-		log.Info("Releasing %d", pin.N())
+		log.Infof("Releasing %d", pin.N())
 		pin.Close()
 	}
 	for _, pin := range hardware.outputs {
-		log.Info("Releasing %d", pin.N())
+		log.Infof("Releasing %d", pin.N())
 		pin.Close()
 	}
-	log.Info("Cleared")
 }
 
 // Shutdown releases all the GPIO pins.

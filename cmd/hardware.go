@@ -9,6 +9,7 @@ import (
 
 	"os"
 	"os/signal"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -25,17 +26,23 @@ func hardwareCmd() *cobra.Command {
 			var producer hardware.InputEventProducer
 			inputEventChannel := make(chan hardware.InputEvent)
 			noWire, _ := cmd.Flags().GetBool("no-wire")
+			calibrate, _ := cmd.Flags().GetString("calibrate")
+
 			if noWire {
 				log.Info("well, in fact let's use the keyboard...")
 				producer = hardware.NewMockedHardware()
 			} else {
-				producer = hardware.NewWiredHardware()
+				producer = hardware.NewWiredHardware(calibrate != "")
 
 			}
 
 			noServer, _ := cmd.Flags().GetBool("no-server")
 			var consumer hardware.InputEventConsumer
-			if noServer {
+
+			if calibrate != "" {
+				log.Info("starting the calibration process")
+				consumer = client.NewCalibrationClient(calibrate)
+			} else if noServer {
 				log.Info("well, in fact let's print events...")
 				consumer = client.NewMockedClient()
 			} else {
@@ -58,6 +65,7 @@ func hardwareCmd() *cobra.Command {
 				case event, more := <-inputEventChannel:
 					if !more {
 						// channel has been closed
+						time.Sleep(1 * time.Second)
 						return
 					}
 					consumer.Consume(event)
@@ -68,6 +76,7 @@ func hardwareCmd() *cobra.Command {
 	}
 
 	hardwareCmd.Flags().BoolP("no-wire", "m", false, "mock the hardware (for dev pupose only)")
+	hardwareCmd.Flags().String("calibrate", "", "run the calibration process and flush the specified board")
 	hardwareCmd.Flags().Bool("no-server", false, "mock the server (for dev pupose only)")
 
 	hardwareCmd.Flags().StringP("board", "b", "test", "name of the board")

@@ -24,8 +24,10 @@ dev:
 	$(eval UI_RUN_IMAGE :=)
 	$(eval UI_RUN_PRESTEP := cd webapp &&)
 
-
 all: binary
+
+arm:
+	$(eval GOARCH=GOOS=linux GOARCH=arm)
 
 mock.ui: 
 	if [ ! -e webapp/dist/index.html ]; then \
@@ -52,7 +54,7 @@ build.go-image:
 	fi
 
 build.go: build.go-image
-	$(RUN_IMAGE) scripts/make.sh generate binary
+	$(RUN_IMAGE) $(GOARCH) scripts/make.sh generate binary
 
 build.ui-image:
 	@if [ "$(USE_LOCAL)" != "local" ]; then \
@@ -68,7 +70,7 @@ validate:
 	scripts/make.sh validate-gofmt validate-govet validate-golint
 
 deploy: ## actually deploy on rpi
-	scp shell/clean-i2c.sh dist/go-dart $(RPI_USER)@$(RPI):~/
+	scp -r shell/clean-i2c.sh boards dist/go-dart $(RPI_USER)@$(RPI):~/
 
 help: ## this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)

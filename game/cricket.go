@@ -12,8 +12,8 @@ import (
 
 var sectors = [...]string{"15", "16", "17", "18", "19", "20", "25"}
 
-// GameCricket is a cricket series Game (Cricket, Cut-throat)
-type GameCricket struct {
+// Cricket is a cricket series Game (Cricket, Cut-throat)
+type Cricket struct {
 	AGame
 	noScore   bool
 	cutThroat bool
@@ -27,9 +27,9 @@ type OptionCricket struct {
 }
 
 // NewGameCricket : GameCricket constructor using a OptionCricket
-func NewGameCricket(board string, opt OptionCricket) *GameCricket {
+func NewGameCricket(board string, opt OptionCricket) *Cricket {
 
-	g := new(GameCricket)
+	g := new(Cricket)
 	g.SetBoard(board)
 	g.noScore = opt.NoScore
 	g.cutThroat = opt.CutThroat
@@ -47,7 +47,7 @@ func NewGameCricket(board string, opt OptionCricket) *GameCricket {
 }
 
 // AddPlayer add a new player to the game
-func (game *GameCricket) AddPlayer(name string) (error error) {
+func (game *Cricket) AddPlayer(name string) (error error) {
 
 	error = game.AGame.AddPlayer(name)
 	if error == nil {
@@ -58,7 +58,7 @@ func (game *GameCricket) AddPlayer(name string) (error error) {
 }
 
 // Start start the game, Darts will be handled
-func (game *GameCricket) Start() (error error) {
+func (game *Cricket) Start() (error error) {
 
 	error = game.AGame.Start()
 	if error == nil {
@@ -71,7 +71,7 @@ func (game *GameCricket) Start() (error error) {
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the cricket rules, and the context. Return a GameState
-func (game *GameCricket) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *Cricket) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.state.Ongoing == common.READY {
 		// first dart starts the game
@@ -143,7 +143,7 @@ func (game *GameCricket) HandleDart(sector common.Sector) (result *common.GameSt
 	return
 }
 
-func (game *GameCricket) score(val, pos int) {
+func (game *Cricket) score(val, pos int) {
 	log.WithFields(log.Fields{"sector": val, "number": pos}).Info("score")
 	if game.noScore {
 		// no score at all
@@ -164,7 +164,7 @@ func (game *GameCricket) score(val, pos int) {
 	game.checkWinner()
 }
 
-func (game *GameCricket) checkWinner() {
+func (game *Cricket) checkWinner() {
 	log.WithFields(log.Fields{"state": game.state}).Info("checkWinner")
 	player := game.state.Players[game.state.CurrentPlayer]
 	remain := false
@@ -196,7 +196,7 @@ func (game *GameCricket) checkWinner() {
 	}
 }
 
-func (game *GameCricket) winner() {
+func (game *Cricket) winner() {
 	log.Info("winner")
 	state := game.state
 	game.state.LastMsg = fmt.Sprintf("Winner : %s", state.Players[state.CurrentPlayer].Name)

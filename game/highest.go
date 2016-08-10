@@ -9,8 +9,8 @@ import (
 	"github.com/gocaine/go-dart/common"
 )
 
-// GameHighest is a highscore Game, within a fixed number of visit, winner is the highest score
-type GameHighest struct {
+// Highest is a highscore Game, within a fixed number of visit, winner is the highest score
+type Highest struct {
 	AGame
 	rounds int
 }
@@ -21,9 +21,9 @@ type OptionHighest struct {
 }
 
 // NewGameHighest : GameHighest constructor using a OptionHighest
-func NewGameHighest(board string, opt OptionHighest) *GameHighest {
+func NewGameHighest(board string, opt OptionHighest) *Highest {
 
-	g := new(GameHighest)
+	g := new(Highest)
 	g.SetBoard(board)
 	g.rounds = opt.Rounds
 	g.state = common.NewGameState()
@@ -34,7 +34,7 @@ func NewGameHighest(board string, opt OptionHighest) *GameHighest {
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
-func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.state.Ongoing == common.READY {
 		// first dart starts the game
@@ -79,7 +79,7 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 	return
 }
 
-func (game *GameHighest) winner() {
+func (game *Highest) winner() {
 	state := game.state
 	if game.state.CurrentPlayer == len(state.Players)-1 {
 		game.state.Ongoing = common.OVER

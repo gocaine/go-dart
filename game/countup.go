@@ -9,8 +9,8 @@ import (
 	"github.com/gocaine/go-dart/common"
 )
 
-// GameCountUp is a highscore Game, winner is the first to obtain a given score or more
-type GameCountUp struct {
+// CountUp is a highscore Game, winner is the first to obtain a given score or more
+type CountUp struct {
 	AGame
 	target int
 }
@@ -21,9 +21,9 @@ type OptionCountUp struct {
 }
 
 // NewGameCountUp : GameCountUp constructor using a OptionCountUp
-func NewGameCountUp(board string, opt OptionCountUp) *GameCountUp {
+func NewGameCountUp(board string, opt OptionCountUp) *CountUp {
 
-	g := new(GameCountUp)
+	g := new(CountUp)
 	g.SetBoard(board)
 	g.target = opt.Target
 	g.state = common.NewGameState()
@@ -34,7 +34,7 @@ func NewGameCountUp(board string, opt OptionCountUp) *GameCountUp {
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
-func (game *GameCountUp) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *CountUp) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
 	if game.state.Ongoing == common.READY {
 		// first dart starts the game
@@ -78,7 +78,7 @@ func (game *GameCountUp) HandleDart(sector common.Sector) (result *common.GameSt
 	return
 }
 
-func (game *GameCountUp) winner() {
+func (game *CountUp) winner() {
 	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
 	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)

@@ -3,9 +3,10 @@ package game
 import (
 	"errors"
 	"fmt"
+	"sort"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
-	"sort"
 )
 
 type GameCountUp struct {
@@ -17,9 +18,10 @@ type OptionCountUp struct {
 	Target int
 }
 
-func NewGameCountUp(opt OptionCountUp) *GameCountUp {
+func NewGameCountUp(board string, opt OptionCountUp) *GameCountUp {
 
 	g := new(GameCountUp)
+	g.SetBoard(board)
 	g.target = opt.Target
 	g.State = common.NewGameState()
 

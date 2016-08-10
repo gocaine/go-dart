@@ -1,75 +1,115 @@
-hash: 17f9d9a59e5a10d3cceef467519ca927b711e95badacc161b8bf4a8083ebf47a
-updated: 2016-07-18T16:44:16.229294312+02:00
+hash: 8a90687e0dd068b5b550e6d86d6babfc92bd7a48d04a9e32e4f128a697050367
+updated: 2016-08-09T16:00:04.5471121+02:00
 imports:
 - name: github.com/BurntSushi/toml
   version: 99064174e013895bbd9b025c31100bd1d9b590ca
+  subpackages:
+  - github.com\BurntSushi\toml
 - name: github.com/dghubble/sling
-  version: 3db1177a9ec00dae4266e45abb504e2e13d7dc04
+  version: 9da07f0db0226d82803fc7374dba08506d29da00
+  subpackages:
+  - github.com\dghubble\sling
 - name: github.com/elazarl/go-bindata-assetfs
   version: 57eb5e1fc594ad4b0b1dbea7b286d299e0cb43c2
 - name: github.com/fsnotify/fsnotify
   version: a8a77c9133d2d6fd8334f3260d06f60e8d80a5fb
+  subpackages:
+  - github.com\fsnotify\fsnotify
 - name: github.com/gin-gonic/gin
   version: f931d1ea80ae95a6fc739213cdd9399bd2967fb6
   subpackages:
-  - binding
-  - render
+  - github.com\gin-gonic\gin
+  - github.com\gin-gonic\gin\binding
+  - github.com\gin-gonic\gin\render
 - name: github.com/golang/glog
   version: 23def4e6c14b4da8ac2ed8007337bc5eb5007998
+  subpackages:
+  - github.com\golang\glog
 - name: github.com/golang/protobuf
   version: 2402d76f3d41f928c7902a765dfc872356dd3aad
   subpackages:
   - proto
+  - github.com\golang\protobuf\proto
 - name: github.com/google/go-querystring
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
-  - query
+  - github.com\google\go-querystring\query
+- name: github.com/google/uuid
+  version: f3f4b54b2fabcf1f11dcc939025bb0c109b00ed8
 - name: github.com/hashicorp/hcl
   version: d8c773c4cba11b11539e3d45f93daeaa5dcf1fa1
   subpackages:
-  - hcl/ast
-  - hcl/parser
-  - hcl/token
-  - json/parser
-  - hcl/scanner
-  - hcl/strconv
-  - json/scanner
-  - json/token
+  - github.com\hashicorp\hcl
+  - github.com\hashicorp\hcl\hcl\ast
+  - github.com\hashicorp\hcl\hcl\parser
+  - github.com\hashicorp\hcl\hcl\token
+  - github.com\hashicorp\hcl\json\parser
+  - github.com\hashicorp\hcl\hcl\scanner
+  - github.com\hashicorp\hcl\hcl\strconv
+  - github.com\hashicorp\hcl\json\scanner
+  - github.com\hashicorp\hcl\json\token
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+  subpackages:
+  - github.com\inconshreveable\mousetrap
 - name: github.com/kidoman/embd
   version: bfcd1345fe4e3d17ca82475c0c2f3d53120f87a9
   subpackages:
-  - host/rpi
-  - host/generic
+  - github.com\kidoman\embd
+  - github.com\kidoman\embd\host\rpi
+  - github.com\kidoman\embd\host\generic
 - name: github.com/magiconair/properties
-  version: af14024f63beeb153d0048591b39c5788f21cc24
+  version: b3f6dd549956e8a61ea4a686a1c02a33d5bdda4b
+  subpackages:
+  - github.com\magiconair\properties
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+  subpackages:
+  - github.com\manucorporat\sse
 - name: github.com/mitchellh/mapstructure
   version: 21a35fb16463dfb7c8eee579c65d995d95e64d1e
+  subpackages:
+  - github.com\mitchellh\mapstructure
 - name: github.com/Sirupsen/logrus
   version: a283a10442df8dc09befd873fab202bf8a253d6a
+  subpackages:
+  - github.com\Sirupsen\logrus
 - name: github.com/spf13/cast
-  version: 27b586b42e29bec072fe7379259cc719e1289da6
+  version: e31f36ffc91a2ba9ddb72a4b6a607ff9b3d3cb63
+  subpackages:
+  - github.com\spf13\cast
 - name: github.com/spf13/cobra
-  version: b24564e919247d7c870fe0ed3738c98d8741aca4
+  version: f62e98d28ab7ad31d707ba837a966378465c7b57
+  subpackages:
+  - github.com\spf13\cobra
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
+  subpackages:
+  - github.com\spf13\jwalterweatherman
 - name: github.com/spf13/pflag
-  version: 367864438f1b1a3c7db4da06a2f55b144e6784e0
+  version: 1560c1005499d61b80f865c04d39ca7505bf7f0b
+  subpackages:
+  - github.com\spf13\pflag
 - name: github.com/spf13/viper
-  version: c1ccc378a054ea8d4e38d8c67f6938d4760b53dd
+  version: b53595fb56a492ecef90ee0457595a999eb6ec15
+  subpackages:
+  - github.com\spf13\viper
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
   - context
+  - golang.org\x\net\websocket
+  - golang.org\x\net\context
 - name: golang.org/x/sys
   version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
   subpackages:
-  - unix
+  - golang.org\x\sys\unix
 - name: gopkg.in/go-playground/validator.v8
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
+  subpackages:
+  - gopkg.in\go-playground\validator.v8
 - name: gopkg.in/yaml.v2
   version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
+  subpackages:
+  - gopkg.in\yaml.v2
 devImports: []

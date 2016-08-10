@@ -3,9 +3,10 @@ package game
 import (
 	"errors"
 	"fmt"
+	"sort"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
-	"sort"
 )
 
 type Gamex01 struct {
@@ -20,8 +21,9 @@ type Optionx01 struct {
 	DoubleOut bool
 }
 
-func NewGamex01(opt Optionx01) *Gamex01 {
+func NewGamex01(board string, opt Optionx01) *Gamex01 {
 	g := new(Gamex01)
+	g.SetBoard(board)
 	g.doubleOut = opt.DoubleOut
 	g.score = opt.Score
 	g.State = common.NewGameState()

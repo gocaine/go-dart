@@ -2,6 +2,7 @@ package common
 
 type GameRepresentation struct {
 	Style string `json:"style"`
+	Board string `json:"board"`
 }
 
 type PlayerRepresentation struct {
@@ -9,6 +10,7 @@ type PlayerRepresentation struct {
 }
 
 type DartRepresentation struct {
-	Sector     int `json:"sector"`
-	Multiplier int `json:"multiplier"`
+	Sector     int    `json:"sector"`
+	Multiplier int    `json:"multiplier"`
+	Board      string `json:"board"`
 }

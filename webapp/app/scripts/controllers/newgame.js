@@ -12,6 +12,10 @@ angular.module('gdApp')
 
     $scope.alerts = [];
 
+    $scope.boards = ["Rennes","Nantes","Lyon","Paris"];
+
+    $scope.selectedBoard = ""
+
     $scope.closeAlert = function (index) {
       $scope.alerts.splice(index, 1);
     };
@@ -24,6 +28,7 @@ angular.module('gdApp')
         $scope.alerts.push({type: 'danger', msg: rejection});
       });
 
+
     dataService.games().then(
       function (data) {
         $scope.games = data;
@@ -32,9 +37,11 @@ angular.module('gdApp')
         $scope.alerts.push({type: 'danger', msg: rejection});
       });
 
-    $scope.newGame = function (style) {
+    $scope.newGame = function (style,board) {
+
       console.log('New Game of style : ', style);
-      dataService.newGame(style).then(
+      console.log('Board : ', board)
+      dataService.newGame(style,board).then(
         function (gameId) {
           console.log('new game created with id', gameId);
           $location.url('game/' + gameId);

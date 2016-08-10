@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gocaine/go-dart/common"
 	"github.com/gocaine/go-dart/game"
 	"github.com/gocaine/go-dart/server/autogen"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/websocket"
 )
@@ -49,7 +49,7 @@ func (server *Server) Start() {
 	// r.GET("/games/{gameId}/user/{userId}", server.userHandler).Methods("GET")
 	//
 	// // POST : etat de la flechette
-	apiRouter.POST("/games/:gameId/darts", server.dartHandler)
+	apiRouter.POST("/darts", server.dartHandler)
 
 	apiRouter.GET("/games/:gameId/ws", server.wsHandler)
 
@@ -88,7 +88,7 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
 
-		theGame, err := gameFactory(g.Style)
+		theGame, err := gameFactory(g.Style, g.Board)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
@@ -103,43 +103,43 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	}
 }
 
-func gameFactory(style string) (result game.Game, err error) {
+func gameFactory(style string, board string) (result game.Game, err error) {
 	switch style {
 	case common.GS_301.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: false})
+		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: false})
 		return
 	case common.GS_301_DO.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: true})
+		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: true})
 		return
 	case common.GS_501.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: false})
+		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: false})
 		return
 	case common.GS_501_DO.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: true})
+		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: true})
 		return
 	case common.GS_HIGH_3.Code:
-		result = game.NewGameHighest(game.OptionHighest{Rounds: 3})
+		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 3})
 		return
 	case common.GS_HIGH_5.Code:
-		result = game.NewGameHighest(game.OptionHighest{Rounds: 5})
+		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 5})
 		return
 	case common.GS_COUNTUP_300.Code:
-		result = game.NewGameCountUp(game.OptionCountUp{Target: 300})
+		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 300})
 		return
 	case common.GS_COUNTUP_500.Code:
-		result = game.NewGameCountUp(game.OptionCountUp{Target: 500})
+		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 500})
 		return
 	case common.GS_COUNTUP_900.Code:
-		result = game.NewGameCountUp(game.OptionCountUp{Target: 900})
+		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 900})
 		return
 	case common.GS_CRICKET.Code:
-		result = game.NewGameCricket(game.OptionCricket{})
+		result = game.NewGameCricket(board, game.OptionCricket{})
 		return
 	case common.GS_CRICKET_CUTTHROAT.Code:
-		result = game.NewGameCricket(game.OptionCricket{CutThroat: true})
+		result = game.NewGameCricket(board, game.OptionCricket{CutThroat: true})
 		return
 	case common.GS_CRICKET_NOSCORE.Code:
-		result = game.NewGameCricket(game.OptionCricket{NoScore: true})
+		result = game.NewGameCricket(board, game.OptionCricket{NoScore: true})
 		return
 	default:
 		err = errors.New("game of type " + style + " is not yet supported")
@@ -192,30 +192,32 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 }
 
 func (server *Server) dartHandler(c *gin.Context) {
-	gameID, err := strconv.Atoi(c.Param("gameId"))
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
-		return
-	}
-
-	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
-
-	currentGame, ok := server.games[gameID]
-	if !ok {
-		c.JSON(http.StatusNotFound, nil)
-		return
-
-	}
+	log.Info("throwed dart")
 
 	var d common.DartRepresentation
 	if c.BindJSON(&d) == nil {
+
+		var currentGame game.Game
+		var currentGameID int
+		for gameId, game := range server.games {
+			if game.Board() == d.Board {
+				currentGame = game
+				currentGameID = gameId
+			}
+		}
+
+		if currentGame == nil {
+			c.JSON(http.StatusNotFound, nil)
+			return
+		}
+
 		state, err := currentGame.HandleDart(common.Sector{Val: d.Sector, Pos: d.Multiplier})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusOK, gin.H{"state": state})
-			server.hubs[gameID].refresh()
+			server.hubs[currentGameID].refresh()
 		}
 
 	} else {

@@ -2,15 +2,16 @@ package game
 
 import (
 	"fmt"
-	"github.com/gocaine/go-dart/common"
 	"testing"
+
+	"github.com/gocaine/go-dart/common"
 )
 
 func TestGameCountupEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd")
 
-	game := NewGameCountUp(OptionCountUp{Target: 1})
+	game := NewGameCountUp("test_board", OptionCountUp{Target: 1})
 
 	state := game.GetState()
 
@@ -47,7 +48,7 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd2Player")
 
-	game := NewGameCountUp(OptionCountUp{Target: 301})
+	game := NewGameCountUp("test_board", OptionCountUp{Target: 301})
 
 	state := game.GetState()
 

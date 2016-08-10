@@ -28,14 +28,15 @@ function DataApi(cacheService, $q, $http) {
     });
   };
 
-   this.games = function () {
+
+this.games = function () {
 
     return $http
         .get('/api/games')
         .then(
           function (res) {
             return res.data;
-          });    
+          });
   };
 
   this.joinGame = function (game) {
@@ -49,11 +50,12 @@ function DataApi(cacheService, $q, $http) {
     return q.promise;
   }
 
-  this.newGame = function (style) {
+  this.newGame = function (style,board) {
+
     var q = $q.defer();
 
     $http
-      .post('/api/games', {'Style': style})
+      .post('/api/games', {'Style': style, 'Board': board})
       .then(
         function (response) {
           console.log(response);

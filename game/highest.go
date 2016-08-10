@@ -3,9 +3,10 @@ package game
 import (
 	"errors"
 	"fmt"
+	"sort"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
-	"sort"
 )
 
 type GameHighest struct {
@@ -17,9 +18,10 @@ type OptionHighest struct {
 	Rounds int
 }
 
-func NewGameHighest(opt OptionHighest) *GameHighest {
+func NewGameHighest(board string, opt OptionHighest) *GameHighest {
 
 	g := new(GameHighest)
+	g.SetBoard(board)
 	g.rounds = opt.Rounds
 	g.State = common.NewGameState()
 

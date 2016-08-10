@@ -6,3 +6,4 @@ import:
 - package: github.com/dghubble/sling
 - package: github.com/kidoman/embd
 - package: github.com/elazarl/go-bindata-assetfs
+- package: github.com/google/uuid

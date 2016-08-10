@@ -3,10 +3,11 @@ package game
 import (
 	"errors"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/gocaine/go-dart/common"
 	"sort"
 	"strconv"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/gocaine/go-dart/common"
 )
 
 var SECTORS = [...]string{"15", "16", "17", "18", "19", "20", "25"}
@@ -23,9 +24,10 @@ type OptionCricket struct {
 	CutThroat bool
 }
 
-func NewGameCricket(opt OptionCricket) *GameCricket {
+func NewGameCricket(board string, opt OptionCricket) *GameCricket {
 
 	g := new(GameCricket)
+	g.SetBoard(board)
 	g.noScore = opt.NoScore
 	g.cutThroat = opt.CutThroat
 	g.State = common.NewGameState()

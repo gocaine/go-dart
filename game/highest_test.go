@@ -2,15 +2,16 @@ package game
 
 import (
 	"fmt"
-	"github.com/gocaine/go-dart/common"
 	"testing"
+
+	"github.com/gocaine/go-dart/common"
 )
 
 func TestGameHighestEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd")
 
-	game := NewGameHighest(OptionHighest{Rounds: 1})
+	game := NewGameHighest("test_board", OptionHighest{Rounds: 1})
 
 	state := game.GetState()
 
@@ -43,7 +44,7 @@ func TestGameHighestEnd2Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd2Player")
 
-	game := NewGameHighest(OptionHighest{Rounds: 1})
+	game := NewGameHighest("test_board", OptionHighest{Rounds: 1})
 
 	state := game.GetState()
 

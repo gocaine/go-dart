@@ -13,7 +13,7 @@ func TestGameHighestEnd(t *testing.T) {
 
 	game := NewGameHighest("test_board", OptionHighest{Rounds: 1})
 
-	state := game.GetState()
+	state := game.State()
 
 	if state.Ongoing != common.INITIALIZING {
 		t.Error("Game should be in initializing mode")
@@ -21,7 +21,7 @@ func TestGameHighestEnd(t *testing.T) {
 
 	game.AddPlayer("Bob")
 
-	state = game.GetState()
+	state = game.State()
 
 	if state.Ongoing != common.READY {
 		t.Error("Game should be in ready mode")
@@ -46,7 +46,7 @@ func TestGameHighestEnd2Player(t *testing.T) {
 
 	game := NewGameHighest("test_board", OptionHighest{Rounds: 1})
 
-	state := game.GetState()
+	state := game.State()
 
 	if state.Ongoing != common.INITIALIZING {
 		t.Error("Game should be in initializing mode")

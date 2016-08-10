@@ -16,28 +16,28 @@ type Game interface {
 	// HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
 	HandleDart(sector common.Sector) (*common.GameState, error)
 	// GetState, get the current GameState
-	GetState() *common.GameState
+	State() *common.GameState
 	Board() string
 	SetBoard(board string)
 }
 
 // AGame common Game struct
 type AGame struct {
-	State        *common.GameState
+	state        *common.GameState
 	DisplayStyle string
 	rank         int
 	board        string
 }
 
-// GetState : get the current GameState
-func (game *AGame) GetState() *common.GameState {
-	return game.State
+// State : get the current GameState
+func (game *AGame) State() *common.GameState {
+	return game.state
 }
 
 // Start start the game, Darts will be handled
 func (game *AGame) Start() (error error) {
-	if game.State.Ongoing == common.READY && len(game.State.Players) > 0 {
-		state := game.State
+	if game.state.Ongoing == common.READY && len(game.state.Players) > 0 {
+		state := game.state
 		state.Ongoing = common.PLAYING
 		state.CurrentPlayer = 0
 		state.CurrentDart = 0
@@ -54,11 +54,11 @@ func (game *AGame) Start() (error error) {
 
 // AddPlayer add a new player to the game
 func (game *AGame) AddPlayer(name string) (error error) {
-	if game.State.Ongoing == common.INITIALIZING || game.State.Ongoing == common.READY {
+	if game.state.Ongoing == common.INITIALIZING || game.state.Ongoing == common.READY {
 		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
-		game.State.Players = append(game.State.Players, common.PlayerState{Name: name})
+		game.state.Players = append(game.state.Players, common.PlayerState{Name: name})
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
-		game.State.Ongoing = common.READY
+		game.state.Ongoing = common.READY
 	} else {
 		error = errors.New("Game cannot be started")
 	}
@@ -66,7 +66,7 @@ func (game *AGame) AddPlayer(name string) (error error) {
 }
 
 func (game *AGame) nextDart() {
-	state := game.State
+	state := game.state
 	if state.CurrentDart == 2 {
 		game.nextPlayer()
 	} else {
@@ -76,7 +76,7 @@ func (game *AGame) nextDart() {
 }
 
 func (game *AGame) nextPlayer() {
-	state := game.State
+	state := game.state
 	state.CurrentDart = 0
 	state.CurrentPlayer = state.CurrentPlayer + 1
 	if state.CurrentPlayer >= len(state.Players) {

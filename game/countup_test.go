@@ -13,7 +13,7 @@ func TestGameCountupEnd(t *testing.T) {
 
 	game := NewGameCountUp("test_board", OptionCountUp{Target: 1})
 
-	state := game.GetState()
+	state := game.State()
 
 	if state.Ongoing != common.INITIALIZING {
 		t.Error("Game should be in initializing mode")
@@ -21,7 +21,7 @@ func TestGameCountupEnd(t *testing.T) {
 
 	game.AddPlayer("Bob")
 
-	state = game.GetState()
+	state = game.State()
 
 	if state.Ongoing != common.READY {
 		t.Error("Game should be in ready mode")
@@ -50,7 +50,7 @@ func TestGameCountupEnd2Player(t *testing.T) {
 
 	game := NewGameCountUp("test_board", OptionCountUp{Target: 301})
 
-	state := game.GetState()
+	state := game.State()
 
 	if state.Ongoing != common.INITIALIZING {
 		t.Error("Game should be in initializing mode")
@@ -59,24 +59,24 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
 
-	AssertCurrents(t, game.State, 0, 0)
+	AssertCurrents(t, game.state, 0, 0)
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.State, 0, 1)
+	AssertCurrents(t, game.state, 0, 1)
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.State, 0, 2)
+	AssertCurrents(t, game.state, 0, 2)
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.State, 1, 0)
+	AssertCurrents(t, game.state, 1, 0)
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.State, 0, 0)
+	AssertCurrents(t, game.state, 0, 0)
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, game.State, 1, 0)
+	AssertCurrents(t, game.state, 1, 0)
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})

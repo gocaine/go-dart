@@ -16,7 +16,7 @@ func TestRegular2Players(t *testing.T) {
 	game.AddPlayer("Alice")
 	game.AddPlayer("Bob")
 
-	state := game.GetState()
+	state := game.State()
 
 	// Alice
 	game.HandleDart(common.Sector{Val: 8, Pos: 2})
@@ -28,7 +28,7 @@ func TestRegular2Players(t *testing.T) {
 
 	// Bob
 	game.HandleDart(common.Sector{Val: 16, Pos: 3})
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "16", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "16", 3)
 	assertHistoOrMemory(t, game.memory, "16", 1)
 	AssertCurrents(t, state, 1, 1)
 	game.HandleDart(common.Sector{Val: 16, Pos: 1})
@@ -60,13 +60,13 @@ func TestRegular2Players(t *testing.T) {
 	game.HandleDart(common.Sector{Val: 18, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "15", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "16", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "17", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "18", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "19", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "20", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "25", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "15", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "16", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "17", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "18", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "19", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "20", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "25", 3)
 
 	AssertGameState(t, state, common.PLAYING)
 
@@ -107,7 +107,7 @@ func TestCutThroat3Players(t *testing.T) {
 	game.AddPlayer("Bob")
 	game.AddPlayer("Charly")
 
-	state := game.GetState()
+	state := game.State()
 
 	// Alice 15:2 20:1
 	AssertCurrents(t, state, 0, 0)
@@ -121,7 +121,7 @@ func TestCutThroat3Players(t *testing.T) {
 	// Bob 16:3 15:3
 	AssertCurrents(t, state, 1, 0)
 	game.HandleDart(common.Sector{Val: 16, Pos: 3})
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "16", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "16", 3)
 	assertHistoOrMemory(t, game.memory, "16", 2)
 	AssertCurrents(t, state, 1, 1)
 	game.HandleDart(common.Sector{Val: 16, Pos: 1})
@@ -175,13 +175,13 @@ func TestCutThroat3Players(t *testing.T) {
 	game.HandleDart(common.Sector{Val: 18, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "15", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "16", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "17", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "18", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "19", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "20", 3)
-	assertHistoOrMemory(t, game.State.Players[1].Histo, "25", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "15", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "16", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "17", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "18", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "19", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "20", 3)
+	assertHistoOrMemory(t, game.state.Players[1].Histo, "25", 3)
 
 	AssertGameState(t, state, common.PLAYING)
 

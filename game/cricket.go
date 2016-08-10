@@ -33,7 +33,7 @@ func NewGameCricket(board string, opt OptionCricket) *GameCricket {
 	g.SetBoard(board)
 	g.noScore = opt.NoScore
 	g.cutThroat = opt.CutThroat
-	g.State = common.NewGameState()
+	g.state = common.NewGameState()
 	dStyle := "Cricket"
 	if opt.CutThroat {
 		dStyle = "Cut-Throat Cricket"
@@ -51,9 +51,9 @@ func (game *GameCricket) AddPlayer(name string) (error error) {
 
 	error = game.AGame.AddPlayer(name)
 	if error == nil {
-		game.State.Players[len(game.State.Players)-1].Histo = make(map[string]int)
+		game.state.Players[len(game.state.Players)-1].Histo = make(map[string]int)
 	}
-	log.WithFields(log.Fields{"name": name, "player": game.State.Players[len(game.State.Players)-1]}).Info("AddPlayer")
+	log.WithFields(log.Fields{"name": name, "player": game.state.Players[len(game.state.Players)-1]}).Info("AddPlayer")
 	return
 }
 
@@ -63,7 +63,7 @@ func (game *GameCricket) Start() (error error) {
 	error = game.AGame.Start()
 	if error == nil {
 		for _, key := range sectors {
-			game.memory[key] = len(game.State.Players)
+			game.memory[key] = len(game.state.Players)
 		}
 		log.WithFields(log.Fields{"memory": game.memory}).Info("Start")
 	}
@@ -73,7 +73,7 @@ func (game *GameCricket) Start() (error error) {
 // HandleDart the implementation has to handle the Dart regarding the current player, the cricket rules, and the context. Return a GameState
 func (game *GameCricket) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
-	if game.State.Ongoing == common.READY {
+	if game.state.Ongoing == common.READY {
 		// first dart starts the game
 		err := game.Start()
 		if err != nil {
@@ -82,7 +82,7 @@ func (game *GameCricket) HandleDart(sector common.Sector) (result *common.GameSt
 		}
 	}
 
-	if game.State.Ongoing != common.PLAYING {
+	if game.state.Ongoing != common.PLAYING {
 		error = errors.New("Game is not started or is ended")
 		return
 	}
@@ -93,7 +93,7 @@ func (game *GameCricket) HandleDart(sector common.Sector) (result *common.GameSt
 		return
 	}
 
-	state := game.State
+	state := game.state
 
 	state.LastSector = sector
 	sVal := strconv.Itoa(sector.Val)
@@ -149,15 +149,15 @@ func (game *GameCricket) score(val, pos int) {
 		// no score at all
 	} else {
 		points := val * pos
-		game.State.LastMsg = fmt.Sprintf("Scored : %d", points)
+		game.state.LastMsg = fmt.Sprintf("Scored : %d", points)
 		if game.cutThroat {
-			for key := range game.State.Players {
-				if game.State.Players[key].Histo[strconv.Itoa(val)] < 3 {
-					game.State.Players[key].Score += points
+			for key := range game.state.Players {
+				if game.state.Players[key].Histo[strconv.Itoa(val)] < 3 {
+					game.state.Players[key].Score += points
 				}
 			}
 		} else {
-			game.State.Players[game.State.CurrentPlayer].Score += points
+			game.state.Players[game.state.CurrentPlayer].Score += points
 		}
 	}
 
@@ -165,8 +165,8 @@ func (game *GameCricket) score(val, pos int) {
 }
 
 func (game *GameCricket) checkWinner() {
-	log.WithFields(log.Fields{"state": game.State}).Info("checkWinner")
-	player := game.State.Players[game.State.CurrentPlayer]
+	log.WithFields(log.Fields{"state": game.state}).Info("checkWinner")
+	player := game.state.Players[game.state.CurrentPlayer]
 	remain := false
 	for key := 0; key < len(sectors) && !remain; key++ {
 		remain = player.Histo[sectors[key]] != 3
@@ -178,13 +178,13 @@ func (game *GameCricket) checkWinner() {
 			game.winner()
 		} else {
 			if game.cutThroat {
-				if lowest(game.State.Players, game.State.CurrentPlayer) {
+				if lowest(game.state.Players, game.state.CurrentPlayer) {
 					game.winner()
 				} else {
 					game.nextDart()
 				}
 			} else {
-				if highest(game.State.Players, game.State.CurrentPlayer) {
+				if highest(game.state.Players, game.state.CurrentPlayer) {
 					game.winner()
 				} else {
 					game.nextDart()
@@ -198,13 +198,13 @@ func (game *GameCricket) checkWinner() {
 
 func (game *GameCricket) winner() {
 	log.Info("winner")
-	state := game.State
-	game.State.LastMsg = fmt.Sprintf("Winner : %s", state.Players[state.CurrentPlayer].Name)
+	state := game.state
+	game.state.LastMsg = fmt.Sprintf("Winner : %s", state.Players[state.CurrentPlayer].Name)
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
 	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
-		game.State.Ongoing = common.OVER
+		game.state.Ongoing = common.OVER
 		sort.Sort(common.ByRank(state.Players))
 		if len(state.Players) > 1 {
 			state.Players[len(state.Players)-1].Rank = game.rank + 1

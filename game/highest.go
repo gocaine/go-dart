@@ -26,7 +26,7 @@ func NewGameHighest(board string, opt OptionHighest) *GameHighest {
 	g := new(GameHighest)
 	g.SetBoard(board)
 	g.rounds = opt.Rounds
-	g.State = common.NewGameState()
+	g.state = common.NewGameState()
 
 	g.DisplayStyle = fmt.Sprintf("%d visits HighScore", opt.Rounds)
 
@@ -36,7 +36,7 @@ func NewGameHighest(board string, opt OptionHighest) *GameHighest {
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
 func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
-	if game.State.Ongoing == common.READY {
+	if game.state.Ongoing == common.READY {
 		// first dart starts the game
 		err := game.Start()
 		if err != nil {
@@ -45,7 +45,7 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 		}
 	}
 
-	if game.State.Ongoing != common.PLAYING {
+	if game.state.Ongoing != common.PLAYING {
 		error = errors.New("Game is not started or is ended")
 		return
 	}
@@ -57,7 +57,7 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 	}
 
 	point := sector.Val * sector.Pos
-	state := game.State
+	state := game.state
 
 	state.LastSector = sector
 
@@ -68,7 +68,7 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 	log.WithFields(log.Fields{"state.Round": state.Round, "game.rounds": game.rounds}).Info("Rounds")
 	if state.Round == game.rounds && state.CurrentDart == 2 {
 		game.winner()
-		if game.State.Ongoing == common.PLAYING {
+		if game.state.Ongoing == common.PLAYING {
 			game.nextPlayer()
 		}
 
@@ -80,9 +80,9 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 }
 
 func (game *GameHighest) winner() {
-	state := game.State
-	if game.State.CurrentPlayer == len(state.Players)-1 {
-		game.State.Ongoing = common.OVER
+	state := game.state
+	if game.state.CurrentPlayer == len(state.Players)-1 {
+		game.state.Ongoing = common.OVER
 		sort.Sort(common.ByScore(state.Players))
 		for i := 0; i < len(state.Players); i++ {
 			state.Players[i].Rank = i + 1

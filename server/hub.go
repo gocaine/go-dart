@@ -24,14 +24,14 @@ func NewGameHub(game game.Game) *GameHub {
 func (gh *GameHub) handle(connection *websocket.Conn) {
 	log.Warnf("new ws connection for this user")
 	gh.clients = append(gh.clients, connection)
-	status, _ := json.Marshal(gh.game.GetState())
+	status, _ := json.Marshal(gh.game.State())
 	connection.Write([]byte(status))
 	// lock until the end of the world
 	connection.Read(make([]byte, 0))
 }
 
 func (gh *GameHub) refresh() {
-	status, err := json.Marshal(gh.game.GetState())
+	status, err := json.Marshal(gh.game.State())
 	if err != nil {
 		log.Info("cannot serialize status")
 	}

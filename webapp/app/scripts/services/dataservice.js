@@ -42,7 +42,7 @@ this.games = function () {
   this.joinGame = function (game) {
     var q = $q.defer();
 
-    var ws = new WebSocket("ws://localhost:8080/api/games/"+ game +"/ws")
+    var ws = new WebSocket("ws://" + window.location.host + "/api/games/"+ game +"/ws")
     ws.onopen = function() {
        q.resolve (ws);
     }

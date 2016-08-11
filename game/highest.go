@@ -21,10 +21,9 @@ type OptionHighest struct {
 }
 
 // NewGameHighest : GameHighest constructor using a OptionHighest
-func NewGameHighest(board string, opt OptionHighest) *Highest {
+func NewGameHighest(opt OptionHighest) *Highest {
 
 	g := new(Highest)
-	g.SetBoard(board)
 	g.rounds = opt.Rounds
 	g.state = common.NewGameState()
 

@@ -90,7 +90,7 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
 
-		theGame, err := gameFactory(g.Style, g.Board)
+		theGame, err := gameFactory(g.Style)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
@@ -105,43 +105,43 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	}
 }
 
-func gameFactory(style string, board string) (result game.Game, err error) {
+func gameFactory(style string) (result game.Game, err error) {
 	switch style {
 	case common.Gs301.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: false})
+		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: false})
 		return
 	case common.Gs301DO.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: true})
+		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: true})
 		return
 	case common.Gs501.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: false})
+		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: false})
 		return
 	case common.Gs501DO.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: true})
+		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: true})
 		return
 	case common.GsHigh3.Code:
-		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 3})
+		result = game.NewGameHighest(game.OptionHighest{Rounds: 3})
 		return
 	case common.GsHigh5.Code:
-		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 5})
+		result = game.NewGameHighest(game.OptionHighest{Rounds: 5})
 		return
 	case common.GsCountup300.Code:
-		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 300})
+		result = game.NewGameCountUp(game.OptionCountUp{Target: 300})
 		return
 	case common.GsCountup500.Code:
-		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 500})
+		result = game.NewGameCountUp(game.OptionCountUp{Target: 500})
 		return
 	case common.GsCountup900.Code:
-		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 900})
+		result = game.NewGameCountUp(game.OptionCountUp{Target: 900})
 		return
 	case common.GsCricket.Code:
-		result = game.NewGameCricket(board, game.OptionCricket{})
+		result = game.NewGameCricket(game.OptionCricket{})
 		return
 	case common.GsCricketCutThroat.Code:
-		result = game.NewGameCricket(board, game.OptionCricket{CutThroat: true})
+		result = game.NewGameCricket(game.OptionCricket{CutThroat: true})
 		return
 	case common.GsCricketNoScore.Code:
-		result = game.NewGameCricket(board, game.OptionCricket{NoScore: true})
+		result = game.NewGameCricket(game.OptionCricket{NoScore: true})
 		return
 	default:
 		err = errors.New("game of type " + style + " is not yet supported")
@@ -183,9 +183,11 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 		return
 	}
 
+	// TODO check that the board is not already used by another player in a different game
+
 	var p common.PlayerRepresentation
 	if c.BindJSON(&p) == nil {
-		currentGame.AddPlayer(p.Name)
+		currentGame.AddPlayer(p.Board, p.Name)
 		c.JSON(http.StatusCreated, "http://localhost:8080/games/"+strconv.Itoa(gameID)+"/players")
 		server.hubs[gameID].refresh()
 	} else {
@@ -203,7 +205,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 		var currentGame game.Game
 		var currentGameID int
 		for gameID, game := range server.games {
-			if game.Board() == d.Board {
+			if game.State().Players[game.State().CurrentPlayer].Board == d.Board {
 				currentGame = game
 				currentGameID = gameID
 			}

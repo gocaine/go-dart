@@ -11,7 +11,7 @@
 
 # Build
 
-First of all, ensure you have checked out the project your `${GOPATH}/github.com/gocaine/go-dart`.
+First of all, ensure you have checked out the project in `${GOPATH}/github.com/gocaine/go-dart`.
 
 Simply run the command `make binary`
 
@@ -19,41 +19,33 @@ As the build process relies on docker, please first configure it on your local.
 
 If you don't want to use docker, simply run `make dev binary` rely on your local version of `go` and `npm`.
 
-## Contributors
+If you want to prepare a binary for ARM, run `make arm binary`
 
-- Jeremie HUCHET
-- Maximilien RICHER
+To deploy on the rpi run `make deploy`. In order, you must add the rpi host name and its associated ip to your network configuration (DNS or /etc/hosts)
+
+If you want to build the binary without rebuilding the frontend, run `make binary-noui`. It will ship the previously built version.
+
+
+## Running on a raspberry pi
+
+After you publish the binary on your rpi (default deploy is in the home directory of the pi user), you can run the following commands: 
+
+ - `./clean-i2c.sh`: this will clean up and reset the GPIO ports direction and status
+ - `sudo ./go-dart hardware -b <board-id>`: this will start the software responsible to listenning the hardware and propagating the dart events to the server
+ - `./go-dart server`: this starts a game server
 
 # API
 
 - Create a game
-  + `POST "/games"`
+  + `POST "/api/games"`
   + return game ID
 - Get the current game state
-  + `GET "/games/{id}"`
+  + `GET "/api/games/{id}"`
   + return a GameState
 - Create player
-  + `POST "/games/{id}/players"`
+  + `POST "/api/games/{id}/players"`
   + return User ID
 - Player state
-  + `GET "/games/{id}/players/{id}"`
+  + `GET "/api/games/{id}/players/{id}"`
 - Dart state
-  + `POST "/games/{id}/dart"`
-
-# Scenario
-
-Create a new game
-
-    curl -X POST -d '{"style": "301"}' http://localhost:8080/games
-
-Add players
-
-    curl -X POST -d '{"name": "player 1"}' http://localhost:8080/games/1/players
-    curl -X POST -d '{"name": "player 2"}' http://localhost:8080/games/1/players
-
-Throw darts
-
-    curl -X POST -d '{"sector": 20, "multiplier": 1}' http://localhost:8080/games/1/darts
-    curl -X POST -d '{"sector": 20, "multiplier": 2}' http://localhost:8080/games/1/darts
-    curl -X POST -d '{"sector": 19, "multiplier": 1}' http://localhost:8080/games/1/darts
-
+  + `POST "/api/{id}/dart"`

@@ -15,7 +15,7 @@ for f in ${SOURCES[@]}; do
 done
 
 if [ ${#errors[@]} -eq 0 ]; then
-	echo 'Congratulations!  All Go source files have been linted.'
+	echo 'Congratulations!  All Go source files have been vetted.'
 else
 	{
 		echo "Errors from govet:"

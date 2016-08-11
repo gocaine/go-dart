@@ -17,3 +17,8 @@ type DartRepresentation struct {
 	Multiplier int    `json:"multiplier"`
 	Board      string `json:"board"`
 }
+
+// BoardRepresentation Json data representation for a Board
+type BoardRepresentation struct {
+	Name string `json:"name"`
+}

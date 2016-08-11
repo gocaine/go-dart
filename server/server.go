@@ -18,13 +18,15 @@ import (
 
 // Server is used to handle games
 type Server struct {
-	games map[int]game.Game
-	hubs  map[int]*GameHub
+	boards []string
+	games  map[int]game.Game
+	hubs   map[int]*GameHub
 }
 
 // NewServer Server instantiation
 func NewServer() *Server {
 	server := new(Server)
+	server.boards = make([]string, 0)
 	server.games = make(map[int]game.Game)
 	server.hubs = make(map[int]*GameHub)
 	return server
@@ -41,6 +43,10 @@ func (server *Server) Start() {
 	apiRouter.GET("/styles", server.getStylesHandler) // retourne la liste des styles
 	// creation du jeu (POST) -  fournit le type de jeu
 	apiRouter.POST("/games", server.createNewGameHandler) // retourne un id
+	// board registration (POST)
+	apiRouter.POST("/boards", server.registerBoardHandler) // return 202 if ok
+	// registered boards list (GET)
+	apiRouter.GET("/boards", server.registeredBoardsListHandler) // return registered boards
 	// retourne la liste des jeux (GET) -  fournit le type de jeu
 	apiRouter.GET("/games", server.listeGamesHandler) // retourne un id
 	// etat du jeu (GET)
@@ -82,6 +88,29 @@ func (server *Server) listeGamesHandler(c *gin.Context) {
 		ids = append(ids, k)
 	}
 	c.JSON(http.StatusOK, ids)
+}
+
+func (server *Server) registeredBoardsListHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, server.boards)
+}
+
+func (server *Server) registerBoardHandler(c *gin.Context) {
+	var b common.BoardRepresentation
+	if c.BindJSON(&b) == nil {
+
+		for _, board := range server.boards {
+			if board == b.Name {
+				c.JSON(http.StatusForbidden, gin.H{"status": "Already registered"})
+				return
+			}
+		}
+
+		server.boards = append(server.boards, b.Name)
+		c.JSON(http.StatusAccepted, gin.H{})
+
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content"})
+	}
 }
 
 ///GamesHandler

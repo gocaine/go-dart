@@ -10,11 +10,11 @@ type Failure struct {
 
 //GameResponse is container structure for GameState
 type GameResponse struct {
-	Id   int       `json:"id,omitempty"`
+	ID   int       `json:"id,omitempty"`
 	Game GameState `json:"game"`
 }
 
-//GameResponse is structure for state
+//GameState is structure for state
 type GameState struct {
 	State common.GameState
 }

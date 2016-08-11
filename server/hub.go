@@ -8,12 +8,14 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// GameHub handle websocket connections for a Game
 type GameHub struct {
 	clients []*websocket.Conn
 	output  chan bool
 	game    game.Game
 }
 
+// NewGameHub is GameHub constructor
 func NewGameHub(game game.Game) *GameHub {
 	hub := GameHub{game: game, clients: make([]*websocket.Conn, 0)}
 	return &hub
@@ -22,14 +24,14 @@ func NewGameHub(game game.Game) *GameHub {
 func (gh *GameHub) handle(connection *websocket.Conn) {
 	log.Warnf("new ws connection for this user")
 	gh.clients = append(gh.clients, connection)
-	status, _ := json.Marshal(gh.game.GetState())
+	status, _ := json.Marshal(gh.game.State())
 	connection.Write([]byte(status))
 	// lock until the end of the world
 	connection.Read(make([]byte, 0))
 }
 
 func (gh *GameHub) refresh() {
-	status, err := json.Marshal(gh.game.GetState())
+	status, err := json.Marshal(gh.game.State())
 	if err != nil {
 		log.Info("cannot serialize status")
 	}

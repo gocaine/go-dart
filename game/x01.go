@@ -9,6 +9,7 @@ import (
 	"github.com/gocaine/go-dart/common"
 )
 
+// Gamex01 is a x01 series Game (301, 501-Double-Out, ...)
 type Gamex01 struct {
 	AGame
 	score     int
@@ -16,17 +17,19 @@ type Gamex01 struct {
 	accu      int
 }
 
+// Optionx01 is the struct to handle Gamex01 parameters
 type Optionx01 struct {
 	Score     int
 	DoubleOut bool
 }
 
+// NewGamex01 : Gamex01 constructor
 func NewGamex01(board string, opt Optionx01) *Gamex01 {
 	g := new(Gamex01)
 	g.SetBoard(board)
 	g.doubleOut = opt.DoubleOut
 	g.score = opt.Score
-	g.State = common.NewGameState()
+	g.state = common.NewGameState()
 
 	dStyle := ""
 	if opt.DoubleOut {
@@ -37,21 +40,23 @@ func NewGamex01(board string, opt Optionx01) *Gamex01 {
 	return g
 }
 
+// AddPlayer add a new player to the game
 func (game *Gamex01) AddPlayer(name string) (error error) {
-	if game.State.Ongoing == common.INITIALIZING || game.State.Ongoing == common.READY {
+	if game.state.Ongoing == common.INITIALIZING || game.state.Ongoing == common.READY {
 		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
-		game.State.Players = append(game.State.Players, common.PlayerState{Name: name, Score: game.score})
+		game.state.Players = append(game.state.Players, common.PlayerState{Name: name, Score: game.score})
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
-		game.State.Ongoing = common.READY
+		game.state.Ongoing = common.READY
 	} else {
 		error = errors.New("Game cannot be started")
 	}
 	return
 }
 
+// Start start the game, Darts will be handled
 func (game *Gamex01) Start() (error error) {
-	if game.State.Ongoing == common.READY && len(game.State.Players) > 0 && game.score > 0 {
-		state := game.State
+	if game.state.Ongoing == common.READY && len(game.state.Players) > 0 && game.score > 0 {
+		state := game.state
 		state.Ongoing = common.PLAYING
 		state.CurrentPlayer = 0
 		state.CurrentDart = 0
@@ -65,9 +70,10 @@ func (game *Gamex01) Start() (error error) {
 	return
 }
 
+// HandleDart the implementation has to handle the Dart regarding the current player, the rules of x01, and the context. Return a GameState
 func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
-	if game.State.Ongoing == common.READY {
+	if game.state.Ongoing == common.READY {
 		// first dart starts the game
 		err := game.Start()
 		if err != nil {
@@ -76,7 +82,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 		}
 	}
 
-	if game.State.Ongoing != common.PLAYING {
+	if game.state.Ongoing != common.PLAYING {
 		error = errors.New("Game is not started or is ended")
 		return
 	}
@@ -89,7 +95,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 
 	point := sector.Val * sector.Pos
 	game.accu += point
-	state := game.State
+	state := game.state
 
 	state.LastSector = sector
 
@@ -113,7 +119,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 			game.nextPlayer()
 		} else {
 			game.winner()
-			if game.State.Ongoing == common.PLAYING {
+			if game.state.Ongoing == common.PLAYING {
 				game.nextPlayer()
 			}
 		}
@@ -128,12 +134,12 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 }
 
 func (game *Gamex01) winner() {
-	state := game.State
+	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
 	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
-		game.State.Ongoing = common.OVER
+		game.state.Ongoing = common.OVER
 		sort.Sort(common.ByRank(state.Players))
 		if len(state.Players) > 1 {
 			state.Players[len(state.Players)-1].Rank = game.rank + 1
@@ -143,7 +149,7 @@ func (game *Gamex01) winner() {
 
 func (game *Gamex01) nextPlayer() {
 	game.accu = 0
-	state := game.State
+	state := game.state
 	state.CurrentDart = 0
 	state.CurrentPlayer = (state.CurrentPlayer + 1) % len(state.Players)
 	for state.Players[state.CurrentPlayer].Score == 0 {
@@ -153,16 +159,16 @@ func (game *Gamex01) nextPlayer() {
 }
 
 func (game *Gamex01) nextDart() {
-	state := game.State
+	state := game.state
 	if state.CurrentDart == 2 {
 		game.nextPlayer()
 	} else {
-		state.CurrentDart += 1
+		state.CurrentDart++
 		log.WithFields(log.Fields{"player": state.CurrentPlayer, "dart": state.CurrentDart}).Info("One more dart")
 	}
 }
 
 func (game *Gamex01) resetVisit() {
-	state := game.State
+	state := game.state
 	state.Players[state.CurrentPlayer].Score += game.accu
 }

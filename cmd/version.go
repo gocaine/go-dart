@@ -13,8 +13,8 @@ var (
 	BuildDate = "N/A"
 	// Version is the current project version
 	Version = "N/A"
-	// ProjectUrl is the home page of the software
-	ProjectUrl = "N/A"
+	// ProjectURL is the home page of the software
+	ProjectURL = "N/A"
 )
 
 var versionCmd = &cobra.Command{
@@ -25,6 +25,6 @@ var versionCmd = &cobra.Command{
 		fmt.Printf("Git hash:    %s\n", GitHash)
 		fmt.Printf("Build Date:  %s\n", BuildDate)
 		fmt.Println()
-		fmt.Printf("Project Url: %s\n", ProjectUrl)
+		fmt.Printf("Project Url: %s\n", ProjectURL)
 	},
 }

@@ -9,30 +9,34 @@ import (
 	"github.com/gocaine/go-dart/common"
 )
 
-type GameHighest struct {
+// Highest is a highscore Game, within a fixed number of visit, winner is the highest score
+type Highest struct {
 	AGame
 	rounds int
 }
 
+// OptionHighest is the struct to handle GameHighest parameters
 type OptionHighest struct {
 	Rounds int
 }
 
-func NewGameHighest(board string, opt OptionHighest) *GameHighest {
+// NewGameHighest : GameHighest constructor using a OptionHighest
+func NewGameHighest(board string, opt OptionHighest) *Highest {
 
-	g := new(GameHighest)
+	g := new(Highest)
 	g.SetBoard(board)
 	g.rounds = opt.Rounds
-	g.State = common.NewGameState()
+	g.state = common.NewGameState()
 
 	g.DisplayStyle = fmt.Sprintf("%d visits HighScore", opt.Rounds)
 
 	return g
 }
 
-func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+// HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
+func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
-	if game.State.Ongoing == common.READY {
+	if game.state.Ongoing == common.READY {
 		// first dart starts the game
 		err := game.Start()
 		if err != nil {
@@ -41,7 +45,7 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 		}
 	}
 
-	if game.State.Ongoing != common.PLAYING {
+	if game.state.Ongoing != common.PLAYING {
 		error = errors.New("Game is not started or is ended")
 		return
 	}
@@ -53,7 +57,7 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 	}
 
 	point := sector.Val * sector.Pos
-	state := game.State
+	state := game.state
 
 	state.LastSector = sector
 
@@ -64,7 +68,7 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 	log.WithFields(log.Fields{"state.Round": state.Round, "game.rounds": game.rounds}).Info("Rounds")
 	if state.Round == game.rounds && state.CurrentDart == 2 {
 		game.winner()
-		if game.State.Ongoing == common.PLAYING {
+		if game.state.Ongoing == common.PLAYING {
 			game.nextPlayer()
 		}
 
@@ -75,10 +79,10 @@ func (game *GameHighest) HandleDart(sector common.Sector) (result *common.GameSt
 	return
 }
 
-func (game *GameHighest) winner() {
-	state := game.State
-	if game.State.CurrentPlayer == len(state.Players)-1 {
-		game.State.Ongoing = common.OVER
+func (game *Highest) winner() {
+	state := game.state
+	if game.state.CurrentPlayer == len(state.Players)-1 {
+		game.state.Ongoing = common.OVER
 		sort.Sort(common.ByScore(state.Players))
 		for i := 0; i < len(state.Players); i++ {
 			state.Players[i].Rank = i + 1

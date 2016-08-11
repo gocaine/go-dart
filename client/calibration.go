@@ -29,6 +29,7 @@ func NewCalibrationClient(board string) *CalibrationClient {
 	return calibration
 }
 
+// Prepare prints the first output
 func (calibration *CalibrationClient) Prepare() error {
 	calibration.output()
 	return nil
@@ -59,11 +60,14 @@ func (calibration *CalibrationClient) next() {
 	calibration.output()
 }
 
+// Consume handles next input
 func (calibration *CalibrationClient) Consume(event hardware.InputEvent) {
 	log.Warnf("%d * %d @ [%d][%d]", calibration.sector, calibration.multiplier, event.Sector, event.Multiplier)
 	calibration.hits[event.Sector][event.Multiplier] = common.Sector{Pos: calibration.sector, Val: calibration.multiplier}
 	calibration.next()
 }
+
+// Shutdown prints shutdown message
 func (calibration *CalibrationClient) Shutdown() {
-	log.Info("Mocked client is shuting down")
+	log.Info("Calibration client is shuting down")
 }

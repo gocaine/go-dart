@@ -62,13 +62,17 @@ func (hardware *WiredHardware) bootstrap() {
 		hardware.outputs[i].Write(0)
 	}
 
-	for i, n := range []int{18, 23, 24, 25, 17, 22, 12, 16, 20, 21} {
+	for i, n := range []int{18, 23, 24, 25, 8, 7, 12, 16, 20, 21} {
 		log.Infof("preparing input #%d GPIO_%d", i, n)
 		hardware.inputs[i], err = embd.NewDigitalPin(n)
 		if err != nil {
 			log.Fatalf("oops %v", err)
 		}
-		hardware.inputs[i].PullUp()
+		if n == 8 || n == 7 {
+			hardware.inputs[i].PullDown()
+		} else {
+			hardware.inputs[i].PullUp()
+		}
 		hardware.inputs[i].ActiveLow(false)
 		hardware.inputs[i].SetDirection(embd.In)
 	}

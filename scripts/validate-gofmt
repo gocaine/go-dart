@@ -4,7 +4,17 @@ IFS=' '
 SOURCES=( $(git ls-files '*.go') )
 unset IFS
 
-errors=()
+FAILURE="false"
 for f in ${SOURCES[@]}; do
-    gofmt -s -l -w $f
+    if [ "$(gofmt -s -l $f)" != "" ] ; then
+	    echo "Failed to validate $f"
+        FAILURE="true"
+    fi
 done
+
+if [ "$FAILURE" = "true" ]; then
+    echo "Please format the code"
+    exit 1
+else
+    echo "Congratulations!  All Go source files have been formatted."
+fi

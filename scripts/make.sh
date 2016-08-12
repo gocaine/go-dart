@@ -13,7 +13,7 @@ DEFAULT_BUNDLES=(
 bundle() {
     local bundle="$1"; shift
     echo "---> Making bundle: $(basename "$bundle") (in $DEST)"
-    source "scripts/$bundle" "$@"
+    source "scripts/$bundle" "$@" || exit 1
 }
 
 if [ $# -lt 1 ]; then

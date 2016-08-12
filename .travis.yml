@@ -11,5 +11,5 @@ install:
   - make binary
 
 script:
-  - make test-coverage
+  - make validate test-coverage
   - bash <(curl -s https://codecov.io/bash) -s reports

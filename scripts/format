@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+IFS=' '
+SOURCES=( $(git ls-files '*.go') )
+unset IFS
+
+FAILURE="false"
+for f in ${SOURCES[@]}; do
+    gofmt -s -w -l $f
+done

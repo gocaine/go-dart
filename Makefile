@@ -17,7 +17,7 @@ RPI=rpi
 
 PHONY: dev
 
-dev:
+dev: ## use local tools instead of docker containers
 	@echo "Configuring dev build..."
 	$(eval USE_LOCAL=local)
 	$(eval RUN_IMAGE :=)
@@ -26,7 +26,7 @@ dev:
 
 all: binary
 
-arm:
+arm: ## build for ARM target
 	$(eval GOARCH=GOOS=linux GOARCH=arm)
 
 mock.ui: 
@@ -68,6 +68,9 @@ build.ui: build.ui-image
 
 validate:
 	scripts/make.sh validate-gofmt validate-govet validate-golint
+
+format:
+	scripts/make.sh format
 
 deploy: ## actually deploy on rpi
 	scp -r shell/clean-i2c.sh boards dist/go-dart $(RPI_USER)@$(RPI):~/

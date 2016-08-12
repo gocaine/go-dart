@@ -1,0 +1,33 @@
+#!/bin/bash
+
+env
+
+echo "Downloading ghr..."
+cd /tmp
+curl -LOs https://github.com/tcnksm/ghr/releases/download/pre-release/linux_amd64.zip
+unzip -qo linux_amd64.zip
+chmod +x /tmp/ghr
+cd -
+
+USER_EMAIL="$(git config --get user.email)"
+USER_NAME="$(git config --get user.name)"
+
+if [ "${USER_EMAIL}" == "" ]; then
+	USER_EMAIL="m.mathieu.pousse@gmail.com"
+	USER_NAME="Mathieu POUSSE"
+	git config --global user.email "${USER_EMAIL}"
+	git config --global user.name "${USER_NAME}"
+fi
+
+COMMENT=$(git log -1 --pretty=%B)
+PR=$(echo $COMMENT | grep -oP "#\K(([0-9]*))(?=.*)")
+
+if [ "$PR" == "" ]; then
+	echo "Cannot get pull request number"
+	exit 1
+fi
+
+VERSION=v1.0.0-beta$PR
+echo "Creating release '$VERSION'..."
+
+/tmp/ghr -u gocaine -prerelease -replace "$VERSION" dist/

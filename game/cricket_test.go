@@ -11,10 +11,10 @@ func TestRegular2Players(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestRegular2Players")
 
-	game := NewGameCricket("test_board", OptionCricket{})
+	game := NewGameCricket(OptionCricket{})
 
-	game.AddPlayer("Alice")
-	game.AddPlayer("Bob")
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
 
 	state := game.State()
 
@@ -101,11 +101,11 @@ func TestCutThroat3Players(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestCutThroat3Players")
 
-	game := NewGameCricket("test_board", OptionCricket{CutThroat: true})
+	game := NewGameCricket(OptionCricket{CutThroat: true})
 
-	game.AddPlayer("Alice")
-	game.AddPlayer("Bob")
-	game.AddPlayer("Charly")
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
+	game.AddPlayer("test_board", "Charly")
 
 	state := game.State()
 

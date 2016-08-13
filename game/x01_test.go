@@ -11,9 +11,9 @@ func TestGamex01End(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01End")
 
-	game := NewGamex01("test_board", Optionx01{Score: 1})
-	game.AddPlayer("Alice")
-	game.AddPlayer("Bob")
+	game := NewGamex01(Optionx01{Score: 1})
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
 	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
 
 	if state.Ongoing != common.PLAYING {
@@ -48,8 +48,8 @@ func TestGamex01SoloEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01SoloEnd")
 
-	game := NewGamex01("test_board", Optionx01{Score: 501, DoubleOut: true})
-	game.AddPlayer("Jack")
+	game := NewGamex01(Optionx01{Score: 501, DoubleOut: true})
+	game.AddPlayer("test_board", "Jack")
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -77,11 +77,11 @@ func TestGame301(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301")
 
-	game := NewGamex01("test_board", Optionx01{Score: 301})
-	game.AddPlayer("Alice")
-	game.AddPlayer("Bob")
-	game.AddPlayer("Charly")
-	game.AddPlayer("Dan")
+	game := NewGamex01(Optionx01{Score: 301})
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
+	game.AddPlayer("test_board", "Charly")
+	game.AddPlayer("test_board", "Dan")
 
 	// Visit 1, Player 0
 	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -232,9 +232,9 @@ func TestGame301DoubleOut(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301DoubleOut")
 
-	game := NewGamex01("test_board", Optionx01{Score: 301, DoubleOut: true})
-	game.AddPlayer("Alice")
-	game.AddPlayer("Bob")
+	game := NewGamex01(Optionx01{Score: 301, DoubleOut: true})
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
 
 	// Visit 1, Player 0
 	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})

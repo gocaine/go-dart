@@ -18,9 +18,10 @@ import (
 
 // Server is used to handle games
 type Server struct {
-	boards []string
-	games  map[int]game.Game
-	hubs   map[int]*GameHub
+	boards      []string
+	games       map[int]game.Game
+	hubs        map[int]*GameHub
+	activeGames map[string]int
 }
 
 // NewServer Server instantiation
@@ -29,6 +30,7 @@ func NewServer() *Server {
 	server.boards = make([]string, 0)
 	server.games = make(map[int]game.Game)
 	server.hubs = make(map[int]*GameHub)
+	server.activeGames = make(map[string]int)
 	return server
 }
 
@@ -71,9 +73,18 @@ func (server *Server) Start() {
 }
 
 func (server *Server) wsHandler(c *gin.Context) {
+
+	server.removeEndedGame()
+
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
+		return
+	}
+
+	_, ok := server.games[gameID]
+	if !ok {
+		c.JSON(http.StatusNotFound, nil)
 		return
 	}
 
@@ -83,6 +94,7 @@ func (server *Server) wsHandler(c *gin.Context) {
 }
 
 func (server *Server) listeGamesHandler(c *gin.Context) {
+	server.removeEndedGame()
 	ids := make([]int, 0, len(server.games))
 	for k := range server.games {
 		ids = append(ids, k)
@@ -95,6 +107,7 @@ func (server *Server) registeredBoardsListHandler(c *gin.Context) {
 }
 
 func (server *Server) registerBoardHandler(c *gin.Context) {
+	server.removeEndedGame()
 	var b common.BoardRepresentation
 	if c.BindJSON(&b) == nil {
 
@@ -115,6 +128,7 @@ func (server *Server) registerBoardHandler(c *gin.Context) {
 
 ///GamesHandler
 func (server *Server) createNewGameHandler(c *gin.Context) {
+	server.removeEndedGame()
 	var g common.GameRepresentation
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
@@ -179,6 +193,7 @@ func gameFactory(style string) (result game.Game, err error) {
 }
 
 func (server *Server) findGameByIDHandler(c *gin.Context) {
+	server.removeEndedGame()
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
 	if err != nil {
@@ -197,6 +212,7 @@ func (server *Server) findGameByIDHandler(c *gin.Context) {
 }
 
 func (server *Server) addPlayerToGameHandler(c *gin.Context) {
+	server.removeEndedGame()
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
 	if err != nil {
@@ -212,11 +228,23 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 		return
 	}
 
-	// TODO check that the board is not already used by another player in a different game
-
 	var p common.PlayerRepresentation
 	if c.BindJSON(&p) == nil {
+
+		if !server.findBoard(p.Board) {
+			c.JSON(http.StatusNotFound, gin.H{"status": "board not found"})
+			return
+		}
+
+		activeGameID, ok := server.activeGames[p.Board]
+		if ok && activeGameID != gameID {
+			// A active game, different from this one, has been found
+			c.JSON(http.StatusForbidden, gin.H{"status": "board is already busy"})
+			return
+		}
+
 		currentGame.AddPlayer(p.Board, p.Name)
+		server.activeGames[p.Board] = gameID
 		c.JSON(http.StatusCreated, "http://localhost:8080/games/"+strconv.Itoa(gameID)+"/players")
 		server.hubs[gameID].refresh()
 	} else {
@@ -261,4 +289,35 @@ func (server *Server) dartHandler(c *gin.Context) {
 func (server *Server) getStylesHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"styles": common.GsStyles})
+}
+
+func (server *Server) findBoard(board string) bool {
+	for _, b := range server.boards {
+		if board == b {
+			return true
+		}
+	}
+	return false
+}
+
+func (server *Server) removeEndedGame() {
+	log.Info("removeEndedGame")
+	for gameID, game := range server.games {
+		// Game is over so we delete it
+		if game.State().Ongoing == common.OVER {
+			log.WithFields(log.Fields{"gameID": gameID}).Info("removeEndedGame")
+			// we remove it from active Games
+			for board, idGame := range server.activeGames {
+				if gameID == idGame {
+					delete(server.activeGames, board)
+				}
+			}
+			hub, ok := server.hubs[gameID]
+			if ok {
+				hub.close()
+				delete(server.hubs, gameID)
+			}
+			delete(server.games, gameID)
+		}
+	}
 }

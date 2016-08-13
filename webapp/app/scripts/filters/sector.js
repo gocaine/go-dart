@@ -11,11 +11,14 @@
 angular.module('gdApp')
   .filter('sector', function () {
     return function (input) {
+      if (!input) {
+        return '';
+      }
       if (input.Val === 0) {
         return 'Out of space';
       }
       var prefix = '';
-      if(input.Pos === 3) {
+      if (input.Pos === 3) {
         prefix = 'Triple ';
       } else if (input.Pos === 2) {
         prefix = 'Double ';

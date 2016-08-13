@@ -28,34 +28,53 @@ function DataApi(cacheService, $q, $http) {
     });
   };
 
-
-this.games = function () {
-
-    return $http
-        .get('/api/games')
+  this.boards = function () {
+    return cache.getAndSet('boards', function () {
+      var q = $q.defer();
+      $http
+        .get('/api/boards')
         .then(
           function (res) {
-            return res.data;
+            q.resolve(res.data);
+          },
+          function (rejection) {
+            q.reject(rejection);
           });
+
+      return q.promise;
+    });
   };
 
-  this.joinGame = function (game) {
+
+  this.games = function () {
+
+    return $http
+      .get('/api/games')
+      .then(
+        function (res) {
+          return res.data;
+        });
+  };
+
+  this.joinGame = function (game, receiver) {
     var q = $q.defer();
 
-    var ws = new WebSocket("ws://" + window.location.host + "/api/games/"+ game +"/ws")
-    ws.onopen = function() {
-       q.resolve (ws);
-    }
+    var ws = new WebSocket('ws://' + window.location.host + '/api/games/' + game + '/ws');
+    ws.onmessage = receiver;
+    ws.onopen = function () {
+      q.resolve(ws);
+    };
+
 
     return q.promise;
-  }
+  };
 
-  this.newGame = function (style,board) {
+  this.newGame = function (style) {
 
     var q = $q.defer();
 
     $http
-      .post('/api/games', {'Style': style, 'Board': board})
+      .post('/api/games', {'Style': style})
       .then(
         function (response) {
           console.log(response);
@@ -99,12 +118,12 @@ this.games = function () {
     return q.promise;
   };
 
-  this.addPlayer = function (gameId, name) {
+  this.addPlayer = function (gameId, name, board) {
 
     var q = $q.defer();
 
     $http
-      .post('/api/games/' + gameId + '/players', {Name: name})
+      .post('/api/games/' + gameId + '/players', {Name: name, Board: board})
       .then(
         function (response) {
           console.log(response);

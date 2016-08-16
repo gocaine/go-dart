@@ -5,24 +5,30 @@ import (
 	"github.com/gocaine/go-dart/hardware"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"os"
 	"os/signal"
 	"time"
 
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 )
 
 func hardwareCmd() *cobra.Command {
 
 	var hardwareCmd = &cobra.Command{
-		Use:   "hardware",
+		Use:   "hardware [board-name]",
 		Short: "Start wired client",
 		Long:  "Start a client fully wired to the electronic dartboard",
 		Run: func(cmd *cobra.Command, arg []string) {
-			log.Info("wiring...")
+			if len(arg) != 1 {
+				fmt.Printf("%s", cmd.UsageString())
+				os.Exit(-1)
+			}
 
+			board := arg[0]
+
+			log.Infof("wiring board %s...", board)
 			var producer hardware.InputEventProducer
 			inputEventChannel := make(chan hardware.InputEvent)
 			noWire, _ := cmd.Flags().GetBool("no-wire")
@@ -47,7 +53,8 @@ func hardwareCmd() *cobra.Command {
 				consumer = client.NewMockedClient()
 			} else {
 				server, _ := cmd.Flags().GetString("server")
-				consumer = client.NewWrappedClient(server)
+				log.Infof("connecting board %s to server @%s", board, server)
+				consumer = client.NewWrappedClient(server, board)
 			}
 
 			c := make(chan os.Signal, 1)
@@ -80,8 +87,6 @@ func hardwareCmd() *cobra.Command {
 	hardwareCmd.Flags().String("calibrate", "", "run the calibration process and flush the specified board")
 	hardwareCmd.Flags().Bool("no-server", false, "mock the server (for dev pupose only)")
 	hardwareCmd.Flags().StringP("server", "s", "http://localhost:8080", "set the game server")
-	hardwareCmd.Flags().StringP("board", "b", "test", "name of the board")
-	viper.BindPFlag("board", hardwareCmd.Flags().Lookup("board"))
 
 	return hardwareCmd
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gocaine/go-dart/common"
@@ -18,19 +19,25 @@ import (
 
 // Server is used to handle games
 type Server struct {
-	boards      []string
+	boards      map[string]*board
 	games       map[int]game.Game
 	hubs        map[int]*GameHub
 	activeGames map[string]int
 }
 
+type board struct {
+	name     string
+	lastSeen time.Time
+}
+
 // NewServer Server instantiation
 func NewServer() *Server {
 	server := new(Server)
-	server.boards = make([]string, 0)
+	server.boards = make(map[string]*board)
 	server.games = make(map[int]game.Game)
 	server.hubs = make(map[int]*GameHub)
 	server.activeGames = make(map[string]int)
+	server.watchdog()
 	return server
 }
 
@@ -103,27 +110,63 @@ func (server *Server) listeGamesHandler(c *gin.Context) {
 }
 
 func (server *Server) registeredBoardsListHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, server.boards)
+	boards := make([]string, len(server.boards))
+	i := 0
+	for k := range server.boards {
+		boards[i] = k
+		i++
+	}
+	c.JSON(http.StatusOK, boards)
 }
 
 func (server *Server) registerBoardHandler(c *gin.Context) {
 	server.removeEndedGame()
-	var b common.BoardRepresentation
-	if c.BindJSON(&b) == nil {
-
-		for _, board := range server.boards {
-			if board == b.Name {
-				c.JSON(http.StatusForbidden, gin.H{"status": "Already registered"})
-				return
-			}
+	var representation common.BoardRepresentation
+	if c.BindJSON(&representation) == nil {
+		existing, found := server.boards[representation.Name]
+		if found {
+			existing.lastSeen = time.Now()
+			log.Debugf("pong %s (last seen is now %v)", representation.Name, existing.lastSeen)
+			c.JSON(http.StatusOK, gin.H{"status": "Pong"})
+		} else {
+			log.Infof("new board has been registered: %s", representation.Name)
+			server.boards[representation.Name] = &board{name: representation.Name, lastSeen: time.Now()}
+			c.JSON(http.StatusAccepted, gin.H{})
 		}
-
-		server.boards = append(server.boards, b.Name)
-		c.JSON(http.StatusAccepted, gin.H{})
-
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content"})
 	}
+}
+
+func (server *Server) watchdog() {
+	log.Debugf("Starting watchdog (timeout: %v)", common.HealthCheckTimeout)
+	ticker := time.NewTicker(common.HealthCheckTimeout)
+	go func() {
+		for {
+			<-ticker.C
+			deadline := time.Now().Add(-common.HealthCheckTimeout)
+			log.Debugf("healthcheck deadline is %v", deadline)
+
+			for name, board := range server.boards {
+				log.Debugf("board %s was last seen %v", board.name, board.lastSeen)
+				if board.lastSeen.Before(deadline) {
+					log.Warnf("board %s seems to be dead", board.name)
+					delete(server.boards, name)
+					hasEndedGame := false
+					for gameID, game := range server.games {
+						if !game.BoardHasLeft(board.name) {
+							server.publishUpdate(gameID)
+							hasEndedGame = true
+						}
+					}
+
+					if hasEndedGame {
+						server.removeEndedGame()
+					}
+				}
+			}
+		}
+	}()
 }
 
 ///GamesHandler
@@ -245,7 +288,7 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 
 		currentGame.AddPlayer(p.Board, p.Name)
 		server.activeGames[p.Board] = gameID
-		c.JSON(http.StatusCreated, "http://localhost:8080/games/"+strconv.Itoa(gameID)+"/players")
+		c.JSON(http.StatusCreated, nil)
 		server.hubs[gameID].refresh()
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
@@ -254,10 +297,10 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 
 func (server *Server) dartHandler(c *gin.Context) {
 
-	log.Info("throwed dart")
-
 	var d common.DartRepresentation
 	if c.BindJSON(&d) == nil {
+
+		log.Infof("revieved a dart %v", d)
 
 		var currentGame game.Game
 		var currentGameID int
@@ -278,12 +321,16 @@ func (server *Server) dartHandler(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusOK, gin.H{"state": state})
-			server.hubs[currentGameID].refresh()
+			server.publishUpdate(currentGameID)
 		}
 
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}
+}
+
+func (server *Server) publishUpdate(gameID int) {
+	server.hubs[gameID].refresh()
 }
 
 func (server *Server) getStylesHandler(c *gin.Context) {
@@ -292,12 +339,8 @@ func (server *Server) getStylesHandler(c *gin.Context) {
 }
 
 func (server *Server) isBoardRegistered(board string) bool {
-	for _, b := range server.boards {
-		if board == b {
-			return true
-		}
-	}
-	return false
+	_, found := server.boards[board]
+	return found
 }
 
 func (server *Server) removeEndedGame() {

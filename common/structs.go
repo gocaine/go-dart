@@ -1,5 +1,7 @@
 package common
 
+import "time"
+
 // Sector the representation of a position hit by the dart on the board
 type Sector struct {
 	Val int
@@ -125,6 +127,13 @@ var (
 	GsCricketCutThroat = GameStyle{"cut-throat-cricket", "CutThroat Cricket"}
 	// GsCricketNoScore No Score Cricket
 	GsCricketNoScore = GameStyle{"no-score-cricket", "No Score Cricket"}
+)
+
+const (
+	// HealthCheckDelay is heart beat frequency
+	HealthCheckDelay = 2 * time.Second
+	// HealthCheckTimeout is the delay after which a board is considered disconnected
+	HealthCheckTimeout = HealthCheckDelay + 1*time.Second
 )
 
 // GsStyles all the supported game flavor

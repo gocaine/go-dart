@@ -17,6 +17,8 @@ type Game interface {
 	HandleDart(sector common.Sector) (*common.GameState, error)
 	// GetState, get the current GameState
 	State() *common.GameState
+	// BoardHasLeft is call to notify the game a board has been disconnected. Returns true if the game continues despite this event
+	BoardHasLeft(board string) bool
 }
 
 // AGame common Game struct
@@ -49,15 +51,36 @@ func (game *AGame) Start() (error error) {
 	return
 }
 
+// BoardHasLeft is call to notify the game a board has been disconnected. It returns true if the game continues despite this event.
+func (game *AGame) BoardHasLeft(board string) bool {
+	for _, p := range game.state.Players {
+		if p.Board == board {
+			log.Infof("game is over because the board %s from player %s has been disconnected", board, p.Name)
+			// end the game has one player has left
+			game.state.Ongoing = common.OVER
+			game.state.LastMsg = "Board " + board + " has been disconnected"
+			return false
+		}
+	}
+	return true
+}
+
 // AddPlayer add a new player to the game
 func (game *AGame) AddPlayer(board string, name string) (error error) {
 	if game.state.Ongoing == common.INITIALIZING || game.state.Ongoing == common.READY {
+		for _, p := range game.state.Players {
+			if name == p.Name {
+				// player with same name is already registred
+				return errors.New("Player name is already in use")
+			}
+		}
+
 		log.WithFields(log.Fields{"player": name, "board": board}).Infof("Player added to the game")
 		game.state.Players = append(game.state.Players, common.PlayerState{Name: name, Board: board})
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
 		game.state.Ongoing = common.READY
 	} else {
-		error = errors.New("Game cannot be started")
+		error = errors.New("Player cannot be started")
 	}
 	return
 }

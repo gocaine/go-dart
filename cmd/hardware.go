@@ -46,7 +46,8 @@ func hardwareCmd() *cobra.Command {
 				log.Info("well, in fact let's print events...")
 				consumer = client.NewMockedClient()
 			} else {
-				consumer = client.NewWrappedClient()
+				server, _ := cmd.Flags().GetString("server")
+				consumer = client.NewWrappedClient(server)
 			}
 
 			c := make(chan os.Signal, 1)
@@ -78,7 +79,7 @@ func hardwareCmd() *cobra.Command {
 	hardwareCmd.Flags().BoolP("no-wire", "m", false, "mock the hardware (for dev pupose only)")
 	hardwareCmd.Flags().String("calibrate", "", "run the calibration process and flush the specified board")
 	hardwareCmd.Flags().Bool("no-server", false, "mock the server (for dev pupose only)")
-
+	hardwareCmd.Flags().StringP("server", "s", "http://localhost:8080", "set the game server")
 	hardwareCmd.Flags().StringP("board", "b", "test", "name of the board")
 	viper.BindPFlag("board", hardwareCmd.Flags().Lookup("board"))
 

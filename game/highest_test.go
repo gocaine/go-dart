@@ -58,9 +58,14 @@ func TestGameHighestEnd2Player(t *testing.T) {
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 2})
 	game.HandleDart(common.Sector{Val: 20, Pos: 1})
+
+	game.HoldOrNextPlayer()
+
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 2})
 	game.HandleDart(common.Sector{Val: 20, Pos: 2})
+
+	game.HoldOrNextPlayer()
 
 	player := state.Players[0]
 
@@ -73,4 +78,36 @@ func TestGameHighestEnd2Player(t *testing.T) {
 	AssertScore(t, player, 120)
 	AssertRank(t, player, 2)
 	AssertName(t, player, "Alice")
+}
+
+func TestGameHighestOnHold(t *testing.T) {
+	fmt.Println()
+	fmt.Println("TestGameHighestOnHold")
+
+	game := NewGameHighest(OptionHighest{Rounds: 3})
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
+
+	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 0, 1)
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 1, 0)
+
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 1, 2)
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 0, 0)
 }

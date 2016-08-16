@@ -72,6 +72,11 @@ func (game *Cricket) Start() (error error) {
 // HandleDart the implementation has to handle the Dart regarding the current player, the cricket rules, and the context. Return a GameState
 func (game *Cricket) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
+	if game.state.Ongoing == common.ONHOLD {
+		error = errors.New("Game is on hold and not ready to handle darts")
+		return
+	}
+
 	if game.state.Ongoing == common.READY {
 		// first dart starts the game
 		err := game.Start()

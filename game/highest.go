@@ -35,6 +35,11 @@ func NewGameHighest(opt OptionHighest) *Highest {
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
 func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
+	if game.state.Ongoing == common.ONHOLD {
+		error = errors.New("Game is on hold and not ready to handle darts")
+		return
+	}
+
 	if game.state.Ongoing == common.READY {
 		// first dart starts the game
 		err := game.Start()
@@ -68,7 +73,7 @@ func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState,
 	if state.Round == game.rounds && state.CurrentDart == 2 {
 		game.winner()
 		if game.state.Ongoing == common.PLAYING {
-			game.nextPlayer()
+			game.HoldOrNextPlayer()
 		}
 
 	} else {

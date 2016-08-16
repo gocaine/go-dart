@@ -59,6 +59,11 @@ func (game *Gamex01) Start() (error error) {
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules of x01, and the context. Return a GameState
 func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
+	if game.state.Ongoing == common.ONHOLD {
+		error = errors.New("Game is on hold and not ready to handle darts")
+		return
+	}
+
 	if game.state.Ongoing == common.READY {
 		// first dart starts the game
 		err := game.Start()
@@ -93,7 +98,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 		if game.doubleOut && state.Players[state.CurrentPlayer].Score == 1 {
 			state.LastMsg = "You should end with a double"
 			game.resetVisit()
-			game.nextPlayer()
+			game.HoldOrNextPlayer()
 		} else {
 			game.nextDart()
 		}
@@ -102,18 +107,18 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 		if game.doubleOut && sector.Pos != 2 {
 			state.LastMsg = "You should end with a double"
 			game.resetVisit()
-			game.nextPlayer()
+			game.HoldOrNextPlayer()
 		} else {
 			game.winner()
 			if game.state.Ongoing == common.PLAYING {
-				game.nextPlayer()
+				game.HoldOrNextPlayer()
 			}
 		}
 
 	} else {
 		state.LastMsg = "You went beyond the target dude !"
 		game.resetVisit()
-		game.nextPlayer()
+		game.HoldOrNextPlayer()
 	}
 	result = state
 	return
@@ -133,6 +138,19 @@ func (game *Gamex01) winner() {
 	}
 }
 
+// HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
+func (game *Gamex01) HoldOrNextPlayer() {
+	if game.state.Ongoing == common.PLAYING {
+		game.state.Ongoing = common.ONHOLD
+		game.state.LastMsg = "Next Player"
+		game.state.LastSector = common.Sector{}
+	} else if game.state.Ongoing == common.ONHOLD {
+		game.state.Ongoing = common.PLAYING
+		game.state.LastMsg = ""
+		game.nextPlayer()
+	}
+}
+
 func (game *Gamex01) nextPlayer() {
 	game.accu = 0
 	state := game.state
@@ -147,7 +165,7 @@ func (game *Gamex01) nextPlayer() {
 func (game *Gamex01) nextDart() {
 	state := game.state
 	if state.CurrentDart == 2 {
-		game.nextPlayer()
+		game.HoldOrNextPlayer()
 	} else {
 		state.CurrentDart++
 		log.WithFields(log.Fields{"player": state.CurrentPlayer, "dart": state.CurrentDart}).Info("One more dart")

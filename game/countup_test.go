@@ -66,17 +66,23 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, game.state, 0, 2)
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.state, 1, 0)
+	AssertCurrents(t, game.state, 0, 2)
+
+	game.HoldOrNextPlayer()
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.state, 0, 0)
+	AssertCurrents(t, game.state, 1, 2)
+
+	game.HoldOrNextPlayer()
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, game.state, 1, 0)
+	AssertCurrents(t, game.state, 0, 2)
+
+	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer()
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -93,4 +99,36 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	AssertScore(t, player, 300)
 	AssertRank(t, player, 2)
 	AssertName(t, player, "Alice")
+}
+
+func TestGameCountupOnHold(t *testing.T) {
+	fmt.Println()
+	fmt.Println("TestGameCountupOnHold")
+
+	game := NewGameCountUp(OptionCountUp{Target: 300})
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
+
+	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 0, 1)
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 1, 0)
+
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 1, 2)
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 0, 0)
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/gocaine/go-dart/common"
 
 	"github.com/dghubble/sling"
-	"github.com/spf13/viper"
 )
 
 // DartClient the API client
@@ -18,7 +17,7 @@ type DartClient struct {
 }
 
 // NewClient the client constructor
-func NewClient() *DartClient {
+func NewClient(endpointURL string) *DartClient {
 
 	var c = &http.Client{
 		Transport:     nil,
@@ -27,7 +26,6 @@ func NewClient() *DartClient {
 		Timeout:       time.Second * 3,
 	}
 
-	var endpointURL = viper.GetString("server")
 	client := DartClient{}
 	client.base = sling.New().Base(endpointURL + "/api/").Client(c)
 	return &client

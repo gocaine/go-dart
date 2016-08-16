@@ -15,8 +15,8 @@ type WrappedClient struct {
 }
 
 //NewWrappedClient is WrappedClient constructor
-func NewWrappedClient() *WrappedClient {
-	return &WrappedClient{client: NewClient()}
+func NewWrappedClient(endpointURL string) *WrappedClient {
+	return &WrappedClient{client: NewClient(endpointURL)}
 }
 
 // Consume is

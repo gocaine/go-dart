@@ -24,6 +24,7 @@ type PlayerState struct {
 	Score int
 	Rank  int
 	Histo map[string]int
+	Board string
 }
 
 // ByRank implements sort.Interface

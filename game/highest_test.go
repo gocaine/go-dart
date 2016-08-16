@@ -11,7 +11,7 @@ func TestGameHighestEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd")
 
-	game := NewGameHighest("test_board", OptionHighest{Rounds: 1})
+	game := NewGameHighest(OptionHighest{Rounds: 1})
 
 	state := game.State()
 
@@ -19,7 +19,7 @@ func TestGameHighestEnd(t *testing.T) {
 		t.Error("Game should be in initializing mode")
 	}
 
-	game.AddPlayer("Bob")
+	game.AddPlayer("test_board", "Bob")
 
 	state = game.State()
 
@@ -44,7 +44,7 @@ func TestGameHighestEnd2Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd2Player")
 
-	game := NewGameHighest("test_board", OptionHighest{Rounds: 1})
+	game := NewGameHighest(OptionHighest{Rounds: 1})
 
 	state := game.State()
 
@@ -52,8 +52,8 @@ func TestGameHighestEnd2Player(t *testing.T) {
 		t.Error("Game should be in initializing mode")
 	}
 
-	game.AddPlayer("Alice")
-	game.AddPlayer("Bob")
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 2})

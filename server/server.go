@@ -18,15 +18,19 @@ import (
 
 // Server is used to handle games
 type Server struct {
-	games map[int]game.Game
-	hubs  map[int]*GameHub
+	boards      []string
+	games       map[int]game.Game
+	hubs        map[int]*GameHub
+	activeGames map[string]int
 }
 
 // NewServer Server instantiation
 func NewServer() *Server {
 	server := new(Server)
+	server.boards = make([]string, 0)
 	server.games = make(map[int]game.Game)
 	server.hubs = make(map[int]*GameHub)
+	server.activeGames = make(map[string]int)
 	return server
 }
 
@@ -41,6 +45,10 @@ func (server *Server) Start() {
 	apiRouter.GET("/styles", server.getStylesHandler) // retourne la liste des styles
 	// creation du jeu (POST) -  fournit le type de jeu
 	apiRouter.POST("/games", server.createNewGameHandler) // retourne un id
+	// board registration (POST)
+	apiRouter.POST("/boards", server.registerBoardHandler) // return 202 if ok
+	// registered boards list (GET)
+	apiRouter.GET("/boards", server.registeredBoardsListHandler) // return registered boards
 	// retourne la liste des jeux (GET) -  fournit le type de jeu
 	apiRouter.GET("/games", server.listeGamesHandler) // retourne un id
 	// etat du jeu (GET)
@@ -65,9 +73,18 @@ func (server *Server) Start() {
 }
 
 func (server *Server) wsHandler(c *gin.Context) {
+
+	server.removeEndedGame()
+
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
+		return
+	}
+
+	_, ok := server.games[gameID]
+	if !ok {
+		c.JSON(http.StatusNotFound, nil)
 		return
 	}
 
@@ -77,6 +94,7 @@ func (server *Server) wsHandler(c *gin.Context) {
 }
 
 func (server *Server) listeGamesHandler(c *gin.Context) {
+	server.removeEndedGame()
 	ids := make([]int, 0, len(server.games))
 	for k := range server.games {
 		ids = append(ids, k)
@@ -84,13 +102,38 @@ func (server *Server) listeGamesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, ids)
 }
 
+func (server *Server) registeredBoardsListHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, server.boards)
+}
+
+func (server *Server) registerBoardHandler(c *gin.Context) {
+	server.removeEndedGame()
+	var b common.BoardRepresentation
+	if c.BindJSON(&b) == nil {
+
+		for _, board := range server.boards {
+			if board == b.Name {
+				c.JSON(http.StatusForbidden, gin.H{"status": "Already registered"})
+				return
+			}
+		}
+
+		server.boards = append(server.boards, b.Name)
+		c.JSON(http.StatusAccepted, gin.H{})
+
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content"})
+	}
+}
+
 ///GamesHandler
 func (server *Server) createNewGameHandler(c *gin.Context) {
+	server.removeEndedGame()
 	var g common.GameRepresentation
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
 
-		theGame, err := gameFactory(g.Style, g.Board)
+		theGame, err := gameFactory(g.Style)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
@@ -105,43 +148,43 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	}
 }
 
-func gameFactory(style string, board string) (result game.Game, err error) {
+func gameFactory(style string) (result game.Game, err error) {
 	switch style {
 	case common.Gs301.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: false})
+		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: false})
 		return
 	case common.Gs301DO.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 301, DoubleOut: true})
+		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: true})
 		return
 	case common.Gs501.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: false})
+		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: false})
 		return
 	case common.Gs501DO.Code:
-		result = game.NewGamex01(board, game.Optionx01{Score: 501, DoubleOut: true})
+		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: true})
 		return
 	case common.GsHigh3.Code:
-		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 3})
+		result = game.NewGameHighest(game.OptionHighest{Rounds: 3})
 		return
 	case common.GsHigh5.Code:
-		result = game.NewGameHighest(board, game.OptionHighest{Rounds: 5})
+		result = game.NewGameHighest(game.OptionHighest{Rounds: 5})
 		return
 	case common.GsCountup300.Code:
-		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 300})
+		result = game.NewGameCountUp(game.OptionCountUp{Target: 300})
 		return
 	case common.GsCountup500.Code:
-		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 500})
+		result = game.NewGameCountUp(game.OptionCountUp{Target: 500})
 		return
 	case common.GsCountup900.Code:
-		result = game.NewGameCountUp(board, game.OptionCountUp{Target: 900})
+		result = game.NewGameCountUp(game.OptionCountUp{Target: 900})
 		return
 	case common.GsCricket.Code:
-		result = game.NewGameCricket(board, game.OptionCricket{})
+		result = game.NewGameCricket(game.OptionCricket{})
 		return
 	case common.GsCricketCutThroat.Code:
-		result = game.NewGameCricket(board, game.OptionCricket{CutThroat: true})
+		result = game.NewGameCricket(game.OptionCricket{CutThroat: true})
 		return
 	case common.GsCricketNoScore.Code:
-		result = game.NewGameCricket(board, game.OptionCricket{NoScore: true})
+		result = game.NewGameCricket(game.OptionCricket{NoScore: true})
 		return
 	default:
 		err = errors.New("game of type " + style + " is not yet supported")
@@ -150,6 +193,7 @@ func gameFactory(style string, board string) (result game.Game, err error) {
 }
 
 func (server *Server) findGameByIDHandler(c *gin.Context) {
+	server.removeEndedGame()
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
 	if err != nil {
@@ -168,6 +212,7 @@ func (server *Server) findGameByIDHandler(c *gin.Context) {
 }
 
 func (server *Server) addPlayerToGameHandler(c *gin.Context) {
+	server.removeEndedGame()
 	gameID, err := strconv.Atoi(c.Param("gameId"))
 
 	if err != nil {
@@ -185,7 +230,21 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 
 	var p common.PlayerRepresentation
 	if c.BindJSON(&p) == nil {
-		currentGame.AddPlayer(p.Name)
+
+		if !server.isBoardRegistered(p.Board) {
+			c.JSON(http.StatusNotFound, gin.H{"status": "board not found"})
+			return
+		}
+
+		activeGameID, ok := server.activeGames[p.Board]
+		if ok && activeGameID != gameID {
+			// A active game, different from this one, has been found
+			c.JSON(http.StatusForbidden, gin.H{"status": "board is already busy"})
+			return
+		}
+
+		currentGame.AddPlayer(p.Board, p.Name)
+		server.activeGames[p.Board] = gameID
 		c.JSON(http.StatusCreated, "http://localhost:8080/games/"+strconv.Itoa(gameID)+"/players")
 		server.hubs[gameID].refresh()
 	} else {
@@ -203,7 +262,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 		var currentGame game.Game
 		var currentGameID int
 		for gameID, game := range server.games {
-			if game.Board() == d.Board {
+			if game.State().Players[game.State().CurrentPlayer].Board == d.Board {
 				currentGame = game
 				currentGameID = gameID
 			}
@@ -230,4 +289,35 @@ func (server *Server) dartHandler(c *gin.Context) {
 func (server *Server) getStylesHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"styles": common.GsStyles})
+}
+
+func (server *Server) isBoardRegistered(board string) bool {
+	for _, b := range server.boards {
+		if board == b {
+			return true
+		}
+	}
+	return false
+}
+
+func (server *Server) removeEndedGame() {
+	log.Info("removeEndedGame")
+	for gameID, game := range server.games {
+		// Game is over so we delete it
+		if game.State().Ongoing == common.OVER {
+			log.WithFields(log.Fields{"gameID": gameID}).Info("removeEndedGame")
+			// we remove it from active Games
+			for board, idGame := range server.activeGames {
+				if gameID == idGame {
+					delete(server.activeGames, board)
+				}
+			}
+			hub, ok := server.hubs[gameID]
+			if ok {
+				hub.close()
+				delete(server.hubs, gameID)
+			}
+			delete(server.games, gameID)
+		}
+	}
 }

@@ -25,6 +25,17 @@ angular.module('gdApp')
     $scope.pos = [{label: '', pos: 1}, {label: 'Double', pos: 2}, {label: 'Triple', pos: 3}];
     $scope.alerts = [];
 
+    dataService.boards().then(
+      function (data) {
+        $scope.boards = data;
+        if ($scope.boards.length > 0) {
+          $scope.newPlayer = {board: $scope.boards[0]};
+        }
+      },
+      function (rejection) {
+        $scope.alerts.push({type: 'danger', msg: rejection});
+      });
+
     $scope.closeAlert = function (index) {
       $scope.alerts.splice(index, 1);
     };
@@ -40,13 +51,14 @@ angular.module('gdApp')
 
     $scope.addPlayer = function () {
       var name = $scope.newPlayer.name;
+      var board = $scope.newPlayer.board;
       dataService
-        .addPlayer($routeParams.id, name)
+        .addPlayer($routeParams.id, name, board)
         .then(
           function (success) {
             if (success) {
-             // refresh();
-              delete $scope.newPlayer;
+              // refresh();
+              delete $scope.newPlayer.name;
             } else {
               $scope.alerts.push({type: 'danger', msg: 'An error occurs'});
             }
@@ -57,36 +69,22 @@ angular.module('gdApp')
         );
     };
 
-    $scope.sendDart = function (sector, pos) {
-      dataService
-        .sendDart($routeParams.id, sector, pos)
-        .then(
-          function (state) {
-            $scope.game.State = state;
-          },
-          function (failure) {
-            $scope.alerts.push({type: 'danger', msg: failure});
-          }
-        );
+    this.messageReceiver = function (event) {
+      console.log('got something from space', event);
+      $scope.game.State = JSON.parse(event.data);
+      $scope.$apply();
     };
 
-    var cancelled = false;
-   
     // join websocket
     dataService
-        .joinGame($routeParams.id)
-        .then(
-            function (ws) {
-            console.log("got a ws to bind")
-            ws.onmessage = function(event) {
-              console.log("got something from space", event)
-              $scope.game.State = JSON.parse(event.data);
-              $scope.$apply()
-            }
-          },
-          function (failure) {
-            $scope.alerts.push({type: 'danger', msg: failure});
-          }
-        );
+      .joinGame($routeParams.id, this.messageReceiver)
+      .then(
+        function () {
+          console.log('got a ws to bind');
+        },
+        function (failure) {
+          $scope.alerts.push({type: 'danger', msg: failure});
+        }
+      );
 
   }]);

@@ -27,10 +27,9 @@ type OptionCricket struct {
 }
 
 // NewGameCricket : GameCricket constructor using a OptionCricket
-func NewGameCricket(board string, opt OptionCricket) *Cricket {
+func NewGameCricket(opt OptionCricket) *Cricket {
 
 	g := new(Cricket)
-	g.SetBoard(board)
 	g.noScore = opt.NoScore
 	g.cutThroat = opt.CutThroat
 	g.state = common.NewGameState()
@@ -47,9 +46,9 @@ func NewGameCricket(board string, opt OptionCricket) *Cricket {
 }
 
 // AddPlayer add a new player to the game
-func (game *Cricket) AddPlayer(name string) (error error) {
+func (game *Cricket) AddPlayer(board string, name string) (error error) {
 
-	error = game.AGame.AddPlayer(name)
+	error = game.AGame.AddPlayer(board, name)
 	if error == nil {
 		game.state.Players[len(game.state.Players)-1].Histo = make(map[string]int)
 	}

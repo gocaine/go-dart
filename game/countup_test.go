@@ -11,7 +11,7 @@ func TestGameCountupEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd")
 
-	game := NewGameCountUp("test_board", OptionCountUp{Target: 1})
+	game := NewGameCountUp(OptionCountUp{Target: 1})
 
 	state := game.State()
 
@@ -19,7 +19,7 @@ func TestGameCountupEnd(t *testing.T) {
 		t.Error("Game should be in initializing mode")
 	}
 
-	game.AddPlayer("Bob")
+	game.AddPlayer("test_board", "Bob")
 
 	state = game.State()
 
@@ -48,7 +48,7 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd2Player")
 
-	game := NewGameCountUp("test_board", OptionCountUp{Target: 301})
+	game := NewGameCountUp(OptionCountUp{Target: 301})
 
 	state := game.State()
 
@@ -56,8 +56,8 @@ func TestGameCountupEnd2Player(t *testing.T) {
 		t.Error("Game should be in initializing mode")
 	}
 
-	game.AddPlayer("Alice")
-	game.AddPlayer("Bob")
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
 
 	AssertCurrents(t, game.state, 0, 0)
 

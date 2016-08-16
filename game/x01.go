@@ -24,9 +24,8 @@ type Optionx01 struct {
 }
 
 // NewGamex01 : Gamex01 constructor
-func NewGamex01(board string, opt Optionx01) *Gamex01 {
+func NewGamex01(opt Optionx01) *Gamex01 {
 	g := new(Gamex01)
-	g.SetBoard(board)
 	g.doubleOut = opt.DoubleOut
 	g.score = opt.Score
 	g.state = common.NewGameState()
@@ -41,10 +40,10 @@ func NewGamex01(board string, opt Optionx01) *Gamex01 {
 }
 
 // AddPlayer add a new player to the game
-func (game *Gamex01) AddPlayer(name string) (error error) {
+func (game *Gamex01) AddPlayer(board string, name string) (error error) {
 	if game.state.Ongoing == common.INITIALIZING || game.state.Ongoing == common.READY {
 		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
-		game.state.Players = append(game.state.Players, common.PlayerState{Name: name, Score: game.score})
+		game.state.Players = append(game.state.Players, common.PlayerState{Board: board, Name: name, Score: game.score})
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
 		game.state.Ongoing = common.READY
 	} else {

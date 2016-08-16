@@ -22,7 +22,7 @@ func NewGameHub(game game.Game) *GameHub {
 }
 
 func (gh *GameHub) handle(connection *websocket.Conn) {
-	log.Warnf("new ws connection for this user")
+	log.Infof("new ws connection for this user")
 	gh.clients = append(gh.clients, connection)
 	status, _ := json.Marshal(gh.game.State())
 	connection.Write([]byte(status))
@@ -42,5 +42,12 @@ func (gh *GameHub) refresh() {
 		if err != nil {
 			log.Infof("error writing %v", err)
 		}
+	}
+}
+
+func (gh *GameHub) close() {
+	log.Infof("close all websocket connections")
+	for _, client := range gh.clients {
+		client.Close()
 	}
 }

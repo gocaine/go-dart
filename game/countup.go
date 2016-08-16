@@ -21,10 +21,9 @@ type OptionCountUp struct {
 }
 
 // NewGameCountUp : GameCountUp constructor using a OptionCountUp
-func NewGameCountUp(board string, opt OptionCountUp) *CountUp {
+func NewGameCountUp(opt OptionCountUp) *CountUp {
 
 	g := new(CountUp)
-	g.SetBoard(board)
 	g.target = opt.Target
 	g.state = common.NewGameState()
 

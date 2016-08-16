@@ -231,7 +231,7 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	var p common.PlayerRepresentation
 	if c.BindJSON(&p) == nil {
 
-		if !server.findBoard(p.Board) {
+		if !server.isBoardRegistered(p.Board) {
 			c.JSON(http.StatusNotFound, gin.H{"status": "board not found"})
 			return
 		}
@@ -291,7 +291,7 @@ func (server *Server) getStylesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"styles": common.GsStyles})
 }
 
-func (server *Server) findBoard(board string) bool {
+func (server *Server) isBoardRegistered(board string) bool {
 	for _, b := range server.boards {
 		if board == b {
 			return true

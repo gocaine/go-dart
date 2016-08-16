@@ -39,19 +39,6 @@ func NewGamex01(opt Optionx01) *Gamex01 {
 	return g
 }
 
-// AddPlayer add a new player to the game
-func (game *Gamex01) AddPlayer(board string, name string) (error error) {
-	if game.state.Ongoing == common.INITIALIZING || game.state.Ongoing == common.READY {
-		log.WithFields(log.Fields{"player": name}).Infof("Player added to the game")
-		game.state.Players = append(game.state.Players, common.PlayerState{Board: board, Name: name, Score: game.score})
-		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
-		game.state.Ongoing = common.READY
-	} else {
-		error = errors.New("Game cannot be started")
-	}
-	return
-}
-
 // Start start the game, Darts will be handled
 func (game *Gamex01) Start() (error error) {
 	if game.state.Ongoing == common.READY && len(game.state.Players) > 0 && game.score > 0 {

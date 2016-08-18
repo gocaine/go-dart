@@ -40,6 +40,7 @@ func NewWiredHardware(runCalibration bool) *WiredHardware {
 		}
 		log.Infof("board: %v", hardware.board.sectors)
 	}
+	hardware.over = make(chan bool)
 	return hardware
 }
 
@@ -51,7 +52,7 @@ func (hardware *WiredHardware) bootstrap() {
 	if err != nil {
 		log.Fatalf("oops %v", err)
 	}
-	for i, n := range []int{2, 3, 4, 10, 9, 11, 5} {
+	for i, n := range []int{17, 22, 4, 10, 9, 11, 5} {
 		log.Infof("preparing output #%d GPIO_%d", i, n)
 		hardware.outputs[i], err = embd.NewDigitalPin(n)
 		if err != nil {
@@ -69,11 +70,11 @@ func (hardware *WiredHardware) bootstrap() {
 			log.Fatalf("oops %v", err)
 		}
 		if n == 8 || n == 7 {
+			hardware.inputs[i].ActiveLow(true)
 			hardware.inputs[i].PullDown()
 		} else {
 			hardware.inputs[i].PullUp()
 		}
-		hardware.inputs[i].ActiveLow(false)
 		hardware.inputs[i].SetDirection(embd.In)
 	}
 
@@ -144,5 +145,8 @@ func (hardware *WiredHardware) releaseGPIO() {
 func (hardware *WiredHardware) Shutdown() {
 	log.Warnln("shuting down hardware...")
 	hardware.over <- true
+	log.Debug("Notified game is over")
 	close(hardware.eventReciever)
+	log.Debug("eventReciever has been closed")
+
 }

@@ -73,7 +73,7 @@ func hardwareCmd() *cobra.Command {
 				case event, more := <-inputEventChannel:
 					if !more {
 						// channel has been closed
-						time.Sleep(1 * time.Second)
+						time.Sleep(100 * time.Millisecond)
 						return
 					}
 					consumer.Consume(event)

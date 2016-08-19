@@ -6,9 +6,9 @@ SOURCES=$(shell git ls-files '*.go')
 BUILD_IMAGE=go-dart.build:latest
 RUN_IMAGE=docker run --rm -e GITHUB_TOKEN -v $(CURDIR)/dist:/go/src/github.com/gocaine/go-dart/dist -v $(CURDIR)/reports:/go/src/github.com/gocaine/go-dart/reports go-dart.build:latest
 
-UI_BUILD_IMAGE=ggerbaud/node-bower-grunt:5
-UI_RUN_IMAGE=docker run --rm -v $(PWD)/webapp:/data $(UI_BUILD_IMAGE)
-UI_RUN_PRESTEP=
+UI_BUILD_IMAGE=go-dart-ui.build:latest
+UI_RUN_IMAGE=docker run --rm -v $(CURDIR)/webapp:/data go-dart-ui.build:latest
+UI_RUN_PRESTEP=cd $(CURDIR)/webapp && 
 
 # Set the pi user
 RPI_USER?=pi
@@ -30,9 +30,9 @@ arm: ## build for ARM target
 	$(eval GOARCH=GOOS=linux GOARCH=arm)
 
 mock.ui: 
-	if [ ! -e webapp/dist/index.html ]; then \
-		mkdir -p webapp/dist; \
-		echo "void starts here" > webapp/dist/index.html; \
+	if [ ! -e webapp/build/index.html ]; then \
+		mkdir -p webapp/build; \
+		echo "void starts here" > webapp/build/index.html; \
 	fi
 
 binary-noui: mock.ui build.go ## package the core w/o ui
@@ -58,13 +58,12 @@ build.go: build.go-image
 
 build.ui-image:
 	@if [ "$(USE_LOCAL)" != "local" ]; then \
-		echo "using remote image" ;\
+		cd webapp && docker build -t $(UI_BUILD_IMAGE) -f Dockerfile.build . ;\
 	fi
 
 build.ui: build.ui-image
-	$(UI_RUN_PRESTEP) $(UI_RUN_IMAGE) npm install && \
-	$(UI_RUN_IMAGE)  bower install && \
-	$(UI_RUN_IMAGE)  grunt build
+	$(UI_RUN_IMAGE) npm install && \
+	$(UI_RUN_IMAGE) npm run build
 
 validate:
 	$(RUN_IMAGE) scripts/make.sh validate-gofmt validate-govet validate-golint

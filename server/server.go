@@ -46,7 +46,7 @@ func (server *Server) Start() {
 	fmt.Println("Ready to Dart !!")
 	engine := gin.Default()
 
-	apiRouter := engine.Group("api")
+	apiRouter := engine.Group("/api")
 
 	// les styles de jeu possibles
 	apiRouter.GET("/styles", server.getStylesHandler) // retourne la liste des styles
@@ -71,11 +71,12 @@ func (server *Server) Start() {
 	apiRouter.GET("/games/:gameId/ws", server.wsHandler)
 
 	assetsRouter := engine.Group("/web")
-	assetsRouter.StaticFS("/", &assetfs.AssetFS{Asset: autogen.Asset, AssetDir: autogen.AssetDir, AssetInfo: autogen.AssetInfo, Prefix: "webapp/dist"})
+	assetsRouter.StaticFS("/", &assetfs.AssetFS{Asset: autogen.Asset, AssetDir: autogen.AssetDir, AssetInfo: autogen.AssetInfo, Prefix: "webapp/build"})
 
 	engine.Any("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "web")
 	})
+
 	engine.Run(":8080")
 }
 
@@ -251,7 +252,7 @@ func (server *Server) findGameByIDHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"game": currentGame})
+	c.JSON(http.StatusOK, gin.H{"game": currentGame.State()})
 }
 
 func (server *Server) addPlayerToGameHandler(c *gin.Context) {

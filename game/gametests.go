@@ -50,6 +50,14 @@ func AssertGameState(t *testing.T, state *common.GameState, expected common.Stat
 
 }
 
+// AssertError assert the error content
+func AssertError(t *testing.T, err error, expected string) {
+	if err.Error() != expected {
+		fatalStack(t, "Error should be %s but was %s", expected, err.Error())
+	}
+
+}
+
 func fatalStack(t *testing.T, format string, args ...interface{}) {
 	//stack trace
 	var stack [4096]byte

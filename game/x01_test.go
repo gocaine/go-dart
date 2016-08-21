@@ -341,6 +341,9 @@ func TestGamex01OnHold(t *testing.T) {
 	AssertGameState(t, state, common.ONHOLD)
 	AssertCurrents(t, state, 0, 1)
 
+	_, err := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	AssertError(t, err, "Game is on hold and not ready to handle darts")
+
 	game.HoldOrNextPlayer()
 
 	AssertGameState(t, state, common.PLAYING)

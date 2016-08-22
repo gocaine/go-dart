@@ -21,6 +21,8 @@ type Game interface {
 	BoardHasLeft(board string) bool
 	// HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
 	HoldOrNextPlayer()
+	nextPlayer()
+	nextDart()
 }
 
 // AGame common Game struct
@@ -36,9 +38,9 @@ func (game *AGame) State() *common.GameState {
 }
 
 // Start start the game, Darts will be handled
-func (game *AGame) Start() (error error) {
-	if game.state.Ongoing == common.READY && len(game.state.Players) > 0 {
-		state := game.state
+func commonStart(game Game) (error error) {
+	if game.State().Ongoing == common.READY && len(game.State().Players) > 0 {
+		state := game.State()
 		state.Ongoing = common.PLAYING
 		state.CurrentPlayer = 0
 		state.CurrentDart = 0
@@ -68,9 +70,9 @@ func (game *AGame) BoardHasLeft(board string) bool {
 }
 
 // AddPlayer add a new player to the game
-func (game *AGame) AddPlayer(board string, name string) (error error) {
-	if game.state.Ongoing == common.INITIALIZING || game.state.Ongoing == common.READY {
-		for _, p := range game.state.Players {
+func commonAddPlayer(game Game, board string, name string) (error error) {
+	if game.State().Ongoing == common.INITIALIZING || game.State().Ongoing == common.READY {
+		for _, p := range game.State().Players {
 			if name == p.Name {
 				// player with same name is already registred
 				return errors.New("Player name is already in use")
@@ -78,17 +80,17 @@ func (game *AGame) AddPlayer(board string, name string) (error error) {
 		}
 
 		log.WithFields(log.Fields{"player": name, "board": board}).Infof("Player added to the game")
-		game.state.Players = append(game.state.Players, common.PlayerState{Name: name, Board: board})
+		game.State().Players = append(game.State().Players, common.PlayerState{Name: name, Board: board})
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
-		game.state.Ongoing = common.READY
+		game.State().Ongoing = common.READY
 	} else {
 		error = errors.New("Player cannot be started")
 	}
 	return
 }
 
-func (game *AGame) nextDart() {
-	state := game.state
+func commonNextDart(game Game) {
+	state := game.State()
 	if state.CurrentDart == 2 {
 		game.HoldOrNextPlayer()
 	} else {
@@ -98,20 +100,20 @@ func (game *AGame) nextDart() {
 }
 
 // HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
-func (game *AGame) HoldOrNextPlayer() {
-	if game.state.Ongoing == common.PLAYING {
-		game.state.Ongoing = common.ONHOLD
-		game.state.LastMsg = "Next Player"
-		game.state.LastSector = common.Sector{}
-	} else if game.state.Ongoing == common.ONHOLD {
-		game.state.Ongoing = common.PLAYING
-		game.state.LastMsg = ""
+func commonHoldOrNextPlayer(game Game) {
+	if game.State().Ongoing == common.PLAYING {
+		game.State().Ongoing = common.ONHOLD
+		game.State().LastMsg = "Next Player"
+		game.State().LastSector = common.Sector{}
+	} else if game.State().Ongoing == common.ONHOLD {
+		game.State().Ongoing = common.PLAYING
+		game.State().LastMsg = ""
 		game.nextPlayer()
 	}
 }
 
-func (game *AGame) nextPlayer() {
-	state := game.state
+func commonNextPlayer(game Game) {
+	state := game.State()
 	state.CurrentDart = 0
 	state.CurrentPlayer = state.CurrentPlayer + 1
 	if state.CurrentPlayer >= len(state.Players) {
@@ -126,4 +128,33 @@ func (game *AGame) nextPlayer() {
 		}
 	}
 	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
+}
+
+func commonHandleDartChecks(game Game, sector common.Sector) (error error) {
+
+	if game.State().Ongoing == common.ONHOLD {
+		error = errors.New("Game is on hold and not ready to handle darts")
+		return
+	}
+
+	if game.State().Ongoing == common.READY {
+		// first dart starts the game
+		error = game.Start()
+		if error != nil {
+			return
+		}
+	}
+
+	if game.State().Ongoing != common.PLAYING {
+		error = errors.New("Game is not started or is ended")
+		return
+	}
+
+	if !sector.IsValid() {
+		log.WithFields(log.Fields{"sector": sector}).Error("Invalid sector")
+		error = errors.New("Sector is not a valid one")
+		return
+	}
+
+	return
 }

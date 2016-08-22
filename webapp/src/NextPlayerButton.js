@@ -12,7 +12,6 @@ class NextPlayerButton extends Component {
             body: JSON.stringify({})
         })
             .then((response) => response.json())
-            //.then((json) => browserHistory.push("/games/" + json.id))
             .catch((error) => console.log(error))
     }
 

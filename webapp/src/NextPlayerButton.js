@@ -3,7 +3,7 @@ import React, {Component} from 'react'
 class NextPlayerButton extends Component {
 
     nextPlayer() {
-        fetch('/api/games/' + this.props.gameId + '/skip', {
+        fetch('/api/games/' + this.props.gameId + '/hold', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

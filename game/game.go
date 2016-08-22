@@ -19,6 +19,8 @@ type Game interface {
 	State() *common.GameState
 	// BoardHasLeft is call to notify the game a board has been disconnected. Returns true if the game continues despite this event
 	BoardHasLeft(board string) bool
+	// HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
+	HoldOrNextPlayer()
 }
 
 // AGame common Game struct
@@ -88,10 +90,23 @@ func (game *AGame) AddPlayer(board string, name string) (error error) {
 func (game *AGame) nextDart() {
 	state := game.state
 	if state.CurrentDart == 2 {
-		game.nextPlayer()
+		game.HoldOrNextPlayer()
 	} else {
 		state.CurrentDart++
 		log.WithFields(log.Fields{"player": state.CurrentPlayer, "dart": state.CurrentDart}).Info("One more dart")
+	}
+}
+
+// HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
+func (game *AGame) HoldOrNextPlayer() {
+	if game.state.Ongoing == common.PLAYING {
+		game.state.Ongoing = common.ONHOLD
+		game.state.LastMsg = "Next Player"
+		game.state.LastSector = common.Sector{}
+	} else if game.state.Ongoing == common.ONHOLD {
+		game.state.Ongoing = common.PLAYING
+		game.state.LastMsg = ""
+		game.nextPlayer()
 	}
 }
 

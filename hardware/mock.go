@@ -23,13 +23,13 @@ func (mock *MockedHardware) Produce(inputEventChannel chan InputEvent) {
 	mock.channel = inputEventChannel
 	for {
 
-		fmt.Print("Enter sector [0/1-20/25]: ")
+		fmt.Print("Enter sector [1-20/25]: ")
 		fmt.Scanf("%d", &sector)
 		if sector < 0 {
 			break
 		}
 
-		if sector < 0 || (sector > 20 && sector != 25) {
+		if sector < 1 || (sector > 20 && sector != 25) {
 			fmt.Println("Illegal value (not in range)")
 			continue
 		}

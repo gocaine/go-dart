@@ -16,9 +16,10 @@ func TestGamex01End(t *testing.T) {
 	game.AddPlayer("test_board", "Bob")
 	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
 
-	if state.Ongoing != common.PLAYING {
-		t.Error("Game should not be ended")
-	}
+	AssertGameState(t, state, common.ONHOLD)
+
+	game.HoldOrNextPlayer()
+	AssertGameState(t, state, common.PLAYING)
 
 	alice := state.Players[0]
 
@@ -55,17 +56,19 @@ func TestGamex01SoloEnd(t *testing.T) {
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 
+	game.HoldOrNextPlayer()
+
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+
+	game.HoldOrNextPlayer()
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 19, Pos: 3})
 	state, _ := game.HandleDart(common.Sector{Val: 12, Pos: 2})
 
-	if state.Ongoing != common.OVER {
-		t.Error("Game should be Over")
-	}
+	AssertGameState(t, state, common.OVER)
 
 	ps := state.Players[0]
 
@@ -89,8 +92,10 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, state, 1, 0)
+	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 121)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 1, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
@@ -98,26 +103,27 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	AssertCurrents(t, state, 2, 0)
+	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 151)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 1, Player 2
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 2})
 	AssertCurrents(t, state, 2, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 2, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	AssertCurrents(t, state, 3, 0)
+	AssertCurrents(t, state, 2, 2)
+	game.HoldOrNextPlayer()
 	AssertScore(t, state.Players[2], 213)
 
+	game.HoldOrNextPlayer()
+
 	// Visit 1, Player 3
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 3, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 3, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 0, 0)
+	game.HoldOrNextPlayer()
+	AssertCurrents(t, state, 3, 0)
 	AssertScore(t, state.Players[3], 301)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 2, Player 0
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -125,9 +131,11 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 7, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 2})
-	AssertCurrents(t, state, 1, 0)
+	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 0)
 	AssertRank(t, state.Players[0], 1)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 2, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -137,8 +145,10 @@ func TestGame301(t *testing.T) {
 	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 31)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 2})
-	AssertCurrents(t, state, 2, 0)
+	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 151)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 2, Player 2
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -146,17 +156,17 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 2, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, state, 3, 0)
+	AssertCurrents(t, state, 2, 2)
 	AssertScore(t, state.Players[2], 33)
 
+	game.HoldOrNextPlayer()
+
 	// Visit 2, Player 3
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 3, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 3, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 1, 0)
+	game.HoldOrNextPlayer()
+	AssertCurrents(t, state, 3, 0)
 	AssertScore(t, state.Players[3], 301)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 3, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -164,8 +174,10 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 1})
-	AssertCurrents(t, state, 2, 0)
+	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 11)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 3, Player 2
 	state, _ = game.HandleDart(common.Sector{Val: 10, Pos: 3})
@@ -173,9 +185,11 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 1})
 	AssertCurrents(t, state, 2, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 2})
-	AssertCurrents(t, state, 3, 0)
+	AssertCurrents(t, state, 2, 2)
 	AssertScore(t, state.Players[2], 0)
 	AssertRank(t, state.Players[2], 2)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 3, Player 3
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -183,15 +197,19 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, state, 1, 0)
+	AssertCurrents(t, state, 3, 2)
 	AssertScore(t, state.Players[3], 121)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 4, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 3})
 	AssertCurrents(t, state, 1, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 2})
-	AssertCurrents(t, state, 3, 0)
+	AssertCurrents(t, state, 1, 1)
 	AssertScore(t, state.Players[1], 11)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 4, Player 3
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -199,8 +217,10 @@ func TestGame301(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, state, 1, 0)
+	AssertCurrents(t, state, 3, 2)
 	AssertScore(t, state.Players[3], 121)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 5, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 3, Pos: 2})
@@ -242,8 +262,10 @@ func TestGame301DoubleOut(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, state, 1, 0)
+	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 121)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 1, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
@@ -251,24 +273,26 @@ func TestGame301DoubleOut(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
-	AssertCurrents(t, state, 0, 0)
+	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 151)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 2, Player 0
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 1)
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, state, 1, 0)
+	AssertCurrents(t, state, 0, 1)
 	AssertScore(t, state.Players[0], 121)
 
+	game.HoldOrNextPlayer()
+
 	// Visit 2, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 1, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 1, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, state, 0, 0)
+	game.HoldOrNextPlayer()
+	AssertCurrents(t, state, 1, 0)
 	AssertScore(t, state.Players[1], 151)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 3, Player 0
 	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -276,8 +300,10 @@ func TestGame301DoubleOut(t *testing.T) {
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
 	state, _ = game.HandleDart(common.Sector{Val: 4, Pos: 1})
-	AssertCurrents(t, state, 1, 0)
+	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 121)
+
+	game.HoldOrNextPlayer()
 
 	// Visit 3, Player 1
 	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
@@ -299,4 +325,39 @@ func TestGame301DoubleOut(t *testing.T) {
 	AssertName(t, state.Players[0], "Bob")
 	AssertName(t, state.Players[1], "Alice")
 
+}
+
+func TestGamex01OnHold(t *testing.T) {
+	fmt.Println()
+	fmt.Println("TestGamex01OnHold")
+
+	game := NewGamex01(Optionx01{Score: 301})
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
+
+	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 0, 1)
+
+	_, err := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	AssertError(t, err, "Game is on hold and not ready to handle darts")
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 1, 0)
+
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 1, 2)
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 0, 0)
 }

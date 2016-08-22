@@ -10,9 +10,7 @@ type Sector struct {
 
 // IsValid tells if a Sector really exists (Triple 25 is not by example)
 func (s Sector) IsValid() bool {
-	if s.Val == 0 {
-		return s.Pos == 0
-	} else if s.Val > 0 && s.Val <= 20 {
+	if s.Val > 0 && s.Val <= 20 {
 		return s.Pos > 0 && s.Pos <= 3
 	} else if s.Val == 25 {
 		return s.Pos == 1 || s.Pos == 2
@@ -71,6 +69,8 @@ const (
 	READY
 	// PLAYING game has start
 	PLAYING
+	// ONHOLD game is waiting for next player signal
+	ONHOLD
 	// OVER game has ended
 	OVER
 )

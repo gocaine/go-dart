@@ -62,6 +62,8 @@ func (server *Server) Start() {
 	apiRouter.GET("/games/:gameId", server.findGameByIDHandler)
 	// // creation du joueur (POST) -> retourne joueur
 	apiRouter.POST("/games/:gameId/players", server.addPlayerToGameHandler)
+	// hold or next player (POST) - return new state
+	apiRouter.POST("/games/:gameId/hold", server.holdOrNextPlayerHandler)
 	// // etat joueur
 	// r.GET("/games/{gameId}/user/{userId}", server.userHandler).Methods("GET")
 	//
@@ -294,6 +296,26 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}
+}
+
+func (server *Server) holdOrNextPlayerHandler(c *gin.Context) {
+	gameID, err := strconv.Atoi(c.Param("gameId"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
+		return
+	}
+
+	currentGame, ok := server.games[gameID]
+	if !ok {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	currentGame.HoldOrNextPlayer()
+	state := currentGame.State()
+	c.JSON(http.StatusOK, gin.H{"state": state})
+	server.hubs[gameID].refresh()
 }
 
 func (server *Server) dartHandler(c *gin.Context) {

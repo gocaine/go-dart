@@ -66,17 +66,23 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, game.state, 0, 2)
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.state, 1, 0)
+	AssertCurrents(t, game.state, 0, 2)
+
+	game.HoldOrNextPlayer()
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	AssertCurrents(t, game.state, 0, 0)
+	AssertCurrents(t, game.state, 1, 2)
+
+	game.HoldOrNextPlayer()
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 0, Pos: 0})
-	AssertCurrents(t, game.state, 1, 0)
+	AssertCurrents(t, game.state, 0, 2)
+
+	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer()
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -93,4 +99,119 @@ func TestGameCountupEnd2Player(t *testing.T) {
 	AssertScore(t, player, 300)
 	AssertRank(t, player, 2)
 	AssertName(t, player, "Alice")
+}
+
+func TestGameCountupEnd3Player(t *testing.T) {
+	fmt.Println()
+	fmt.Println("TestGameCountupEnd3Player")
+
+	game := NewGameCountUp(OptionCountUp{Target: 301})
+
+	state := game.State()
+
+	if state.Ongoing != common.INITIALIZING {
+		t.Error("Game should be in initializing mode")
+	}
+
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
+	game.AddPlayer("test_board", "Charly")
+
+	AssertCurrents(t, game.state, 0, 0)
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.state, 0, 1)
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.state, 0, 2)
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.state, 0, 2)
+
+	game.HoldOrNextPlayer()
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.state, 1, 2)
+
+	game.HoldOrNextPlayer()
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.state, 2, 2)
+
+	game.HoldOrNextPlayer()
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.state, 0, 2)
+
+	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer()
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	AssertCurrents(t, game.state, 1, 2)
+
+	AssertGameState(t, state, common.ONHOLD)
+
+	game.HoldOrNextPlayer()
+
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+
+	player := state.Players[0]
+
+	AssertScore(t, player, 360)
+	AssertRank(t, player, 1)
+	AssertName(t, player, "Bob")
+
+	player = state.Players[1]
+
+	AssertScore(t, player, 360)
+	AssertRank(t, player, 2)
+	AssertName(t, player, "Charly")
+
+	player = state.Players[2]
+
+	AssertScore(t, player, 300)
+	AssertRank(t, player, 3)
+	AssertName(t, player, "Alice")
+}
+
+func TestGameCountupOnHold(t *testing.T) {
+	fmt.Println()
+	fmt.Println("TestGameCountupOnHold")
+
+	game := NewGameCountUp(OptionCountUp{Target: 300})
+	game.AddPlayer("test_board", "Alice")
+	game.AddPlayer("test_board", "Bob")
+
+	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 0, 1)
+
+	_, err := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	AssertError(t, err, "Game is on hold and not ready to handle darts")
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 1, 0)
+
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+
+	AssertGameState(t, state, common.ONHOLD)
+	AssertCurrents(t, state, 1, 2)
+
+	game.HoldOrNextPlayer()
+
+	AssertGameState(t, state, common.PLAYING)
+	AssertCurrents(t, state, 0, 0)
 }

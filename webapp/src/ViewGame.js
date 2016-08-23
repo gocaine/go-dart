@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import Player from './Player';
 import NewPlayerButton from './NewPlayerButton';
 import NowPlaying from './NowPlaying';
+import PlayerList from './PlayerList';
 import NextPlayerButton from './NextPlayerButton'
 
 
@@ -11,7 +12,8 @@ class ViewGame extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      gameId: props.params.gameId
+      gameId: props.params.gameId,
+      Players: []
     }
     console.log("fetching game " + this.state.gameId)
   }
@@ -45,10 +47,19 @@ class ViewGame extends Component {
         <div className="row">
           <h2><img src={logo} className="App-logo" alt="logo" />Game #{ gameId }</h2>
         </div>
-          <NewPlayerButton gameId={ gameId }/>
-          <NowPlaying game={ game } player={ game.Players[game.CurrentPlayer]}/>
-          <NextPlayerButton gameId={ gameId } />
-          {players}
+        <div className="row">
+
+          <div className="col s12 l6 push-l6">
+            <NowPlaying gameId={ gameId } game={ game } player={ game.Players[game.CurrentPlayer]}/>
+          </div>
+
+          <div className="col s12 l5 pull-l6">
+            <NewPlayerButton gameId={ gameId }/>
+            <PlayerList game={ game } players={ game.Players}/>
+          </div>
+
+        </div>
+        
       </div>
     );
   }

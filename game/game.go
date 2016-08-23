@@ -26,14 +26,14 @@ type Game interface {
 }
 
 // AGame common Game struct
-type AGame struct {
+type BaseGame struct {
 	state        *common.GameState
 	DisplayStyle string
 	rank         int
 }
 
 // State : get the current GameState
-func (game *AGame) State() *common.GameState {
+func (game *BaseGame) State() *common.GameState {
 	return game.state
 }
 
@@ -56,7 +56,7 @@ func commonStart(game Game) (error error) {
 }
 
 // BoardHasLeft is call to notify the game a board has been disconnected. It returns true if the game continues despite this event.
-func (game *AGame) BoardHasLeft(board string) bool {
+func (game *BaseGame) BoardHasLeft(board string) bool {
 	for _, p := range game.state.Players {
 		if p.Board == board {
 			log.Infof("game is over because the board %s from player %s has been disconnected", board, p.Name)

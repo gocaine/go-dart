@@ -11,7 +11,7 @@ import (
 
 // Gamex01 is a x01 series Game (301, 501-Double-Out, ...)
 type Gamex01 struct {
-	AGame
+	BaseGame
 	score     int
 	doubleOut bool
 	accu      int

@@ -10,7 +10,7 @@ import (
 
 // CountUp is a highscore Game, winner is the first to obtain a given score or more
 type CountUp struct {
-	AGame
+	BaseGame
 	target int
 }
 

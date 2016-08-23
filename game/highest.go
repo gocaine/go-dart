@@ -10,7 +10,7 @@ import (
 
 // Highest is a highscore Game, within a fixed number of visit, winner is the highest score
 type Highest struct {
-	AGame
+	BaseGame
 	rounds int
 }
 

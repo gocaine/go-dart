@@ -13,7 +13,7 @@ var sectors = [...]string{"15", "16", "17", "18", "19", "20", "25"}
 
 // Cricket is a cricket series Game (Cricket, Cut-throat)
 type Cricket struct {
-	AGame
+	BaseGame
 	noScore   bool
 	cutThroat bool
 	memory    map[string]int

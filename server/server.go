@@ -7,13 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/elazarl/go-bindata-assetfs"
-	"github.com/gocaine/go-dart/common"
-	"github.com/gocaine/go-dart/game"
-	"github.com/gocaine/go-dart/server/autogen"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/game"
 	"golang.org/x/net/websocket"
 )
 
@@ -72,12 +69,8 @@ func (server *Server) Start() {
 
 	apiRouter.GET("/games/:gameId/ws", server.wsHandler)
 
-	assetsRouter := engine.Group("/web")
-	assetsRouter.StaticFS("/", &assetfs.AssetFS{Asset: autogen.Asset, AssetDir: autogen.AssetDir, AssetInfo: autogen.AssetInfo, Prefix: "webapp/build"})
-
-	engine.Any("/", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "web")
-	})
+	engine.Use(ServeStatics())
+	engine.NoRoute(RerouteToIndex("/static", "/api"))
 
 	engine.Run(":8080")
 }

@@ -5,5 +5,5 @@ import:
 - package: github.com/spf13/cobra
 - package: github.com/dghubble/sling
 - package: github.com/kidoman/embd
-- package: github.com/elazarl/go-bindata-assetfs
+- package: github.com/mjibson/esc
 - package: github.com/google/uuid

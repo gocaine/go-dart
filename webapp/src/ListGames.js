@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import logo from './logo.svg';
+import routes from './config/routes';
 
 class ListGames extends Component {
 
@@ -24,12 +25,12 @@ class ListGames extends Component {
    return (
       <div className="App">
         <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+          <img src={ logo } className="App-logo" alt="logo" />
           <h2>Join a game</h2>
         </div>
         <ul>
         {
-          this.state.games.map((game) => <li key={game}><Link to={`/games/${game}`}>Game #{game}</Link></li>)
+          this.state.games.map((game) => <li key={ game }><Link to={ routes.joinGameById.replace(':gameId', game) }>Game #{ game }</Link></li>)
         }
         </ul>
       </div>

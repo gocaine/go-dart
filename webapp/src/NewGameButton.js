@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
+import routes from './config/routes';
 
 class NewGameButton extends Component {
 
@@ -15,15 +16,15 @@ class NewGameButton extends Component {
       })
     })
     .then((response) => response.json())
-    .then((json) => browserHistory.push("/games/" + json.id))
+    .then((json) => browserHistory.push(routes.joinGameById.replace(':gameId', json.id)))
     .catch((error) => console.log(error))    
   }
 
   render() {
    return (
      <li className="collection-item">
-     <span>{this.props.flavor.Code}</span>
-     <a onClick={() => this.newGame(this.props.flavor.Code)} className="secondary-content"><i className="material-icons light-blue-text">keyboard_arrow_right</i></a>
+     <span>{ this.props.flavor.Code }</span>
+     <a onClick={ () => this.newGame(this.props.flavor.Code) } className="secondary-content"><i className="material-icons light-blue-text">keyboard_arrow_right</i></a>
      </li>)
   }
 }

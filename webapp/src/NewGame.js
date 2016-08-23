@@ -23,11 +23,11 @@ class NewGame extends Component {
     return (
       <div>
         <div className="row">
-          <h2><img src={logo} className="App-logo" alt="logo" />Select flavor</h2>
+          <h2><img src={ logo } className="App-logo" alt="logo" />Select flavor</h2>
         </div>
         <div className="row">
           <ul className="collection">
-            { this.state.flavors.map((flavor) => <NewGameButton key={flavor.Code} flavor={flavor}/>) }
+            { this.state.flavors.map((flavor) => <NewGameButton key={ flavor.Code } flavor={ flavor }/>) }
           </ul>
         </div>
       </div>

@@ -1,7 +1,6 @@
 package game
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -14,7 +13,7 @@ var sectors = [...]string{"15", "16", "17", "18", "19", "20", "25"}
 
 // Cricket is a cricket series Game (Cricket, Cut-throat)
 type Cricket struct {
-	AGame
+	BaseGame
 	noScore   bool
 	cutThroat bool
 	memory    map[string]int
@@ -48,7 +47,7 @@ func NewGameCricket(opt OptionCricket) *Cricket {
 // AddPlayer add a new player to the game
 func (game *Cricket) AddPlayer(board string, name string) (error error) {
 
-	error = game.AGame.AddPlayer(board, name)
+	error = commonAddPlayer(game, board, name)
 	if error == nil {
 		game.state.Players[len(game.state.Players)-1].Histo = make(map[string]int)
 	}
@@ -59,7 +58,7 @@ func (game *Cricket) AddPlayer(board string, name string) (error error) {
 // Start start the game, Darts will be handled
 func (game *Cricket) Start() (error error) {
 
-	error = game.AGame.Start()
+	error = commonStart(game)
 	if error == nil {
 		for _, key := range sectors {
 			game.memory[key] = len(game.state.Players)
@@ -72,28 +71,8 @@ func (game *Cricket) Start() (error error) {
 // HandleDart the implementation has to handle the Dart regarding the current player, the cricket rules, and the context. Return a GameState
 func (game *Cricket) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
-	if game.state.Ongoing == common.ONHOLD {
-		error = errors.New("Game is on hold and not ready to handle darts")
-		return
-	}
-
-	if game.state.Ongoing == common.READY {
-		// first dart starts the game
-		err := game.Start()
-		if err != nil {
-			error = err
-			return
-		}
-	}
-
-	if game.state.Ongoing != common.PLAYING {
-		error = errors.New("Game is not started or is ended")
-		return
-	}
-
-	if !sector.IsValid() {
-		log.WithFields(log.Fields{"sector": sector}).Error("Invalid sector")
-		error = errors.New("Sector is not a valid one")
+	error = commonHandleDartChecks(game, sector)
+	if error != nil {
 		return
 	}
 
@@ -216,6 +195,19 @@ func (game *Cricket) winner() {
 	} else {
 		game.nextPlayer()
 	}
+}
+
+// HoldOrNextPlayer switch game state between ONHOLD and PLAYING
+func (game *Cricket) HoldOrNextPlayer() {
+	commonHoldOrNextPlayer(game)
+}
+
+func (game *Cricket) nextDart() {
+	commonNextDart(game)
+}
+
+func (game *Cricket) nextPlayer() {
+	commonNextPlayer(game)
 }
 
 // check if current player has the highest score

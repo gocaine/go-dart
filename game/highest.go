@@ -1,7 +1,6 @@
 package game
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 
@@ -11,7 +10,7 @@ import (
 
 // Highest is a highscore Game, within a fixed number of visit, winner is the highest score
 type Highest struct {
-	AGame
+	BaseGame
 	rounds int
 }
 
@@ -35,28 +34,8 @@ func NewGameHighest(opt OptionHighest) *Highest {
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
 func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
-	if game.state.Ongoing == common.ONHOLD {
-		error = errors.New("Game is on hold and not ready to handle darts")
-		return
-	}
-
-	if game.state.Ongoing == common.READY {
-		// first dart starts the game
-		err := game.Start()
-		if err != nil {
-			error = err
-			return
-		}
-	}
-
-	if game.state.Ongoing != common.PLAYING {
-		error = errors.New("Game is not started or is ended")
-		return
-	}
-
-	if !sector.IsValid() {
-		log.WithFields(log.Fields{"sector": sector}).Error("Invalid sector")
-		error = errors.New("Sector is not a valid one")
+	error = commonHandleDartChecks(game, sector)
+	if error != nil {
 		return
 	}
 
@@ -92,4 +71,27 @@ func (game *Highest) winner() {
 			state.Players[i].Rank = i + 1
 		}
 	}
+}
+
+// Start start the game, Darts will be handled
+func (game *Highest) Start() error {
+	return commonStart(game)
+}
+
+// AddPlayer add a new player to the game
+func (game *Highest) AddPlayer(board string, name string) error {
+	return commonAddPlayer(game, board, name)
+}
+
+// HoldOrNextPlayer switch game state between ONHOLD and PLAYING
+func (game *Highest) HoldOrNextPlayer() {
+	commonHoldOrNextPlayer(game)
+}
+
+func (game *Highest) nextDart() {
+	commonNextDart(game)
+}
+
+func (game *Highest) nextPlayer() {
+	commonNextPlayer(game)
 }

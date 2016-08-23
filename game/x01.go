@@ -11,7 +11,7 @@ import (
 
 // Gamex01 is a x01 series Game (301, 501-Double-Out, ...)
 type Gamex01 struct {
-	AGame
+	BaseGame
 	score     int
 	doubleOut bool
 	accu      int
@@ -59,28 +59,8 @@ func (game *Gamex01) Start() (error error) {
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules of x01, and the context. Return a GameState
 func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState, error error) {
 
-	if game.state.Ongoing == common.ONHOLD {
-		error = errors.New("Game is on hold and not ready to handle darts")
-		return
-	}
-
-	if game.state.Ongoing == common.READY {
-		// first dart starts the game
-		err := game.Start()
-		if err != nil {
-			error = err
-			return
-		}
-	}
-
-	if game.state.Ongoing != common.PLAYING {
-		error = errors.New("Game is not started or is ended")
-		return
-	}
-
-	if !sector.IsValid() {
-		log.WithFields(log.Fields{"sector": sector}).Error("Invalid sector")
-		error = errors.New("Sector is not a valid one")
+	error = commonHandleDartChecks(game, sector)
+	if error != nil {
 		return
 	}
 
@@ -149,6 +129,11 @@ func (game *Gamex01) HoldOrNextPlayer() {
 		game.state.LastMsg = ""
 		game.nextPlayer()
 	}
+}
+
+// AddPlayer add a new player to the game
+func (game *Gamex01) AddPlayer(board string, name string) error {
+	return commonAddPlayer(game, board, name)
 }
 
 func (game *Gamex01) nextPlayer() {

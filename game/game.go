@@ -25,7 +25,7 @@ type Game interface {
 	nextDart()
 }
 
-// AGame common Game struct
+// BaseGame common Game struct
 type BaseGame struct {
 	state        *common.GameState
 	DisplayStyle string

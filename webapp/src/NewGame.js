@@ -28,7 +28,7 @@ class NewGame extends Component {
     return (
       <div>
         <div className="row">
-          <h2><img src={logo} className="App-logo" alt="logo" />Select flavor</h2>
+          <h2><img src={logo} style={{'vertical-align': 'middle'}} className="App-logo" alt="logo" /><span style={{'vertical-align': 'middle'}} >Select flavor</span></h2>
         </div>
 
         <div className="row">

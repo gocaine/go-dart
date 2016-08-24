@@ -48,6 +48,8 @@ func (game *CountUp) HandleDart(sector common.Sector) (result *common.GameState,
 
 	state.Players[state.CurrentPlayer].Score += point
 
+	state.Players[state.CurrentPlayer].Visits = append(state.Players[state.CurrentPlayer].Visits, sector)
+
 	if state.Players[state.CurrentPlayer].Score >= game.target {
 		game.winner()
 		if game.state.Ongoing == common.PLAYING {

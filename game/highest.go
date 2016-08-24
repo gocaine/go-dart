@@ -48,6 +48,8 @@ func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState,
 
 	state.Players[state.CurrentPlayer].Score += point
 
+	state.Players[state.CurrentPlayer].Visits = append(state.Players[state.CurrentPlayer].Visits, sector)
+
 	log.WithFields(log.Fields{"state.Round": state.Round, "game.rounds": game.rounds}).Info("Rounds")
 	if state.Round == game.rounds && state.CurrentDart == 2 {
 		game.winner()

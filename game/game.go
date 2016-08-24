@@ -80,7 +80,9 @@ func commonAddPlayer(game Game, board string, name string) (error error) {
 		}
 
 		log.WithFields(log.Fields{"player": name, "board": board}).Infof("Player added to the game")
-		game.State().Players = append(game.State().Players, common.PlayerState{Name: name, Board: board, Visits: make([]int, 0, 3)})
+
+		game.State().Players = append(game.State().Players, common.PlayerState{Name: name, Board: board, Visits: make([]common.Sector, 0, 3)})
+
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
 		game.State().Ongoing = common.READY
 	} else {
@@ -116,7 +118,7 @@ func commonNextPlayer(game Game) {
 	state := game.State()
 
 	// reset visits
-	state.Players[state.CurrentPlayer].Visits = make([]int, 0, 3)
+	state.Players[state.CurrentPlayer].Visits = make([]common.Sector, 0, 3)
 
 	state.CurrentDart = 0
 	state.CurrentPlayer = state.CurrentPlayer + 1

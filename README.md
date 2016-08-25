@@ -1,7 +1,8 @@
 # go-dart
 
 [![Build Status](https://travis-ci.org/gocaine/go-dart.svg?branch=master)](https://travis-ci.org/gocaine/go-dart)
-[![Coverage Status](https://coveralls.io/repos/github/gocaine/go-dart/badge.svg?branch=master)](https://coveralls.io/github/gocaine/go-dart?branch=master)
+[![codecov](https://codecov.io/gh/gocaine/go-dart/branch/master/graph/badge.svg)](https://codecov.io/gh/gocaine/go-dart)
+
 
 # Authors
 

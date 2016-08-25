@@ -101,7 +101,7 @@ func commonNextDart(game Game) {
 
 // HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
 func commonHoldOrNextPlayer(game Game) {
-	if game.State().Ongoing == common.PLAYING {
+	if game.State().Ongoing == common.PLAYING || game.State().Ongoing == common.READY {
 		game.State().Ongoing = common.ONHOLD
 		game.State().LastMsg = "Next Player"
 		game.State().LastSector = common.Sector{}

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// RerouteToIndex returns a new middleware to handle not found paths (e.g. frontedn routes) and route them to index
+// RerouteToIndex returns a new middleware to handle not found paths (e.g. frontend routes) and route them to index
 // The blacklistPrefixes prevent some path to be routed
 func RerouteToIndex(blacklistPrefixes ...string) gin.HandlerFunc {
 	fs := autogen.FS(false)

@@ -23,7 +23,7 @@ class App extends Component {
           <div className="col s12 m4" >
             <div className="icon-block">
               <div className="center">
-                <Link to="/newGame" className="btn-large waves-effect waves-light btn"><i className="material-icons left large ">add</i>New Game</Link>
+                <Link to="/newGame" className="btn-large waves-effect waves-light btn light-blue"><i className="material-icons left large ">add</i>New Game</Link>
                 <p className="light hide-on-small-only">Create a new game and invite other players to join</p>
               </div>
             </div>            
@@ -32,7 +32,7 @@ class App extends Component {
           <div className="col s12 m4">
             <div className="icon-block">
               <div className="center">
-                <Link to="/newGame" className="btn-large waves-effect waves-light btn"><i className="material-icons left large">call_merge</i>Join existing</Link>
+                <Link to="/newGame" className="btn-large waves-effect waves-light btn light-blue"><i className="material-icons left large">call_merge</i>Join existing</Link>
                 <p className="light hide-on-small-only">Invite yourself in existing games</p>
               </div>
             </div>
@@ -41,7 +41,7 @@ class App extends Component {
           <div className="col s12 m4">
             <div className="icon-block">
               <div className="center">
-                <Link to="/newGame" className="btn-large waves-effect waves-light btn"><i className="material-icons left large">subscriptions</i>View statistics</Link>
+                <Link to="/newGame" className="btn-large waves-effect waves-light btn light-blue"><i className="material-icons left large">subscriptions</i>View statistics</Link>
                 <p className="hide-on-small-only light">Explore and analyze statistics of the players</p>
               </div>
             </div>

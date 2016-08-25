@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "proxy": "http://localhost:8080/",
-  "homepage": "http://localhost:8080/web",
+  "homepage": "http://localhost:8080",
   "devDependencies": {
     "react-scripts": "0.3.0-alpha"
   },

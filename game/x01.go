@@ -118,17 +118,9 @@ func (game *Gamex01) winner() {
 	}
 }
 
-// HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
+// HoldOrNextPlayer switch game state between ONHOLD and PLAYING
 func (game *Gamex01) HoldOrNextPlayer() {
-	if game.state.Ongoing == common.PLAYING {
-		game.state.Ongoing = common.ONHOLD
-		game.state.LastMsg = "Next Player"
-		game.state.LastSector = common.Sector{}
-	} else if game.state.Ongoing == common.ONHOLD {
-		game.state.Ongoing = common.PLAYING
-		game.state.LastMsg = ""
-		game.nextPlayer()
-	}
+	commonHoldOrNextPlayer(game)
 }
 
 // AddPlayer add a new player to the game

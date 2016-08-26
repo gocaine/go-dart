@@ -17,16 +17,22 @@ class NewGame extends Component {
       .then((response) => response.json())
       .then((json) => this.setState({ flavors: json.styles }))
       .catch((error) => console.log(error))
+
+    $(this._collapsible).collapsible({
+      accordion: false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+    });
+
   }
 
   render() {
     return (
       <div>
         <div className="row">
-          <h2><img src={logo} className="App-logo" alt="logo" />Select flavor</h2>
+          <h2><img src={logo} style={{'vertical-align': 'middle'}} className="App-logo" alt="logo" /><span style={{'vertical-align': 'middle'}} >Select flavor</span></h2>
         </div>
+
         <div className="row">
-          <ul className="collection">
+          <ul className="collapsible popout" data-collapsible="accordion" ref={(ref) => this._collapsible = ref}>
             { this.state.flavors.map((flavor) => <NewGameButton key={flavor.Code} flavor={flavor}/>) }
           </ul>
         </div>

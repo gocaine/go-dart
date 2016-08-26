@@ -3,7 +3,9 @@ import logo from './logo.svg';
 import Player from './Player';
 import NewPlayerButton from './NewPlayerButton';
 import NowPlaying from './NowPlaying';
+import PlayerList from './PlayerList';
 import NextPlayerButton from './NextPlayerButton'
+import Congratulation from './Congratulation'
 
 
 class ViewGame extends Component {
@@ -11,7 +13,8 @@ class ViewGame extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      gameId: props.params.gameId
+      gameId: props.params.gameId,
+      Players: []
     }
     console.log("fetching game " + this.state.gameId)
   }
@@ -40,15 +43,35 @@ class ViewGame extends Component {
     }
     const players = (game.Players ? game.Players.map((player) => <Player key={player.Name} player={player}/>) : [])
 
+    // Display NewPlayerButton only if ongoing is INITIALIZING or READY
+    const newPlayerButton = (game.Ongoing <= 1 ? <NewPlayerButton gameId={ gameId }/> : "")
+
+
+    const playerPanel = (game.Ongoing == 4 ?
+      <Congratulation game={ game } player={ game.Players[game.CurrentPlayer]} > </Congratulation> :
+      <NowPlaying gameId={ gameId } game={ game } player={ game.Players[game.CurrentPlayer]}/>)
+
     return (
       <div>
         <div className="row">
-          <h2><img src={logo} className="App-logo" alt="logo" />Game #{ gameId }</h2>
+          <h2 className="col s12 l6 offset-l3"><img src={logo} className="App-logo" style={{'vertical-align': 'middle'}} alt="logo" /><span style={{'vertical-align': 'middle'}} >Game #{ gameId }</span></h2>
         </div>
-          <NewPlayerButton gameId={ gameId }/>
-          <NowPlaying game={ game } player={ game.Players[game.CurrentPlayer]}/>
-          <NextPlayerButton gameId={ gameId } />
-          {players}
+        <div className="row">
+
+          <div className="col s12 l6 offset-l3">
+            {newPlayerButton}
+          </div>
+
+          <div className="col s12 l6 offset-l3">
+            {playerPanel}
+          </div>
+
+          <div className="col s12 l6 offset-l3">
+            <PlayerList game={ game } players={ game.Players}/>
+          </div>
+
+        </div>
+
       </div>
     );
   }

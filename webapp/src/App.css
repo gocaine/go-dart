@@ -4,7 +4,48 @@
 
 .icon-block {
   padding: 0 15px;
+  margin: 10px 0; 
 }
-.icon-block .material-icons {
-	font-size: inherit;
+
+.header-block {
+  margin: 35px 0 ;
+}
+.score-circle-wrapper {
+  overflow: auto;
+  position: relative;
+  width: 80px;
+  float: left;
+}
+.score-circle {
+  width: 60px;
+  height: 60px;
+  /*text-align: center;
+  vertical-align: middle;
+  display: inline-block;*/
+  float: left;
+  margin: 10px;
+}
+.score-circle-content {
+  width: 100%;
+
+    font-size: 2em;
+    font-weight: normal;
+    color: white;
+}
+.bubble {
+  background-color: yellow;
+  position: absolute;
+  bottom:0;
+  right:0;
+  padding:4px;
+}
+.player-score-card {
+  width: 120px;
+  padding: 1em;
+}
+.player-score-card h3, .player-score-card-small span {
+  font-size: 1.6em;
+}
+.collection .collection-item.avatar {
+  min-height: 62px;
 }

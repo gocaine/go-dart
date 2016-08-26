@@ -81,6 +81,8 @@ func (game *Cricket) HandleDart(sector common.Sector) (result *common.GameState,
 	state.LastSector = sector
 	sVal := strconv.Itoa(sector.Val)
 
+	state.Players[state.CurrentPlayer].Visits = append(state.Players[state.CurrentPlayer].Visits, sector)
+
 	log.WithFields(log.Fields{"player": state.CurrentPlayer, "sector": sector}).Info("Hit")
 
 	if sector.Val >= 15 {

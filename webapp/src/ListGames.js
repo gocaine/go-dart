@@ -24,8 +24,8 @@ class ListGames extends Component {
    return (
       <div className="App">
         <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Join a game</h2>
+          <img style={{'vertical-align': 'middle'}} src={logo} className="App-logo" alt="logo" />
+          <h2 style={{'vertical-align': 'middle'}} >Join a game</h2>
         </div>
         <ul>
         {

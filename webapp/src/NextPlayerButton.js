@@ -17,9 +17,10 @@ class NextPlayerButton extends Component {
     }
 
     render() {
+        const label = ( this.props.game.Ongoing == 3 ? "Next" : "Hold" )
         return (
             <div>
-                <a className="waves-effect waves-light btn light-blue" onClick={() => this.nextPlayer() }>Next</a>
+                <a className="waves-effect waves-light btn light-blue" onClick={() => this.nextPlayer() }>{label}</a>
             </div>
         )
     }

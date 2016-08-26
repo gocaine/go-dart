@@ -20,11 +20,12 @@ func (s Sector) IsValid() bool {
 
 // PlayerState the player data (name, score, rank, ...)
 type PlayerState struct {
-	Name  string
-	Score int
-	Rank  int
-	Histo map[string]int
-	Board string
+	Name   string
+	Score  int
+	Rank   int
+	Histo  map[string]int
+	Board  string
+	Visits []Sector
 }
 
 // ByRank implements sort.Interface

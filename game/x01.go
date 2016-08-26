@@ -74,6 +74,9 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 
 	state.Players[state.CurrentPlayer].Score -= point
 
+	log.Info("Current dart ", game.state.CurrentDart)
+	state.Players[state.CurrentPlayer].Visits = append(state.Players[state.CurrentPlayer].Visits, sector)
+
 	if state.Players[state.CurrentPlayer].Score > 0 {
 		if game.doubleOut && state.Players[state.CurrentPlayer].Score == 1 {
 			state.LastMsg = "You should end with a double"
@@ -129,8 +132,13 @@ func (game *Gamex01) AddPlayer(board string, name string) error {
 }
 
 func (game *Gamex01) nextPlayer() {
+
 	game.accu = 0
-	state := game.state
+	state := game.State()
+
+	// reset visits
+	state.Players[state.CurrentPlayer].Visits = make([]common.Sector, 0, 3)
+
 	state.CurrentDart = 0
 	state.CurrentPlayer = (state.CurrentPlayer + 1) % len(state.Players)
 	for state.Players[state.CurrentPlayer].Score == 0 {

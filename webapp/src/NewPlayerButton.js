@@ -11,10 +11,12 @@ class NewPlayerButton extends Component {
     this.state = {
       boards: []
     }
+
+    this.handleBoardChange = this.handleBoardChange.bind(this)
+    this.handlePlayerNameChange = this.handlePlayerNameChange.bind(this)
   }
 
   componentDidMount() {
-    //TODO use a react library for materialyzecss
     this.listBoards()
   }
 
@@ -26,8 +28,8 @@ class NewPlayerButton extends Component {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        name: this._nameinput.value,
-        board: this._boardinput.selectInput.value
+        name: this.name,
+        board: this.board
       })
     })
       .then((response) => response.json())
@@ -43,16 +45,24 @@ class NewPlayerButton extends Component {
   }
 
 
+  handlePlayerNameChange(event) {
+    this.name = event.target.value
+  }
+
+  handleBoardChange(event) {
+    this.board = event.target.value
+  }
+
 
   render() {
     return (
       <div className="col s12">
         <div className="input-field col s12 l5">
-          <input  ref={(c) => this._nameinput = c} id="playerName" type="text" className="validate"/>
+          <input id="playerName" type="text" className="validate" onChange={this.handlePlayerNameChange}/>
           <label htmlFor="playerName">Player name</label>
         </div>
         <div className=" col s8 l4">
-          <Input type='select' label="Board" ref={(c) => this._boardinput = c}>
+          <Input type='select' label="Board"  onChange={this.handleBoardChange}>
             { this.state.boards.map((board) => <option value={board}>{ board }</option>) }
           </Input>
         </div>
@@ -60,7 +70,7 @@ class NewPlayerButton extends Component {
           <a className="waves-effect waves-light btn light-blue" onClick={() => this.addPlayer() }>Add</a>
         </div>
       </div>
-      )
+    )
   }
 }
 

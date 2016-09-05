@@ -4,6 +4,7 @@ PROJECT_URL=https://github.com/gocaine/go-dart
 SOURCES=$(shell git ls-files '*.go')
 
 BUILD_IMAGE=go-dart.build:latest
+PROD_IMAGE := $(if $(REPONAME),$(REPONAME),"gocaine/go-dart")
 RUN_IMAGE=docker run --rm -e GITHUB_TOKEN -v $(CURDIR)/dist:/go/src/github.com/gocaine/go-dart/dist -v $(CURDIR)/reports:/go/src/github.com/gocaine/go-dart/reports go-dart.build:latest
 
 UI_BUILD_IMAGE=go-dart-ui.build:latest
@@ -74,6 +75,8 @@ format:
 release: ## create a release on github
 	$(RUN_IMAGE) scripts/make.sh release
 
+image: binary ## build a docker image
+	docker build -t $(PROD_IMAGE) .
 
 deploy: ## actually deploy on rpi
 	scp -r shell/clean-i2c.sh boards dist/go-dart $(RPI_USER)@$(RPI):~/

@@ -8,7 +8,7 @@ cache:
     - webapp/bower_components
 
 install:
-  - make binary
+  - make binary image
 
 script:
   - make validate test-coverage

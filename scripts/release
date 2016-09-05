@@ -31,3 +31,9 @@ VERSION=v1.0.0-beta$PR
 echo "Creating release '$VERSION'..."
 
 /tmp/ghr -u gocaine -prerelease -replace "$VERSION" dist/
+
+echo "Updating docker gocaine/go-dart image..."
+docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+docker tag gocaine/go-dart gocaine/go-dart:${VERSION}
+docker push gocaine/go-dart:latest
+docker push gocaine/go-dart:${VERSION}

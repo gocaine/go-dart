@@ -15,4 +15,4 @@ fi
 
 rm -f dist/go-dart
 
-go build -ldflags "-X github.com/gocaine/go-dart/cmd.GitHash=`git rev-parse HEAD` -X github.com/gocaine/go-dart/cmd.BuildDate=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -X github.com/gocaine/go-dart/cmd.Version=$VERSION -X github.com/gocaine/go-dart/cmd.ProjectUrl=$PROJECT_URL" -o dist/go-dart
+CGO_ENABLED=0 GOGC=off go build -ldflags "-X github.com/gocaine/go-dart/cmd.GitHash=`git rev-parse HEAD` -X github.com/gocaine/go-dart/cmd.BuildDate=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -X github.com/gocaine/go-dart/cmd.Version=$VERSION -X github.com/gocaine/go-dart/cmd.ProjectUrl=$PROJECT_URL" -installsuffix nocgo -o dist/go-dart

@@ -11,10 +11,16 @@ func serverCmd() *cobra.Command {
 		Use:   "server",
 		Short: "Start the server",
 		Run: func(cmd *cobra.Command, arg []string) {
+
+			flag := cmd.Flag("port")
+			port := flag.Value.String()
+
 			server := server.NewServer()
-			server.Start()
+			server.Start(port)
 		},
 	}
+
+	serverCmd.Flags().IntP("port", "p", 8080, "listening port")
 
 	return serverCmd
 }

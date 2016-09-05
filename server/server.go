@@ -39,7 +39,7 @@ func NewServer() *Server {
 }
 
 // Start prepares and start the web server
-func (server *Server) Start() {
+func (server *Server) Start(port string) {
 	fmt.Println("Ready to Dart !!")
 	engine := gin.Default()
 
@@ -72,7 +72,7 @@ func (server *Server) Start() {
 	engine.Use(ServeStatics())
 	engine.NoRoute(RerouteToIndex("/static", "/api"))
 
-	engine.Run(":8080")
+	engine.Run(":" + port)
 }
 
 func (server *Server) wsHandler(c *gin.Context) {

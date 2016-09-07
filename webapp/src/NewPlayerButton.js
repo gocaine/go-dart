@@ -40,7 +40,10 @@ class NewPlayerButton extends Component {
   listBoards() {
     fetch('/api/boards')
       .then(response => response.json())
-      .then((json) => this.setState({ boards: json }))
+      .then((json) => {
+        this.setState({ boards: json });
+        if (json.length != 0) { this.board = json[0] }
+      })
       .catch((error) => console.log(error))
   }
 

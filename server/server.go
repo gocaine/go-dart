@@ -263,7 +263,7 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 
 	currentGame, ok := server.games[gameID]
 	if !ok {
-		c.JSON(http.StatusNotFound, nil)
+		c.JSON(http.StatusNotFound, gin.H{"status": "game not found"})
 		return
 	}
 

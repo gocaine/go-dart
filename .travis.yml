@@ -14,4 +14,4 @@ script:
   - make validate test-coverage
   - bash <(curl -s https://codecov.io/bash) -s reports
   - env
-  - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then bash scripts/release; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then bash scripts/release; fi'

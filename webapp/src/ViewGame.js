@@ -27,7 +27,7 @@ class ViewGame extends Component {
       .catch((error) => console.log(error))
     
     var wsProtocol = "wss";
-    if (window.location.protocol == "http") {
+    if (window.location.protocol == "http:") {
       // keep using non secured connection
       wsProtocol = "ws";
     }

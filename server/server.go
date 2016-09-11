@@ -57,6 +57,8 @@ func (server *Server) Start(port string) {
 	apiRouter.GET("/games", server.listeGamesHandler) // retourne un id
 	// etat du jeu (GET)
 	apiRouter.GET("/games/:gameId", server.findGameByIDHandler)
+	// cancel a Game
+	apiRouter.DELETE("/games/:gameId", server.cancelGameHandler)
 	// // creation du joueur (POST) -> retourne joueur
 	apiRouter.POST("/games/:gameId/players", server.addPlayerToGameHandler)
 	// hold or next player (POST) - return new state
@@ -187,6 +189,15 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	}
 }
 
+func (server *Server) cancelGameHandler(c *gin.Context) {
+	server.removeEndedGame()
+
+	if gameID, currentGame, ok := server.findGame(c); ok {
+		currentGame.State().Ongoing = common.OVER
+		server.publishUpdate(gameID)
+	}
+}
+
 func gameFactory(style string) (result game.Game, err error) {
 	switch style {
 	case common.Gs301.Code:
@@ -233,62 +244,40 @@ func gameFactory(style string) (result game.Game, err error) {
 
 func (server *Server) findGameByIDHandler(c *gin.Context) {
 	server.removeEndedGame()
-	gameID, err := strconv.Atoi(c.Param("gameId"))
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
-		return
+	if _, currentGame, ok := server.findGame(c); ok {
+		c.JSON(http.StatusOK, gin.H{"game": currentGame.State()})
 	}
-	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
-
-	currentGame, ok := server.games[gameID]
-	if !ok {
-		c.JSON(http.StatusNotFound, nil)
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"game": currentGame.State()})
 }
 
 func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 	server.removeEndedGame()
-	gameID, err := strconv.Atoi(c.Param("gameId"))
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
-		return
-	}
+	if gameID, currentGame, ok := server.findGame(c); ok {
+		var p common.PlayerRepresentation
+		if c.BindJSON(&p) == nil {
 
-	log.Infof("flushing game w/ id {}", gameID)
+			if !server.isBoardRegistered(p.Board) {
+				c.JSON(http.StatusNotFound, gin.H{"status": "board not found"})
+				return
+			}
 
-	currentGame, ok := server.games[gameID]
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"status": "game not found"})
-		return
-	}
+			activeGameID, ok := server.activeGames[p.Board]
+			if ok && activeGameID != gameID {
+				// A active game, different from this one, has been found
+				c.JSON(http.StatusForbidden, gin.H{"status": "board is already busy"})
+				return
+			}
 
-	var p common.PlayerRepresentation
-	if c.BindJSON(&p) == nil {
-
-		if !server.isBoardRegistered(p.Board) {
-			c.JSON(http.StatusNotFound, gin.H{"status": "board not found"})
-			return
+			currentGame.AddPlayer(p.Board, p.Name)
+			server.activeGames[p.Board] = gameID
+			c.JSON(http.StatusCreated, nil)
+			server.hubs[gameID].refresh()
+		} else {
+			c.JSON(http.StatusBadRequest, nil)
 		}
-
-		activeGameID, ok := server.activeGames[p.Board]
-		if ok && activeGameID != gameID {
-			// A active game, different from this one, has been found
-			c.JSON(http.StatusForbidden, gin.H{"status": "board is already busy"})
-			return
-		}
-
-		currentGame.AddPlayer(p.Board, p.Name)
-		server.activeGames[p.Board] = gameID
-		c.JSON(http.StatusCreated, nil)
-		server.hubs[gameID].refresh()
-	} else {
-		c.JSON(http.StatusBadRequest, nil)
 	}
+
 }
 
 func (server *Server) holdOrNextPlayerHandler(c *gin.Context) {
@@ -343,6 +332,24 @@ func (server *Server) dartHandler(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusBadRequest, nil)
 	}
+}
+
+func (server *Server) findGame(c *gin.Context) (gameID int, currentGame game.Game, ok bool) {
+
+	gameID, err := strconv.Atoi(c.Param("gameId"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
+		return
+	}
+	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
+
+	currentGame, ok = server.games[gameID]
+	if !ok {
+		c.JSON(http.StatusNotFound, nil)
+		return
+	}
+	return
 }
 
 func (server *Server) publishUpdate(gameID int) {

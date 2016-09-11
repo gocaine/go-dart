@@ -31,7 +31,7 @@ class ViewGame extends Component {
       // keep using non secured connection
       wsProtocol = "ws";
     }
-    this.ws = new WebSocket(wsProtocol + '://' + window.location.hostname + '/api/games/' + this.state.gameId + '/ws');
+    this.ws = new WebSocket(wsProtocol + '://' + window.location.host + '/api/games/' + this.state.gameId + '/ws');
     this.ws.onmessage = (event) => this.updateGameState(JSON.parse(event.data))
   }
 

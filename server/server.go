@@ -48,7 +48,7 @@ func (server *Server) Start(port string) {
 	// les styles de jeu possibles
 	apiRouter.GET("/styles", server.getStylesHandler) // retourne la liste des styles
 	// creation du jeu (POST) -  fournit le type de jeu
-	apiRouter.POST("/games", server.createNewGameHandler) // retourne un id
+	apiRouter.POST("/games", server.createNewNewGameHandler) // retourne un id
 	// board registration (POST)
 	apiRouter.POST("/boards", server.registerBoardHandler) // return 202 if ok
 	// registered boards list (GET)
@@ -195,6 +195,43 @@ func (server *Server) cancelGameHandler(c *gin.Context) {
 	if gameID, currentGame, ok := server.findGame(c); ok {
 		currentGame.State().Ongoing = common.OVER
 		server.publishUpdate(gameID)
+	}
+}
+
+func (server *Server) createNewNewGameHandler(c *gin.Context) {
+	log.Info("createNewNewGameHandler")
+	server.removeEndedGame()
+	var g common.NewGameRepresentation
+	if c.BindJSON(&g) == nil {
+		nextID := len(server.games) + 1
+
+		log.WithField("repr", g).Info("createNewNewGameHandler")
+
+		theGame, err := newGameFactory(g)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
+			return
+		}
+		server.games[nextID] = theGame
+		server.hubs[nextID] = NewGameHub(theGame)
+
+		c.JSON(http.StatusCreated, gin.H{"id": nextID, "game": theGame})
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content"})
+	}
+}
+
+func newGameFactory(g common.NewGameRepresentation) (result game.Game, err error) {
+
+	log.WithField("repr", g).Info("newGameFactory")
+	switch g.Style {
+	case game.GsX01.Code:
+		result = game.NewGamex01(game.NewOptionx01(g.Options))
+		return
+	default:
+		err = errors.New("game of type " + g.Style + " is not yet supported")
+		return
 	}
 }
 

@@ -103,6 +103,22 @@ type GameStyle struct {
 	Desc string
 }
 
+// NewGameStyle the representation of a Game variant
+type NewGameStyle struct {
+	Name    string
+	Code    string
+	Rules   string
+	Options []GameOption
+}
+
+// GameOption the representation of a Game option
+type GameOption struct {
+	Name    string
+	Type    string
+	Desc    string
+	Default interface{}
+}
+
 var (
 	// Gs301 normal 301
 	Gs301 = GameStyle{"301", "301"}

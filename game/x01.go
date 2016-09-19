@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"reflect"
 )
 
 // Gamex01 is a x01 series Game (301, 501-Double-Out, ...)
@@ -21,6 +22,35 @@ type Gamex01 struct {
 type Optionx01 struct {
 	Score     int
 	DoubleOut bool
+}
+
+var gsX01Options = []common.GameOption{
+	{"Score", "int", "The score from which to reach 0", 501},
+	{"DoubleOut", "bool", "If set to true, the players have to end with a double (and so reach 0)", false}}
+
+// GsX01 GameStyle for X01 series
+var GsX01 = common.NewGameStyle{
+	"X01 : 301, 501,...",
+	"X01",
+	"All players start with the same points (301 / 501 / ...) and attempt to reach zero. " +
+		"If a player scores more than the total required to reach zero, " +
+		"the player \"busts\" and the score returns to the score that was existing at the start of the turn.",
+	gsX01Options}
+
+// NewOptionx01 : Optionx01 constructor
+func NewOptionx01(opts map[string]interface{}) Optionx01 {
+	o := Optionx01{}
+	v := reflect.ValueOf(&o).Elem()
+	for _, val := range gsX01Options {
+		f := v.FieldByName(val.Name)
+		f.Set(reflect.ValueOf(val.Default))
+		if iv, ok := opts[val.Name]; ok {
+			if ivv := reflect.ValueOf(iv); ivv.Type().ConvertibleTo(f.Type()) {
+				f.Set(ivv.Convert(f.Type()))
+			}
+		}
+	}
+	return o
 }
 
 // NewGamex01 : Gamex01 constructor

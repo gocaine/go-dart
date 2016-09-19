@@ -335,7 +335,7 @@ func (server *Server) publishUpdate(gameID int) {
 
 func (server *Server) getStylesHandler(c *gin.Context) {
 
-	c.JSON(http.StatusOK, gin.H{"styles": common.GsStyles})
+	c.JSON(http.StatusOK, gin.H{"styles": [...]common.GameStyle{game.GsX01, game.GsCountUp, game.GsHighest, game.GsCricket}})
 }
 
 func (server *Server) isBoardRegistered(board string) bool {

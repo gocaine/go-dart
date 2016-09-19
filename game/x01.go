@@ -171,7 +171,7 @@ var gsX01Options = []common.GameOption{
 	{"DoubleOut", "bool", "If set to true, the players have to end with a double (and so reach 0)", false}}
 
 // GsX01 GameStyle for X01 series
-var GsX01 = common.NewGameStyle{
+var GsX01 = common.GameStyle{
 	"X01 : 301, 501,...",
 	"X01",
 	"All players start with the same points (301 / 501 / ...) and attempt to reach zero. " +

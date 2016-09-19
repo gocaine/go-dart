@@ -105,7 +105,7 @@ func (game *Highest) nextPlayer() {
 var gsHighestOptions = []common.GameOption{{"Rounds", "int", "The number of visits each player play", 5}}
 
 // GsHighest GameStyle for Highest series
-var GsHighest = common.NewGameStyle{
+var GsHighest = common.GameStyle{
 	"Highest",
 	"HIGHEST",
 	"All players throw the same number of darts (3 per rounds) then the player with the highest score wins",

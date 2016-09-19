@@ -107,7 +107,7 @@ func (game *CountUp) nextPlayer() {
 var gsCountUpOptions = []common.GameOption{{"Target", "int", "The score to reach", 500}}
 
 // GsCountUp GameStyle for CountUp series
-var GsCountUp = common.NewGameStyle{
+var GsCountUp = common.GameStyle{
 	"CountUp",
 	"COUNTUP",
 	"All players start with 0 points and attempt to reach the given target (300 / 500 / ...). ",

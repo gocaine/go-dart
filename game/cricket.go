@@ -244,7 +244,7 @@ var gsCricketOptions = []common.GameOption{
 		"In the end, the winner is the first to close every sector with the smallest score", false}}
 
 // GsCricket GameStyle for Cricket games
-var GsCricket = common.NewGameStyle{
+var GsCricket = common.GameStyle{
 	"Cricket",
 	"CRICKET",
 	"The main purpose is to open (or close) all the sectors. The sectors are 15, 16, 17, 18, 19, 20 and bull's eye." +

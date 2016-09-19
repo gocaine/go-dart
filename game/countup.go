@@ -22,7 +22,7 @@ type OptionCountUp struct {
 
 // NewGameCountUp : GameCountUp constructor using a OptionCountUp
 func NewGameCountUp(opts map[string]interface{}) (g *CountUp, err error) {
-	opt := NewOptionCountUp(opts)
+	opt := newOptionCountUp(opts)
 	if opt.Target < 60 {
 		err = errors.New("Target should be at least 60")
 	}
@@ -113,8 +113,7 @@ var GsCountUp = common.NewGameStyle{
 	"All players start with 0 points and attempt to reach the given target (300 / 500 / ...). ",
 	gsCountUpOptions}
 
-// NewOptionCountUp : OptionCountUp constructor
-func NewOptionCountUp(opts map[string]interface{}) OptionCountUp {
+func newOptionCountUp(opts map[string]interface{}) OptionCountUp {
 	o := OptionCountUp{}
 	gameOptionFiller(&o, gsCountUpOptions, opts)
 	return o

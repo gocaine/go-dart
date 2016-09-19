@@ -179,7 +179,6 @@ var GsX01 = common.NewGameStyle{
 		"the player \"busts\" and the score returns to the score that was existing at the start of the turn.",
 	gsX01Options}
 
-// NewOptionx01 : Optionx01 constructor
 func newOptionx01(opts map[string]interface{}) Optionx01 {
 	o := Optionx01{}
 	gameOptionFiller(&o, gsX01Options, opts)

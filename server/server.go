@@ -204,13 +204,15 @@ func (server *Server) createNewNewGameHandler(c *gin.Context) {
 
 func gameFactory(g common.NewGameRepresentation) (result game.Game, err error) {
 
-	log.WithField("repr", g).Info("newGameFactory")
 	switch g.Style {
 	case game.GsX01.Code:
 		result, err = game.NewGamex01(g.Options)
-		return
 	case game.GsCountUp.Code:
 		result, err = game.NewGameCountUp(g.Options)
+	case game.GsHighest.Code:
+		result, err = game.NewGameHighest(g.Options)
+	case game.GsCricket.Code:
+		result, err = game.NewGameCricket(g.Options)
 	default:
 		err = errors.New("game of type " + g.Style + " is not yet supported")
 	}

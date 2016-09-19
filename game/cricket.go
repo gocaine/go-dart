@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"github.com/pkg/errors"
 )
 
 var sectors = [...]string{"15", "16", "17", "18", "19", "20", "25"}
@@ -26,9 +27,12 @@ type OptionCricket struct {
 }
 
 // NewGameCricket : GameCricket constructor using a OptionCricket
-func NewGameCricket(opt OptionCricket) *Cricket {
-
-	g := new(Cricket)
+func NewGameCricket(opts map[string]interface{}) (g *Cricket, err error) {
+	opt := newOptionCricket(opts)
+	if opt.CutThroat && opt.NoScore {
+		err = errors.New("CutThroat and NoScore options are not compatible")
+	}
+	g = new(Cricket)
 	g.noScore = opt.NoScore
 	g.cutThroat = opt.CutThroat
 	g.state = common.NewGameState()
@@ -41,7 +45,7 @@ func NewGameCricket(opt OptionCricket) *Cricket {
 	g.DisplayStyle = dStyle
 	g.memory = make(map[string]int)
 
-	return g
+	return
 }
 
 // AddPlayer add a new player to the game
@@ -232,4 +236,26 @@ func lowest(players []common.PlayerState, current int) bool {
 		}
 	}
 	return true
+}
+
+var gsCricketOptions = []common.GameOption{
+	{"NoScore", "bool", "If set to true, no point is scored, the winner is the first player to close all sectors", false},
+	{"CutThroat", "bool", "If set to true, when a player hit a sector for the 4th time or more, the points go to the players who havent close the sector. " +
+		"In the end, the winner is the first to close every sector with the smallest score", false}}
+
+// GsCricket GameStyle for Cricket games
+var GsCricket = common.NewGameStyle{
+	"Cricket",
+	"CRICKET",
+	"The main purpose is to open (or close) all the sectors. The sectors are 15, 16, 17, 18, 19, 20 and bull's eye." +
+		" To open a sector a player has to hit it 3 times (a Triple counts for 3 hits, a Double for 2). When a sector is open for a player, he can score in it (the points are the real value). " +
+		"When all players have open a given sector it is close, and no more point are scored in it. " +
+		"The winner is the first player to both have open all the sectors and the highest score",
+	gsCricketOptions}
+
+func newOptionCricket(opts map[string]interface{}) OptionCricket {
+	o := OptionCricket{}
+	gameOptionFiller(&o, gsCricketOptions, opts)
+
+	return o
 }

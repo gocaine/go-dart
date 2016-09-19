@@ -28,6 +28,7 @@ func NewGamex01(opts map[string]interface{}) (g *Gamex01, err error) {
 	opt := newOptionx01(opts)
 	if opt.Score < 61 {
 		err = errors.New("Score should be at least 61")
+		return
 	}
 	g = new(Gamex01)
 	g.doubleOut = opt.DoubleOut

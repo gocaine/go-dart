@@ -25,6 +25,7 @@ func NewGameHighest(opts map[string]interface{}) (g *Highest, err error) {
 	opt := newOptionHighest(opts)
 	if opt.Rounds < 1 {
 		err = errors.New("Rounds should be at least 1")
+		return
 	}
 	g = new(Highest)
 	g.rounds = opt.Rounds

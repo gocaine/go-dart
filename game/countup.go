@@ -23,8 +23,9 @@ type OptionCountUp struct {
 // NewGameCountUp : GameCountUp constructor using a OptionCountUp
 func NewGameCountUp(opts map[string]interface{}) (g *CountUp, err error) {
 	opt := newOptionCountUp(opts)
-	if opt.Target < 60 {
-		err = errors.New("Target should be at least 60")
+	if opt.Target < 61 {
+		err = errors.New("Target should be at least 61")
+		return
 	}
 	g = new(CountUp)
 	g.target = opt.Target

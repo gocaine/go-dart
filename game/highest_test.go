@@ -11,7 +11,7 @@ func TestGameHighestEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd")
 
-	game := NewGameHighest(OptionHighest{Rounds: 1})
+	game, _ := NewGameHighest(map[string]interface{}{"Rounds": 1})
 
 	state := game.State()
 
@@ -44,7 +44,7 @@ func TestGameHighestEnd2Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd2Player")
 
-	game := NewGameHighest(OptionHighest{Rounds: 1})
+	game, _ := NewGameHighest(map[string]interface{}{"Rounds": 1})
 
 	state := game.State()
 
@@ -84,7 +84,7 @@ func TestGameHighestOnHold(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestOnHold")
 
-	game := NewGameHighest(OptionHighest{Rounds: 3})
+	game, _ := NewGameHighest(map[string]interface{}{"Rounds": 3})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
 

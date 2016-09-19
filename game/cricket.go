@@ -31,6 +31,7 @@ func NewGameCricket(opts map[string]interface{}) (g *Cricket, err error) {
 	opt := newOptionCricket(opts)
 	if opt.CutThroat && opt.NoScore {
 		err = errors.New("CutThroat and NoScore options are not compatible")
+		return
 	}
 	g = new(Cricket)
 	g.noScore = opt.NoScore

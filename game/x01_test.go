@@ -11,10 +11,11 @@ func TestGamex01End(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01End")
 
-	game := NewGamex01(Optionx01{Score: 1})
+	game, _ := NewGamex01(map[string]interface{}{"Score": 61})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
-	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 1})
 
 	AssertGameState(t, state, common.ONHOLD)
 
@@ -23,14 +24,12 @@ func TestGamex01End(t *testing.T) {
 
 	alice := state.Players[0]
 
-	if alice.Score != 1 {
-		t.Error("Alice should have the same score : 1")
-	}
+	AssertScore(t, alice, 61)
 
 	if state.CurrentPlayer != 1 || state.CurrentDart != 0 {
 		t.Errorf("Should be bob's turn, first Dart (%d, %d)", state.CurrentPlayer, state.CurrentDart)
 	}
-
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 1})
 
 	if state.Ongoing != common.OVER {
@@ -49,7 +48,7 @@ func TestGamex01SoloEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01SoloEnd")
 
-	game := NewGamex01(Optionx01{Score: 501, DoubleOut: true})
+	game, _ := NewGamex01(map[string]interface{}{"Score": 501, "DoubleOut": true})
 	game.AddPlayer("test_board", "Jack")
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
@@ -80,7 +79,7 @@ func TestGame301(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301")
 
-	game := NewGamex01(Optionx01{Score: 301})
+	game, _ := NewGamex01(map[string]interface{}{"Score": 301})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
 	game.AddPlayer("test_board", "Charly")
@@ -252,7 +251,7 @@ func TestGame301DoubleOut(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301DoubleOut")
 
-	game := NewGamex01(Optionx01{Score: 301, DoubleOut: true})
+	game, _ := NewGamex01(map[string]interface{}{"Score": 301, "DoubleOut": true})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
 
@@ -331,7 +330,7 @@ func TestGamex01OnHold(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01OnHold")
 
-	game := NewGamex01(Optionx01{Score: 301})
+	game, _ := NewGamex01(map[string]interface{}{"Score": 301})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
 

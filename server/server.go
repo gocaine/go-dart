@@ -48,7 +48,7 @@ func (server *Server) Start(port string) {
 	// les styles de jeu possibles
 	apiRouter.GET("/styles", server.getStylesHandler) // retourne la liste des styles
 	// creation du jeu (POST) -  fournit le type de jeu
-	apiRouter.POST("/games", server.createNewNewGameHandler) // retourne un id
+	apiRouter.POST("/games", server.createNewGameHandler) // retourne un id
 	// board registration (POST)
 	apiRouter.POST("/boards", server.registerBoardHandler) // return 202 if ok
 	// registered boards list (GET)
@@ -178,14 +178,11 @@ func (server *Server) cancelGameHandler(c *gin.Context) {
 	}
 }
 
-func (server *Server) createNewNewGameHandler(c *gin.Context) {
-	log.Info("createNewNewGameHandler")
+func (server *Server) createNewGameHandler(c *gin.Context) {
 	server.removeEndedGame()
 	var g common.NewGameRepresentation
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
-
-		log.WithField("repr", g).Info("createNewNewGameHandler")
 
 		theGame, err := gameFactory(g)
 

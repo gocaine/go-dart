@@ -11,7 +11,14 @@ func TestGameCountupEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd")
 
-	game, _ := NewGameCountUp(map[string]interface{}{"Target": 61})
+	game, err := NewGameCountUp(map[string]interface{}{"Target": 1})
+
+	expected := "Target should be at least 61"
+	if err.Error() != expected {
+		t.Errorf("Expected %s, but was %s", expected, err)
+	}
+
+	game, _ = NewGameCountUp(map[string]interface{}{"Target": 61})
 
 	state := game.State()
 

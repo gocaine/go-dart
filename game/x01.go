@@ -25,7 +25,10 @@ type Optionx01 struct {
 
 // NewGamex01 : Gamex01 constructor
 func NewGamex01(opts map[string]interface{}) (g *Gamex01, err error) {
-	opt := newOptionx01(opts)
+	opt, err := newOptionx01(opts)
+	if err != nil {
+		return
+	}
 	if opt.Score < 61 {
 		err = errors.New("Score should be at least 61")
 		return
@@ -180,9 +183,9 @@ var GsX01 = common.GameStyle{
 		"the player \"busts\" and the score returns to the score that was existing at the start of the turn.",
 	gsX01Options}
 
-func newOptionx01(opts map[string]interface{}) Optionx01 {
-	o := Optionx01{}
-	gameOptionFiller(&o, gsX01Options, opts)
+func newOptionx01(opts map[string]interface{}) (o Optionx01, err error) {
+	o = Optionx01{}
+	err = gameOptionFiller(&o, gsX01Options, opts)
 
-	return o
+	return
 }

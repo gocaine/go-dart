@@ -11,7 +11,21 @@ func TestGamex01End(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01End")
 
-	game, _ := NewGamex01(map[string]interface{}{"Score": 61})
+	game, err := NewGamex01(map[string]interface{}{"Score": "aa"})
+
+	expected := "aa is an invalid value for Score"
+	if err == nil || err.Error() != expected {
+		t.Errorf("Expected %s, but was %s", expected, err)
+	}
+
+	game, err = NewGamex01(map[string]interface{}{"Score": 1})
+
+	expected = "Score should be at least 61"
+	if err.Error() != expected {
+		t.Errorf("Expected %s, but was %s", expected, err)
+	}
+
+	game, _ = NewGamex01(map[string]interface{}{"Score": 61})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
 	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})

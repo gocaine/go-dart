@@ -6,6 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"github.com/pkg/errors"
 )
 
 // CountUp is a highscore Game, winner is the first to obtain a given score or more
@@ -20,15 +21,18 @@ type OptionCountUp struct {
 }
 
 // NewGameCountUp : GameCountUp constructor using a OptionCountUp
-func NewGameCountUp(opt OptionCountUp) *CountUp {
-
-	g := new(CountUp)
+func NewGameCountUp(opts map[string]interface{}) (g *CountUp, err error) {
+	opt := NewOptionCountUp(opts)
+	if opt.Target < 60 {
+		err = errors.New("Target should be at least 60")
+	}
+	g = new(CountUp)
 	g.target = opt.Target
 	g.state = common.NewGameState()
 
 	g.DisplayStyle = fmt.Sprintf("Count-Up %d", opt.Target)
 
-	return g
+	return
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
@@ -98,4 +102,20 @@ func (game *CountUp) nextDart() {
 
 func (game *CountUp) nextPlayer() {
 	commonNextPlayer(game)
+}
+
+var gsCountUpOptions = []common.GameOption{{"Target", "int", "The score to reach", 500}}
+
+// GsCountUp GameStyle for CountUp series
+var GsCountUp = common.NewGameStyle{
+	"CountUp",
+	"COUNTUP",
+	"All players start with 0 points and attempt to reach the given target (300 / 500 / ...). ",
+	gsCountUpOptions}
+
+// NewOptionCountUp : OptionCountUp constructor
+func NewOptionCountUp(opts map[string]interface{}) OptionCountUp {
+	o := OptionCountUp{}
+	gameOptionFiller(&o, gsCountUpOptions, opts)
+	return o
 }

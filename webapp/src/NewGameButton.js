@@ -23,10 +23,10 @@ class NewGameButton extends Component {
     return (
       <li>
         <div className="collapsible-header">
-          <span>{this.props.flavor.Code}</span>
+          <span>{this.props.flavor.Name}</span>
           <a onClick={() => this.newGame(this.props.flavor.Code) } className="secondary-content"><i className="material-icons light-blue-text">keyboard_arrow_right</i></a>
         </div>
-        <div className="collapsible-body"><p>Voluptate ea aliquip esse consequat eu reprehenderit laborum sunt sit. Esse labore duis amet sint in veniam aute esse enim. Adipisicing culpa quis aliqua est excepteur magna. Nostrud amet incididunt irure duis ea exercitation qui. Est pariatur est pariatur non pariatur anim dolore velit reprehenderit commodo id consequat proident.</p></div>
+        <div className="collapsible-body"><p>{this.props.flavor.Rules}</p></div>
       </li>
     )
   }

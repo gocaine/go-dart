@@ -7,3 +7,4 @@ import:
 - package: github.com/kidoman/embd
 - package: github.com/mjibson/esc
 - package: github.com/google/uuid
+- package: github.com/olebedev/config

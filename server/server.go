@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gocaine/go-dart/common"
 	"github.com/gocaine/go-dart/game"
+	"github.com/gocaine/go-dart/i18n"
 	"golang.org/x/net/websocket"
 )
 
@@ -71,6 +72,8 @@ func (server *Server) Start(port string) {
 
 	apiRouter.GET("/games/:gameId/ws", server.wsHandler)
 
+	apiRouter.GET("/translations/:locale", server.getTranslationHandler)
+
 	engine.Use(ServeStatics())
 	engine.NoRoute(RerouteToIndex("/static", "/api"))
 
@@ -96,6 +99,20 @@ func (server *Server) wsHandler(c *gin.Context) {
 	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
 	wsHandler := websocket.Handler(server.hubs[gameID].handle)
 	wsHandler.ServeHTTP(c.Writer, c.Request)
+}
+
+func (server *Server) getTranslationHandler(c *gin.Context) {
+
+	locale := c.Param("locale")
+
+	json, err := i18n.Translations(locale)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
+		return
+	}
+
+	c.String(http.StatusOK, json)
 }
 
 func (server *Server) listeGamesHandler(c *gin.Context) {

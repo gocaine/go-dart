@@ -5,20 +5,27 @@ import (
 	"testing"
 
 	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/i18n"
 )
+
+func TestGameCountupI18N(t *testing.T) {
+	fmt.Println()
+	fmt.Println("TestGameCountupI18N")
+
+	_, err := NewGameCountUp(map[string]interface{}{"Target": 1})
+
+	expected := "Target should be at least 61"
+	value, ok := i18n.BaseTranslation(err.Error())
+	if !ok || value != expected {
+		t.Errorf("Expected %s, but was %s", expected, value)
+	}
+}
 
 func TestGameCountupEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd")
 
-	game, err := NewGameCountUp(map[string]interface{}{"Target": 1})
-
-	expected := "Target should be at least 61"
-	if err.Error() != expected {
-		t.Errorf("Expected %s, but was %s", expected, err)
-	}
-
-	game, _ = NewGameCountUp(map[string]interface{}{"Target": 61})
+	game, _ := NewGameCountUp(map[string]interface{}{"Target": 61})
 
 	state := game.State()
 

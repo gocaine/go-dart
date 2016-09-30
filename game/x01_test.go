@@ -21,9 +21,7 @@ func TestGamex01End(t *testing.T) {
 	game, err = NewGamex01(map[string]interface{}{"Score": 1})
 
 	expected = "Score should be at least 61"
-	if err.Error() != expected {
-		t.Errorf("Expected %s, but was %s", expected, err)
-	}
+	AssertError(t, err, expected)
 
 	game, _ = NewGamex01(map[string]interface{}{"Score": 61})
 	game.AddPlayer("test_board", "Alice")

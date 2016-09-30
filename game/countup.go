@@ -2,7 +2,6 @@ package game
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 
 	log "github.com/Sirupsen/logrus"
@@ -24,14 +23,14 @@ type OptionCountUp struct {
 func NewGameCountUp(opts map[string]interface{}) (g *CountUp, err error) {
 	opt := newOptionCountUp(opts)
 	if opt.Target < 61 {
-		err = errors.New("Target should be at least 61")
+		err = errors.New("game.countup.error.target")
 		return
 	}
 	g = new(CountUp)
 	g.target = opt.Target
 	g.state = common.NewGameState()
 
-	g.DisplayStyle = fmt.Sprintf("Count-Up %d", opt.Target)
+	g.DisplayStyle = "game.countup.display"
 
 	return
 }
@@ -71,7 +70,7 @@ func (game *CountUp) HandleDart(sector common.Sector) (result *common.GameState,
 func (game *CountUp) winner() {
 	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
+	state.LastMsg = "game.message.rank"
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER
@@ -105,13 +104,13 @@ func (game *CountUp) nextPlayer() {
 	commonNextPlayer(game)
 }
 
-var gsCountUpOptions = []common.GameOption{{"Target", "int", "The score to reach", 500}}
+var gsCountUpOptions = []common.GameOption{{"Target", "int", "game.countup.options.target", 500}}
 
 // GsCountUp GameStyle for CountUp series
 var GsCountUp = common.GameStyle{
-	"CountUp",
+	"game.countup.name",
 	"COUNTUP",
-	"All players start with 0 points and attempt to reach the given target (300 / 500 / ...). ",
+	"game.countup.rules",
 	gsCountUpOptions}
 
 func newOptionCountUp(opts map[string]interface{}) OptionCountUp {

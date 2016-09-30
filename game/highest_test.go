@@ -14,9 +14,7 @@ func TestGameHighestEnd(t *testing.T) {
 	game, err := NewGameHighest(map[string]interface{}{"Rounds": 0})
 
 	expected := "Rounds should be at least 1"
-	if err.Error() != expected {
-		t.Errorf("Expected %s, but was %s", expected, err)
-	}
+	AssertError(t, err, expected)
 
 	game, _ = NewGameHighest(map[string]interface{}{"Rounds": 1})
 

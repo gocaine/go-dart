@@ -14,9 +14,7 @@ func TestRegular2Players(t *testing.T) {
 	game, err := NewGameCricket(map[string]interface{}{"CutThroat": true, "NoScore": true})
 
 	expected := "CutThroat and NoScore options are not compatible"
-	if err.Error() != expected {
-		t.Errorf("Expected %s, but was %s", expected, err)
-	}
+	AssertError(t, err, expected)
 
 	game, err = NewGameCricket(map[string]interface{}{})
 

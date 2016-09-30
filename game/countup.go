@@ -1,12 +1,12 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
-	"github.com/pkg/errors"
 )
 
 // CountUp is a highscore Game, winner is the first to obtain a given score or more

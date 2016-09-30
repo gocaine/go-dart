@@ -1,13 +1,13 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
-	"github.com/pkg/errors"
 )
 
 var sectors = [...]string{"15", "16", "17", "18", "19", "20", "25"}

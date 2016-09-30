@@ -1,12 +1,12 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
-	"github.com/pkg/errors"
 )
 
 // Highest is a highscore Game, within a fixed number of visit, winner is the highest score

@@ -11,7 +11,14 @@ func TestGameCountupEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd")
 
-	game := NewGameCountUp(OptionCountUp{Target: 1})
+	game, err := NewGameCountUp(map[string]interface{}{"Target": 1})
+
+	expected := "Target should be at least 61"
+	if err.Error() != expected {
+		t.Errorf("Expected %s, but was %s", expected, err)
+	}
+
+	game, _ = NewGameCountUp(map[string]interface{}{"Target": 61})
 
 	state := game.State()
 
@@ -28,6 +35,7 @@ func TestGameCountupEnd(t *testing.T) {
 	}
 
 	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(common.Sector{Val: 20, Pos: 3})
 
 	if state.Ongoing != common.OVER {
 		t.Errorf("Game should be in OVER mode -- %+v", state)
@@ -35,20 +43,15 @@ func TestGameCountupEnd(t *testing.T) {
 
 	player := state.Players[0]
 
-	if player.Score != 60 {
-		t.Errorf("Player score should be 60 but was %d", player.Score)
-	}
-
-	if player.Rank != 1 {
-		t.Errorf("Player rank should be 1 but was %d", player.Rank)
-	}
+	AssertScore(t, player, 120)
+	AssertRank(t, player, 1)
 }
 
 func TestGameCountupEnd2Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd2Player")
 
-	game := NewGameCountUp(OptionCountUp{Target: 301})
+	game, _ := NewGameCountUp(map[string]interface{}{"Target": 301})
 
 	state := game.State()
 
@@ -105,7 +108,7 @@ func TestGameCountupEnd3Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupEnd3Player")
 
-	game := NewGameCountUp(OptionCountUp{Target: 301})
+	game, _ := NewGameCountUp(map[string]interface{}{"Target": 301})
 
 	state := game.State()
 
@@ -185,7 +188,7 @@ func TestGameCountupOnHold(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCountupOnHold")
 
-	game := NewGameCountUp(OptionCountUp{Target: 300})
+	game, _ := NewGameCountUp(map[string]interface{}{"Target": 300})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
 

@@ -11,7 +11,14 @@ func TestRegular2Players(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestRegular2Players")
 
-	game := NewGameCricket(OptionCricket{})
+	game, err := NewGameCricket(map[string]interface{}{"CutThroat": true, "NoScore": true})
+
+	expected := "CutThroat and NoScore options are not compatible"
+	if err.Error() != expected {
+		t.Errorf("Expected %s, but was %s", expected, err)
+	}
+
+	game, err = NewGameCricket(map[string]interface{}{})
 
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
@@ -115,7 +122,7 @@ func TestCutThroat3Players(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestCutThroat3Players")
 
-	game := NewGameCricket(OptionCricket{CutThroat: true})
+	game, _ := NewGameCricket(map[string]interface{}{"CutThroat": true})
 
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
@@ -305,7 +312,7 @@ func TestGameCricketOnHold(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameCricketOnHold")
 
-	game := NewGameCricket(OptionCricket{NoScore: true})
+	game, _ := NewGameCricket(map[string]interface{}{"NoScore": true})
 	game.AddPlayer("test_board", "Alice")
 	game.AddPlayer("test_board", "Bob")
 

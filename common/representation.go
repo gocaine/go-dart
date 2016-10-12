@@ -22,3 +22,9 @@ type DartRepresentation struct {
 type BoardRepresentation struct {
 	Name string `json:"name"`
 }
+
+// NewGameRepresentation Json data representation for a Game
+type NewGameRepresentation struct {
+	Style   string                 `json:"style"`
+	Options map[string]interface{} `json:"options"`
+}

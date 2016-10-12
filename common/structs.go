@@ -99,36 +99,19 @@ func NewGameState() *GameState {
 
 // GameStyle the representation of a Game variant
 type GameStyle struct {
-	Code string
-	Desc string
+	Name    string
+	Code    string
+	Rules   string
+	Options []GameOption
 }
 
-var (
-	// Gs301 normal 301
-	Gs301 = GameStyle{"301", "301"}
-	// Gs301DO official Double-Out 301
-	Gs301DO = GameStyle{"301-double-out", "301 Double-Out"}
-	// Gs501 normal 501
-	Gs501 = GameStyle{"501", "501"}
-	// Gs501DO official Double-Out 501
-	Gs501DO = GameStyle{"501-double-out", "501 Double-Out"}
-	// GsHigh3 3 visits HighScore
-	GsHigh3 = GameStyle{"highest-3", "3 visits HighScore"}
-	// GsHigh5 5 visits HighScore
-	GsHigh5 = GameStyle{"highest-5", "5 visits HighScore"}
-	// GsCountup300 Count-Up 300
-	GsCountup300 = GameStyle{"countup-300", "Count-Up 300"}
-	// GsCountup500 Count-Up 500
-	GsCountup500 = GameStyle{"countup-500", "Count-Up 500"}
-	// GsCountup900 Count-Up 900
-	GsCountup900 = GameStyle{"countup-900", "Count-Up 900"}
-	// GsCricket Cricket
-	GsCricket = GameStyle{"cricket", "Cricket"}
-	// GsCricketCutThroat CutThroat Cricket
-	GsCricketCutThroat = GameStyle{"cut-throat-cricket", "CutThroat Cricket"}
-	// GsCricketNoScore No Score Cricket
-	GsCricketNoScore = GameStyle{"no-score-cricket", "No Score Cricket"}
-)
+// GameOption the representation of a Game option
+type GameOption struct {
+	Name    string
+	Type    string
+	Desc    string
+	Default interface{}
+}
 
 const (
 	// HealthCheckDelay is heart beat frequency
@@ -136,6 +119,3 @@ const (
 	// HealthCheckTimeout is the delay after which a board is considered disconnected
 	HealthCheckTimeout = HealthCheckDelay + 1*time.Second
 )
-
-// GsStyles all the supported game flavor
-var GsStyles = [...]GameStyle{Gs301, Gs301DO, Gs501, Gs501DO, GsHigh3, GsHigh5, GsCountup300, GsCountup500, GsCountup900, GsCricket, GsCricketCutThroat, GsCricketNoScore}

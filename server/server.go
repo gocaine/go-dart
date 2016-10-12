@@ -168,13 +168,23 @@ func (server *Server) watchdog() {
 }
 
 ///GamesHandler
+
+func (server *Server) cancelGameHandler(c *gin.Context) {
+	server.removeEndedGame()
+
+	if gameID, currentGame, ok := server.findGame(c); ok {
+		currentGame.State().Ongoing = common.OVER
+		server.publishUpdate(gameID)
+	}
+}
+
 func (server *Server) createNewGameHandler(c *gin.Context) {
 	server.removeEndedGame()
-	var g common.GameRepresentation
+	var g common.NewGameRepresentation
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
 
-		theGame, err := gameFactory(g.Style)
+		theGame, err := gameFactory(g)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
@@ -189,57 +199,21 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	}
 }
 
-func (server *Server) cancelGameHandler(c *gin.Context) {
-	server.removeEndedGame()
+func gameFactory(g common.NewGameRepresentation) (result game.Game, err error) {
 
-	if gameID, currentGame, ok := server.findGame(c); ok {
-		currentGame.State().Ongoing = common.OVER
-		server.publishUpdate(gameID)
-	}
-}
-
-func gameFactory(style string) (result game.Game, err error) {
-	switch style {
-	case common.Gs301.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: false})
-		return
-	case common.Gs301DO.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 301, DoubleOut: true})
-		return
-	case common.Gs501.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: false})
-		return
-	case common.Gs501DO.Code:
-		result = game.NewGamex01(game.Optionx01{Score: 501, DoubleOut: true})
-		return
-	case common.GsHigh3.Code:
-		result = game.NewGameHighest(game.OptionHighest{Rounds: 3})
-		return
-	case common.GsHigh5.Code:
-		result = game.NewGameHighest(game.OptionHighest{Rounds: 5})
-		return
-	case common.GsCountup300.Code:
-		result = game.NewGameCountUp(game.OptionCountUp{Target: 300})
-		return
-	case common.GsCountup500.Code:
-		result = game.NewGameCountUp(game.OptionCountUp{Target: 500})
-		return
-	case common.GsCountup900.Code:
-		result = game.NewGameCountUp(game.OptionCountUp{Target: 900})
-		return
-	case common.GsCricket.Code:
-		result = game.NewGameCricket(game.OptionCricket{})
-		return
-	case common.GsCricketCutThroat.Code:
-		result = game.NewGameCricket(game.OptionCricket{CutThroat: true})
-		return
-	case common.GsCricketNoScore.Code:
-		result = game.NewGameCricket(game.OptionCricket{NoScore: true})
-		return
+	switch g.Style {
+	case game.GsX01.Code:
+		result, err = game.NewGamex01(g.Options)
+	case game.GsCountUp.Code:
+		result, err = game.NewGameCountUp(g.Options)
+	case game.GsHighest.Code:
+		result, err = game.NewGameHighest(g.Options)
+	case game.GsCricket.Code:
+		result, err = game.NewGameCricket(g.Options)
 	default:
-		err = errors.New("game of type " + style + " is not yet supported")
-		return
+		err = errors.New("game of type " + g.Style + " is not yet supported")
 	}
+	return
 }
 
 func (server *Server) findGameByIDHandler(c *gin.Context) {
@@ -358,7 +332,7 @@ func (server *Server) publishUpdate(gameID int) {
 
 func (server *Server) getStylesHandler(c *gin.Context) {
 
-	c.JSON(http.StatusOK, gin.H{"styles": common.GsStyles})
+	c.JSON(http.StatusOK, gin.H{"styles": [...]common.GameStyle{game.GsX01, game.GsCountUp, game.GsHighest, game.GsCricket}})
 }
 
 func (server *Server) isBoardRegistered(board string) bool {

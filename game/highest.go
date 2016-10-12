@@ -1,6 +1,7 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 
@@ -20,15 +21,19 @@ type OptionHighest struct {
 }
 
 // NewGameHighest : GameHighest constructor using a OptionHighest
-func NewGameHighest(opt OptionHighest) *Highest {
-
-	g := new(Highest)
+func NewGameHighest(opts map[string]interface{}) (g *Highest, err error) {
+	opt := newOptionHighest(opts)
+	if opt.Rounds < 1 {
+		err = errors.New("Rounds should be at least 1")
+		return
+	}
+	g = new(Highest)
 	g.rounds = opt.Rounds
 	g.state = common.NewGameState()
 
 	g.DisplayStyle = fmt.Sprintf("%d visits HighScore", opt.Rounds)
 
-	return g
+	return
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
@@ -96,4 +101,19 @@ func (game *Highest) nextDart() {
 
 func (game *Highest) nextPlayer() {
 	commonNextPlayer(game)
+}
+
+var gsHighestOptions = []common.GameOption{{"Rounds", "int", "The number of visits each player play", 5}}
+
+// GsHighest GameStyle for Highest series
+var GsHighest = common.GameStyle{
+	"Highest",
+	"HIGHEST",
+	"All players throw the same number of darts (3 per rounds) then the player with the highest score wins",
+	gsHighestOptions}
+
+func newOptionHighest(opts map[string]interface{}) OptionHighest {
+	o := OptionHighest{}
+	gameOptionFiller(&o, gsHighestOptions, opts)
+	return o
 }

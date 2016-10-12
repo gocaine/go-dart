@@ -3,8 +3,10 @@ package game
 import (
 	"errors"
 
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"reflect"
 )
 
 // Game interface, should be implemented by all game (rules) implems
@@ -163,4 +165,20 @@ func commonHandleDartChecks(game Game, sector common.Sector) (error error) {
 	}
 
 	return
+}
+
+func gameOptionFiller(o interface{}, gsOpts []common.GameOption, opts map[string]interface{}) error {
+	v := reflect.ValueOf(o).Elem()
+	for _, val := range gsOpts {
+		f := v.FieldByName(val.Name)
+		f.Set(reflect.ValueOf(val.Default))
+		if iv, ok := opts[val.Name]; ok {
+			if ivv := reflect.ValueOf(iv); ivv.Type().ConvertibleTo(f.Type()) {
+				f.Set(ivv.Convert(f.Type()))
+			} else {
+				return fmt.Errorf("%v is an invalid value for %s", iv, val.Name)
+			}
+		}
+	}
+	return nil
 }

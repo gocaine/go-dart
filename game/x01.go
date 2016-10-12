@@ -24,8 +24,16 @@ type Optionx01 struct {
 }
 
 // NewGamex01 : Gamex01 constructor
-func NewGamex01(opt Optionx01) *Gamex01 {
-	g := new(Gamex01)
+func NewGamex01(opts map[string]interface{}) (g *Gamex01, err error) {
+	opt, err := newOptionx01(opts)
+	if err != nil {
+		return
+	}
+	if opt.Score < 61 {
+		err = errors.New("Score should be at least 61")
+		return
+	}
+	g = new(Gamex01)
 	g.doubleOut = opt.DoubleOut
 	g.score = opt.Score
 	g.state = common.NewGameState()
@@ -36,7 +44,7 @@ func NewGamex01(opt Optionx01) *Gamex01 {
 	}
 	g.DisplayStyle = fmt.Sprintf("%d%s", opt.Score, dStyle)
 
-	return g
+	return
 }
 
 // Start start the game, Darts will be handled
@@ -160,4 +168,24 @@ func (game *Gamex01) nextDart() {
 func (game *Gamex01) resetVisit() {
 	state := game.state
 	state.Players[state.CurrentPlayer].Score += game.accu
+}
+
+var gsX01Options = []common.GameOption{
+	{"Score", "int", "The score from which to reach 0", 501},
+	{"DoubleOut", "bool", "If set to true, the players have to end with a double (and so reach 0)", false}}
+
+// GsX01 GameStyle for X01 series
+var GsX01 = common.GameStyle{
+	"X01 : 301, 501,...",
+	"X01",
+	"All players start with the same points (301 / 501 / ...) and attempt to reach zero. " +
+		"If a player scores more than the total required to reach zero, " +
+		"the player \"busts\" and the score returns to the score that was existing at the start of the turn.",
+	gsX01Options}
+
+func newOptionx01(opts map[string]interface{}) (o Optionx01, err error) {
+	o = Optionx01{}
+	err = gameOptionFiller(&o, gsX01Options, opts)
+
+	return
 }

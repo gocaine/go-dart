@@ -1,6 +1,7 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 
@@ -20,15 +21,19 @@ type OptionCountUp struct {
 }
 
 // NewGameCountUp : GameCountUp constructor using a OptionCountUp
-func NewGameCountUp(opt OptionCountUp) *CountUp {
-
-	g := new(CountUp)
+func NewGameCountUp(opts map[string]interface{}) (g *CountUp, err error) {
+	opt := newOptionCountUp(opts)
+	if opt.Target < 61 {
+		err = errors.New("Target should be at least 61")
+		return
+	}
+	g = new(CountUp)
 	g.target = opt.Target
 	g.state = common.NewGameState()
 
 	g.DisplayStyle = fmt.Sprintf("Count-Up %d", opt.Target)
 
-	return g
+	return
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
@@ -98,4 +103,19 @@ func (game *CountUp) nextDart() {
 
 func (game *CountUp) nextPlayer() {
 	commonNextPlayer(game)
+}
+
+var gsCountUpOptions = []common.GameOption{{"Target", "int", "The score to reach", 500}}
+
+// GsCountUp GameStyle for CountUp series
+var GsCountUp = common.GameStyle{
+	"CountUp",
+	"COUNTUP",
+	"All players start with 0 points and attempt to reach the given target (300 / 500 / ...). ",
+	gsCountUpOptions}
+
+func newOptionCountUp(opts map[string]interface{}) OptionCountUp {
+	o := OptionCountUp{}
+	gameOptionFiller(&o, gsCountUpOptions, opts)
+	return o
 }

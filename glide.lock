@@ -1,5 +1,5 @@
-hash: c39ab831581ee8609eecc97b6f64bd8757e3cac38b1dc57e1d6120307617a527
-updated: 2016-08-24T09:23:41.942509501+02:00
+hash: 26953199ffddff68a256067c7500386320f4ebc7ba636565a1bbef7ca1e064b9
+updated: 2016-10-13T15:21:56.704838394+02:00
 imports:
 - name: github.com/dghubble/sling
   version: 9da07f0db0226d82803fc7374dba08506d29da00
@@ -27,10 +27,10 @@ imports:
   subpackages:
   - hcl/ast
   - hcl/parser
-  - hcl/token
-  - json/parser
   - hcl/scanner
   - hcl/strconv
+  - hcl/token
+  - json/parser
   - json/scanner
   - json/token
 - name: github.com/inconshreveable/mousetrap
@@ -38,8 +38,8 @@ imports:
 - name: github.com/kidoman/embd
   version: bfcd1345fe4e3d17ca82475c0c2f3d53120f87a9
   subpackages:
-  - host/rpi
   - host/generic
+  - host/rpi
 - name: github.com/kr/fs
   version: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - name: github.com/magiconair/properties
@@ -50,6 +50,8 @@ imports:
   version: 21a35fb16463dfb7c8eee579c65d995d95e64d1e
 - name: github.com/mjibson/esc
   version: 325f7960f7784b0ce5e2c821ee1e7dca5b435ba1
+- name: github.com/olebedev/config
+  version: afea898d27c7d17376ecc60c7c2e73c76b40060e
 - name: github.com/pelletier/go-buffruneio
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
@@ -78,16 +80,15 @@ imports:
 - name: golang.org/x/crypto
   version: b35ccbc95a0eaae49fb65c5d627cb7149ed8d1ab
   subpackages:
-  - ssh
   - curve25519
   - ed25519
   - ed25519/internal/edwards25519
+  - ssh
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
   - context
-- name: golang.org/x/net/websocket
-  version: f315505cf3349909cdf013ea56690da34e96a451
+  - websocket
 - name: golang.org/x/sys
   version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
   subpackages:
@@ -95,6 +96,8 @@ imports:
 - name: golang.org/x/text
   version: d69c40b4be55797923cec7457fac7a244d91a9b6
   subpackages:
+  - internal/tag
+  - language
   - transform
   - unicode/norm
 - name: gopkg.in/go-playground/validator.v8

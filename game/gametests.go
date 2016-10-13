@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/i18n"
 	"log"
 	"runtime"
 	"testing"
@@ -52,8 +53,9 @@ func AssertGameState(t *testing.T, state *common.GameState, expected common.Stat
 
 // AssertError assert the error content
 func AssertError(t *testing.T, err error, expected string) {
-	if err.Error() != expected {
-		fatalStack(t, "Error should be %s but was %s", expected, err.Error())
+
+	if value, ok := i18n.BaseTranslation(err.Error()); !ok || value != expected {
+		fatalStack(t, "Error should be %s but was %s", expected, value)
 	}
 
 }

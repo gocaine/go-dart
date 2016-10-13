@@ -24,14 +24,14 @@ type OptionHighest struct {
 func NewGameHighest(opts map[string]interface{}) (g *Highest, err error) {
 	opt := newOptionHighest(opts)
 	if opt.Rounds < 1 {
-		err = errors.New("Rounds should be at least 1")
+		err = errors.New("game.highest.error.rounds")
 		return
 	}
 	g = new(Highest)
 	g.rounds = opt.Rounds
 	g.state = common.NewGameState()
 
-	g.DisplayStyle = fmt.Sprintf("%d visits HighScore", opt.Rounds)
+	g.DisplayStyle = fmt.Sprint("game.highest.display")
 
 	return
 }
@@ -103,13 +103,13 @@ func (game *Highest) nextPlayer() {
 	commonNextPlayer(game)
 }
 
-var gsHighestOptions = []common.GameOption{{"Rounds", "int", "The number of visits each player play", 5}}
+var gsHighestOptions = []common.GameOption{{"Rounds", "int", "game.highest.options.rounds", 5}}
 
 // GsHighest GameStyle for Highest series
 var GsHighest = common.GameStyle{
-	"Highest",
+	"game.highest.name",
 	"HIGHEST",
-	"All players throw the same number of darts (3 per rounds) then the player with the highest score wins",
+	"game.highest.rules",
 	gsHighestOptions}
 
 func newOptionHighest(opts map[string]interface{}) OptionHighest {

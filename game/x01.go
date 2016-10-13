@@ -30,7 +30,7 @@ func NewGamex01(opts map[string]interface{}) (g *Gamex01, err error) {
 		return
 	}
 	if opt.Score < 61 {
-		err = errors.New("Score should be at least 61")
+		err = errors.New("game.x01.error.score")
 		return
 	}
 	g = new(Gamex01)
@@ -38,11 +38,11 @@ func NewGamex01(opts map[string]interface{}) (g *Gamex01, err error) {
 	g.score = opt.Score
 	g.state = common.NewGameState()
 
-	dStyle := ""
+	dStyle := "game.x01.display.x01"
 	if opt.DoubleOut {
-		dStyle = " Double-Out"
+		dStyle = "game.x01.display.doubleout"
 	}
-	g.DisplayStyle = fmt.Sprintf("%d%s", opt.Score, dStyle)
+	g.DisplayStyle = dStyle
 
 	return
 }
@@ -59,7 +59,7 @@ func (game *Gamex01) Start() (error error) {
 		}
 		log.Infof("The game is now started")
 	} else {
-		error = errors.New("Game cannot start")
+		error = errors.New("game.error.cantstart")
 	}
 	return
 }
@@ -87,7 +87,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 
 	if state.Players[state.CurrentPlayer].Score > 0 {
 		if game.doubleOut && state.Players[state.CurrentPlayer].Score == 1 {
-			state.LastMsg = "You should end with a double"
+			state.LastMsg = "game.x01.message.doubleout"
 			game.resetVisit()
 			game.HoldOrNextPlayer()
 		} else {
@@ -96,7 +96,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 
 	} else if state.Players[state.CurrentPlayer].Score == 0 {
 		if game.doubleOut && sector.Pos != 2 {
-			state.LastMsg = "You should end with a double"
+			state.LastMsg = "game.x01.message.doubleout"
 			game.resetVisit()
 			game.HoldOrNextPlayer()
 		} else {
@@ -107,7 +107,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 		}
 
 	} else {
-		state.LastMsg = "You went beyond the target dude !"
+		state.LastMsg = "game.x01.message.overscore"
 		game.resetVisit()
 		game.HoldOrNextPlayer()
 	}
@@ -118,7 +118,7 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 func (game *Gamex01) winner() {
 	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
+	state.LastMsg = fmt.Sprint("game.message.rank")
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER
@@ -171,16 +171,14 @@ func (game *Gamex01) resetVisit() {
 }
 
 var gsX01Options = []common.GameOption{
-	{"Score", "int", "The score from which to reach 0", 501},
-	{"DoubleOut", "bool", "If set to true, the players have to end with a double (and so reach 0)", false}}
+	{"Score", "int", "game.x01.otpions.score", 501},
+	{"DoubleOut", "bool", "game.x01.options.doubleout", false}}
 
 // GsX01 GameStyle for X01 series
 var GsX01 = common.GameStyle{
-	"X01 : 301, 501,...",
+	"game.x01.name",
 	"X01",
-	"All players start with the same points (301 / 501 / ...) and attempt to reach zero. " +
-		"If a player scores more than the total required to reach zero, " +
-		"the player \"busts\" and the score returns to the score that was existing at the start of the turn.",
+	"game.x01.rules",
 	gsX01Options}
 
 func newOptionx01(opts map[string]interface{}) (o Optionx01, err error) {

@@ -52,7 +52,7 @@ func commonStart(game Game) (error error) {
 		state.Round = 1
 		log.Infof("The game is now started")
 	} else {
-		error = errors.New("Game cannot start")
+		error = errors.New("game.error.cantstart")
 	}
 	return
 }
@@ -64,7 +64,7 @@ func (game *BaseGame) BoardHasLeft(board string) bool {
 			log.Infof("game is over because the board %s from player %s has been disconnected", board, p.Name)
 			// end the game has one player has left
 			game.state.Ongoing = common.OVER
-			game.state.LastMsg = "Board " + board + " has been disconnected"
+			game.state.LastMsg = "game.message.disconnect"
 			return false
 		}
 	}
@@ -77,7 +77,7 @@ func commonAddPlayer(game Game, board string, name string) (error error) {
 		for _, p := range game.State().Players {
 			if name == p.Name {
 				// player with same name is already registred
-				return errors.New("Player name is already in use")
+				return errors.New("game.message.player.exists")
 			}
 		}
 
@@ -88,7 +88,7 @@ func commonAddPlayer(game Game, board string, name string) (error error) {
 		// now that we have at least one player, we are in a ready state, waiting for other players or the first dart
 		game.State().Ongoing = common.READY
 	} else {
-		error = errors.New("Player cannot be started")
+		error = errors.New("game.message.player.notadded")
 	}
 	return
 }
@@ -107,7 +107,7 @@ func commonNextDart(game Game) {
 func commonHoldOrNextPlayer(game Game) {
 	if game.State().Ongoing == common.PLAYING || game.State().Ongoing == common.READY {
 		game.State().Ongoing = common.ONHOLD
-		game.State().LastMsg = "Next Player"
+		game.State().LastMsg = "game.message.player.next"
 		game.State().LastSector = common.Sector{}
 	} else if game.State().Ongoing == common.ONHOLD {
 		game.State().Ongoing = common.PLAYING
@@ -141,7 +141,7 @@ func commonNextPlayer(game Game) {
 func commonHandleDartChecks(game Game, sector common.Sector) (error error) {
 
 	if game.State().Ongoing == common.ONHOLD {
-		error = errors.New("Game is on hold and not ready to handle darts")
+		error = errors.New("game.error.onhold")
 		return
 	}
 
@@ -154,13 +154,13 @@ func commonHandleDartChecks(game Game, sector common.Sector) (error error) {
 	}
 
 	if game.State().Ongoing != common.PLAYING {
-		error = errors.New("Game is not started or is ended")
+		error = errors.New("game.error.notstarted")
 		return
 	}
 
 	if !sector.IsValid() {
 		log.WithFields(log.Fields{"sector": sector}).Error("Invalid sector")
-		error = errors.New("Sector is not a valid one")
+		error = errors.New("game.error.sector.invalid")
 		return
 	}
 

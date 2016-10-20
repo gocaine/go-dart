@@ -14,7 +14,7 @@ import './index.css';
 
 addLocaleData([...en,...fr]);
 
-const messages = translates[navigator.language]
+const messages = translates[navigator.language.split('-')[0]]
 
 
 ReactDOM.render((

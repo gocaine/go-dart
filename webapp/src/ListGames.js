@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import logo from './logo.svg';
+import {FormattedMessage} from 'react-intl';
 
 class ListGames extends Component {
 
   constructor(props) {
     super(props)
-    console.log("preparing join")
     this.state = {
       games: []
     }
@@ -25,7 +25,7 @@ class ListGames extends Component {
       <div className="App">
         <div className="App-header">
           <img style={{'vertical-align': 'middle'}} src={logo} className="App-logo" alt="logo" />
-          <h2 style={{'vertical-align': 'middle'}} >Join a game</h2>
+          <h2 style={{'vertical-align': 'middle'}} ><FormattedMessage id='listGame.join' defaultMessage='Join a game'/></h2>
         </div>
         <ul>
         {

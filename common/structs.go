@@ -113,6 +113,11 @@ type GameOption struct {
 	Default interface{}
 }
 
+// GameContext contains useful data from request
+type GameContext struct {
+	Locale string
+}
+
 const (
 	// HealthCheckDelay is heart beat frequency
 	HealthCheckDelay = 2 * time.Second

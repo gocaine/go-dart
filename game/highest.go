@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/i18n"
 )
 
 // Highest is a highscore Game, within a fixed number of visit, winner is the highest score
@@ -21,25 +22,25 @@ type OptionHighest struct {
 }
 
 // NewGameHighest : GameHighest constructor using a OptionHighest
-func NewGameHighest(opts map[string]interface{}) (g *Highest, err error) {
+func NewGameHighest(ctx common.GameContext, opts map[string]interface{}) (g *Highest, err error) {
 	opt := newOptionHighest(opts)
 	if opt.Rounds < 1 {
-		err = errors.New("Rounds should be at least 1")
+		err = errors.New(i18n.Translation("game.highest.error.rounds", ctx.Locale))
 		return
 	}
 	g = new(Highest)
 	g.rounds = opt.Rounds
 	g.state = common.NewGameState()
 
-	g.DisplayStyle = fmt.Sprintf("%d visits HighScore", opt.Rounds)
+	g.DisplayStyle = fmt.Sprintf(i18n.Translation("game.highest.display", ctx.Locale), opt.Rounds)
 
 	return
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
-func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *Highest) HandleDart(ctx common.GameContext, sector common.Sector) (result *common.GameState, error error) {
 
-	error = commonHandleDartChecks(game, sector)
+	error = commonHandleDartChecks(ctx, game, sector)
 	if error != nil {
 		return
 	}
@@ -59,11 +60,11 @@ func (game *Highest) HandleDart(sector common.Sector) (result *common.GameState,
 	if state.Round == game.rounds && state.CurrentDart == 2 {
 		game.winner()
 		if game.state.Ongoing == common.PLAYING {
-			game.HoldOrNextPlayer()
+			game.HoldOrNextPlayer(ctx)
 		}
 
 	} else {
-		game.nextDart()
+		game.nextDart(ctx)
 	}
 	result = state
 	return
@@ -81,35 +82,35 @@ func (game *Highest) winner() {
 }
 
 // Start start the game, Darts will be handled
-func (game *Highest) Start() error {
-	return commonStart(game)
+func (game *Highest) Start(ctx common.GameContext) error {
+	return commonStart(ctx, game)
 }
 
 // AddPlayer add a new player to the game
-func (game *Highest) AddPlayer(board string, name string) error {
-	return commonAddPlayer(game, board, name)
+func (game *Highest) AddPlayer(ctx common.GameContext, board string, name string) error {
+	return commonAddPlayer(ctx, game, board, name)
 }
 
 // HoldOrNextPlayer switch game state between ONHOLD and PLAYING
-func (game *Highest) HoldOrNextPlayer() {
-	commonHoldOrNextPlayer(game)
+func (game *Highest) HoldOrNextPlayer(ctx common.GameContext) {
+	commonHoldOrNextPlayer(ctx, game)
 }
 
-func (game *Highest) nextDart() {
-	commonNextDart(game)
+func (game *Highest) nextDart(ctx common.GameContext) {
+	commonNextDart(ctx, game)
 }
 
-func (game *Highest) nextPlayer() {
-	commonNextPlayer(game)
+func (game *Highest) nextPlayer(ctx common.GameContext) {
+	commonNextPlayer(ctx, game)
 }
 
-var gsHighestOptions = []common.GameOption{{"Rounds", "int", "The number of visits each player play", 5}}
+var gsHighestOptions = []common.GameOption{{"Rounds", "int", "game.highest.options.rounds", 5}}
 
 // GsHighest GameStyle for Highest series
 var GsHighest = common.GameStyle{
-	"Highest",
+	"game.highest.name",
 	"HIGHEST",
-	"All players throw the same number of darts (3 per rounds) then the player with the highest score wins",
+	"game.highest.rules",
 	gsHighestOptions}
 
 func newOptionHighest(opts map[string]interface{}) OptionHighest {

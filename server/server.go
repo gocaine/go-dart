@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gocaine/go-dart/common"
 	"github.com/gocaine/go-dart/game"
+	"github.com/gocaine/go-dart/i18n"
 	"golang.org/x/net/websocket"
 )
 
@@ -151,8 +152,10 @@ func (server *Server) watchdog() {
 					log.Warnf("board %s seems to be dead", board.name)
 					delete(server.boards, name)
 					hasEndedGame := false
+					gc := common.GameContext{}
+					gc.Locale = i18n.GetLocale("eng")
 					for gameID, game := range server.games {
-						if !game.BoardHasLeft(board.name) {
+						if !game.BoardHasLeft(gc, board.name) {
 							server.publishUpdate(gameID)
 							hasEndedGame = true
 						}
@@ -184,7 +187,9 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	if c.BindJSON(&g) == nil {
 		nextID := len(server.games) + 1
 
-		theGame, err := gameFactory(g)
+		gc := createContext(c)
+
+		theGame, err := gameFactory(gc, g)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
@@ -199,17 +204,17 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	}
 }
 
-func gameFactory(g common.NewGameRepresentation) (result game.Game, err error) {
+func gameFactory(ctx common.GameContext, g common.NewGameRepresentation) (result game.Game, err error) {
 
 	switch g.Style {
 	case game.GsX01.Code:
-		result, err = game.NewGamex01(g.Options)
+		result, err = game.NewGamex01(ctx, g.Options)
 	case game.GsCountUp.Code:
-		result, err = game.NewGameCountUp(g.Options)
+		result, err = game.NewGameCountUp(ctx, g.Options)
 	case game.GsHighest.Code:
-		result, err = game.NewGameHighest(g.Options)
+		result, err = game.NewGameHighest(ctx, g.Options)
 	case game.GsCricket.Code:
-		result, err = game.NewGameCricket(g.Options)
+		result, err = game.NewGameCricket(ctx, g.Options)
 	default:
 		err = errors.New("game of type " + g.Style + " is not yet supported")
 	}
@@ -243,7 +248,8 @@ func (server *Server) addPlayerToGameHandler(c *gin.Context) {
 				return
 			}
 
-			currentGame.AddPlayer(p.Board, p.Name)
+			gc := createContext(c)
+			currentGame.AddPlayer(gc, p.Board, p.Name)
 			server.activeGames[p.Board] = gameID
 			c.JSON(http.StatusCreated, nil)
 			server.hubs[gameID].refresh()
@@ -267,8 +273,8 @@ func (server *Server) holdOrNextPlayerHandler(c *gin.Context) {
 		c.JSON(http.StatusNotFound, nil)
 		return
 	}
-
-	currentGame.HoldOrNextPlayer()
+	gc := createContext(c)
+	currentGame.HoldOrNextPlayer(gc)
 	state := currentGame.State()
 	c.JSON(http.StatusOK, gin.H{"state": state})
 	server.hubs[gameID].refresh()
@@ -295,7 +301,9 @@ func (server *Server) dartHandler(c *gin.Context) {
 			return
 		}
 
-		state, err := currentGame.HandleDart(common.Sector{Val: d.Sector, Pos: d.Multiplier})
+		gc := createContext(c)
+
+		state, err := currentGame.HandleDart(gc, common.Sector{Val: d.Sector, Pos: d.Multiplier})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
@@ -332,7 +340,9 @@ func (server *Server) publishUpdate(gameID int) {
 
 func (server *Server) getStylesHandler(c *gin.Context) {
 
-	c.JSON(http.StatusOK, gin.H{"styles": [...]common.GameStyle{game.GsX01, game.GsCountUp, game.GsHighest, game.GsCricket}})
+	gc := createContext(c)
+
+	c.JSON(http.StatusOK, gin.H{"styles": game.Flavors(gc)})
 }
 
 func (server *Server) isBoardRegistered(board string) bool {
@@ -360,4 +370,11 @@ func (server *Server) removeEndedGame() {
 			delete(server.games, gameID)
 		}
 	}
+}
+
+func createContext(c *gin.Context) common.GameContext {
+	gc := common.GameContext{}
+	gc.Locale = i18n.GetLocale(c.Request.Header.Get("Accept-Language"))
+	return gc
+
 }

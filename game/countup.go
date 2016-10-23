@@ -2,11 +2,12 @@ package game
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/i18n"
 )
 
 // CountUp is a highscore Game, winner is the first to obtain a given score or more
@@ -21,25 +22,25 @@ type OptionCountUp struct {
 }
 
 // NewGameCountUp : GameCountUp constructor using a OptionCountUp
-func NewGameCountUp(opts map[string]interface{}) (g *CountUp, err error) {
+func NewGameCountUp(ctx common.GameContext, opts map[string]interface{}) (g *CountUp, err error) {
 	opt := newOptionCountUp(opts)
 	if opt.Target < 61 {
-		err = errors.New("Target should be at least 61")
+		err = errors.New(i18n.Translation("game.countup.error.target", ctx.Locale))
 		return
 	}
 	g = new(CountUp)
 	g.target = opt.Target
 	g.state = common.NewGameState()
 
-	g.DisplayStyle = fmt.Sprintf("Count-Up %d", opt.Target)
+	g.DisplayStyle = fmt.Sprintf(i18n.Translation("game.countup.display", ctx.Locale), opt.Target)
 
 	return
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules, and the context. Return a GameState
-func (game *CountUp) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *CountUp) HandleDart(ctx common.GameContext, sector common.Sector) (result *common.GameState, error error) {
 
-	error = commonHandleDartChecks(game, sector)
+	error = commonHandleDartChecks(ctx, game, sector)
 	if error != nil {
 		return
 	}
@@ -56,22 +57,22 @@ func (game *CountUp) HandleDart(sector common.Sector) (result *common.GameState,
 	state.Players[state.CurrentPlayer].Visits = append(state.Players[state.CurrentPlayer].Visits, sector)
 
 	if state.Players[state.CurrentPlayer].Score >= game.target {
-		game.winner()
+		game.winner(ctx)
 		if game.state.Ongoing == common.PLAYING {
-			game.HoldOrNextPlayer()
+			game.HoldOrNextPlayer(ctx)
 		}
 
 	} else {
-		game.nextDart()
+		game.nextDart(ctx)
 	}
 	result = state
 	return
 }
 
-func (game *CountUp) winner() {
+func (game *CountUp) winner(ctx common.GameContext) {
 	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
+	state.LastMsg = fmt.Sprintf(i18n.Translation("game.message.rank", ctx.Locale), state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER
@@ -83,35 +84,35 @@ func (game *CountUp) winner() {
 }
 
 // AddPlayer add a new player to the game
-func (game *CountUp) AddPlayer(board string, name string) error {
-	return commonAddPlayer(game, board, name)
+func (game *CountUp) AddPlayer(ctx common.GameContext, board string, name string) error {
+	return commonAddPlayer(ctx, game, board, name)
 }
 
 // HoldOrNextPlayer switch game state between ONHOLD and PLAYING
-func (game *CountUp) HoldOrNextPlayer() {
-	commonHoldOrNextPlayer(game)
+func (game *CountUp) HoldOrNextPlayer(ctx common.GameContext) {
+	commonHoldOrNextPlayer(ctx, game)
 }
 
 // Start start the game, Darts will be handled
-func (game *CountUp) Start() error {
-	return commonStart(game)
+func (game *CountUp) Start(ctx common.GameContext) error {
+	return commonStart(ctx, game)
 }
 
-func (game *CountUp) nextDart() {
-	commonNextDart(game)
+func (game *CountUp) nextDart(ctx common.GameContext) {
+	commonNextDart(ctx, game)
 }
 
-func (game *CountUp) nextPlayer() {
-	commonNextPlayer(game)
+func (game *CountUp) nextPlayer(ctx common.GameContext) {
+	commonNextPlayer(ctx, game)
 }
 
-var gsCountUpOptions = []common.GameOption{{"Target", "int", "The score to reach", 500}}
+var gsCountUpOptions = []common.GameOption{{"Target", "int", "game.countup.options.target", 500}}
 
 // GsCountUp GameStyle for CountUp series
 var GsCountUp = common.GameStyle{
-	"CountUp",
+	"game.countup.name",
 	"COUNTUP",
-	"All players start with 0 points and attempt to reach the given target (300 / 500 / ...). ",
+	"game.countup.rules",
 	gsCountUpOptions}
 
 func newOptionCountUp(opts map[string]interface{}) OptionCountUp {

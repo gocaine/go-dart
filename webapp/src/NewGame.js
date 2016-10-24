@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import NewGameButton from './NewGameButton'
 import logo from './logo.svg';
+import {FormattedMessage} from 'react-intl';
 
 class NewGame extends Component {
 
@@ -28,7 +29,7 @@ class NewGame extends Component {
     return (
       <div>
         <div className="row">
-          <h2><img src={logo} style={{'vertical-align': 'middle'}} className="App-logo" alt="logo" /><span style={{'vertical-align': 'middle'}} >Select flavor</span></h2>
+          <h2><img src={logo} style={{'vertical-align': 'middle'}} className="App-logo" alt="logo" /><span style={{'vertical-align': 'middle'}} ><FormattedMessage id='newGame.selectFlavor' defaultMessage='Select flavor'/></span></h2>
         </div>
 
         <div className="row">

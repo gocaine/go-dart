@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import {Input} from 'react-materialize'
+import {Input} from 'react-materialize';
+import {FormattedMessage} from 'react-intl';
 
 
 
@@ -62,7 +63,7 @@ class NewPlayerButton extends Component {
       <div className="col s12">
         <div className="input-field col s12 l5">
           <input id="playerName" type="text" className="validate" onChange={this.handlePlayerNameChange}/>
-          <label htmlFor="playerName">Player name</label>
+          <label htmlFor="playerName"><FormattedMessage id='newPlayerBtn.label' defaultMessage='Player name'/></label>
         </div>
         <div className=" col s8 l4">
           <Input type='select' label="Board"  onChange={this.handleBoardChange}>
@@ -70,7 +71,7 @@ class NewPlayerButton extends Component {
           </Input>
         </div>
         <div className="input-field col s4 l3">
-          <a className="waves-effect waves-light btn light-blue" onClick={() => this.addPlayer() }>Add</a>
+          <a className="waves-effect waves-light btn light-blue" onClick={() => this.addPlayer() }><FormattedMessage id='newPlayerBtn.addBtn.label' defaultMessage='Add'/></a>
         </div>
       </div>
     )

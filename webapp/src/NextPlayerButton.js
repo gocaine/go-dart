@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import {FormattedMessage} from 'react-intl';
 
 class NextPlayerButton extends Component {
 
@@ -17,7 +18,7 @@ class NextPlayerButton extends Component {
     }
 
     render() {
-        const label = ( this.props.game.Ongoing == 3 ? "Next" : "Hold" )
+        const label = ( this.props.game.Ongoing == 3 ? <FormattedMessage id='nextPlayerBtn.nextBtn.label' defaultMessage='Next'/> : <FormattedMessage id='nextPlayerBtn.holdBtn.label' defaultMessage='Hold'/> )
         return (
             <div>
                 <a className="waves-effect waves-light btn light-blue" onClick={() => this.nextPlayer() }>{label}</a>

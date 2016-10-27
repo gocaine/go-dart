@@ -35,18 +35,23 @@ After you publish the binary on your rpi (default deploy is in the home director
  - `sudo ./go-dart hardware -b <board-id>`: this will start the software responsible to listenning the hardware and propagating the dart events to the server
  - `./go-dart server`: this starts a game server
 
+## Accessing the server
+
+The latest stable version of the server is reachable at this address: https://go-dart.mabreizh.fr/
+
+
 # API
 
-- Create a game
-  + `POST "/api/games"`
-  + return game ID
-- Get the current game state
-  + `GET "/api/games/{id}"`
-  + return a GameState
-- Create player
-  + `POST "/api/games/{id}/players"`
-  + return User ID
-- Player state
-  + `GET "/api/games/{id}/players/{id}"`
-- Dart state
-  + `POST "/api/{id}/dart"`
+| Method | URI                    | Description                                                        |
+|--------|------------------------|--------------------------------------------------------------------|
+| GET    | /styles                | Return the list of available game styles                           |
+| POST   | /boards                | Register a new board on the server                                 |
+| GET    | /boards                | Return the list of boards currently known as 'ALIVE'               |
+| GET    | /games                 | Return the list of games                                           |
+| POST   | /games                 | Create a new game accordingly to the parameters and returns its id |
+| GET    | /games/:gameId         | Return the details of the specified gameId                         |
+| DELETE | /games/:gameId         | Delete a game and free the boards                                  |
+| POST   | /games/:gameId/players | Add a player to the specified gameId                               |
+| POST   | /games/:gameId/hold    | Hold while removing darts from board.                              |
+| GET    | /games/:gameId/ws      | Get a WebSocket to listen the events of the specified gameId       |
+| POST   | /darts                 | Tell the server a dart hit the board                               |

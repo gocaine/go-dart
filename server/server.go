@@ -94,8 +94,9 @@ func (server *Server) wsHandler(c *gin.Context) {
 		return
 	}
 
+	ctx := createContext(c)
 	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
-	wsHandler := websocket.Handler(server.hubs[gameID].handle)
+	wsHandler := websocket.Handler(server.hubs[gameID].handle(ctx.Locale))
 	wsHandler.ServeHTTP(c.Writer, c.Request)
 }
 

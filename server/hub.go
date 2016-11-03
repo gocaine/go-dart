@@ -10,24 +10,32 @@ import (
 
 // GameHub handle websocket connections for a Game
 type GameHub struct {
-	clients []*websocket.Conn
+	clients []HubClient
 	output  chan bool
 	game    game.Game
 }
 
+type HubClient struct {
+	locale string
+	ws     *websocket.Conn
+}
+
 // NewGameHub is GameHub constructor
 func NewGameHub(game game.Game) *GameHub {
-	hub := GameHub{game: game, clients: make([]*websocket.Conn, 0)}
+	hub := GameHub{game: game, clients: make([]HubClient, 0)}
 	return &hub
 }
 
-func (gh *GameHub) handle(connection *websocket.Conn) {
-	log.Infof("new ws connection for this user")
-	gh.clients = append(gh.clients, connection)
-	status, _ := json.Marshal(gh.game.State())
-	connection.Write([]byte(status))
-	// lock until the end of the world
-	connection.Read(make([]byte, 0))
+
+func (gh *GameHub) handle(locale string) func(*websocket.Conn){
+	return func(connection *websocket.Conn) {
+		log.Infof("new ws connection for this user")
+		gh.clients = append(gh.clients, HubClient{ws: connection, locale: locale})
+		status, _ := json.Marshal(gh.game.State())
+		connection.Write([]byte(status))
+		// lock until the end of the world
+		connection.Read(make([]byte, 0))
+	}
 }
 
 func (gh *GameHub) refresh() {
@@ -38,7 +46,7 @@ func (gh *GameHub) refresh() {
 	statusAsBytes := []byte(status)
 	for _, client := range gh.clients {
 		log.Info("sending status")
-		_, err := client.Write(statusAsBytes)
+		_, err := client.ws.Write(statusAsBytes)
 		if err != nil {
 			log.Infof("error writing %v", err)
 		}
@@ -48,6 +56,6 @@ func (gh *GameHub) refresh() {
 func (gh *GameHub) close() {
 	log.Infof("close all websocket connections")
 	for _, client := range gh.clients {
-		client.Close()
+		client.ws.Close()
 	}
 }

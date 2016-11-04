@@ -25,18 +25,20 @@ class ViewGame extends Component {
       .then((response) => response.json())
       .then((json) => this.updateGameState(json.game))
       .catch((error) => console.log(error))
-    
+
     var wsProtocol = "wss";
     if (window.location.protocol == "http:") {
       // keep using non secured connection
       wsProtocol = "ws";
     }
     this.ws = new WebSocket(wsProtocol + '://' + window.location.host + '/api/games/' + this.state.gameId + '/ws');
-    this.ws.onmessage = (event) => this.updateGameState(JSON.parse(event.data))
+    this.ws.onmessage = (event) => this.handleWsMessage(JSON.parse(event.data))
   }
 
-  updateGameState(game) {
-    this.setState({ game: game })
+  handleWsMessage(message) {
+    if(message.Kind === 'status') {
+      this.setState({game: message.Data})
+    }
   }
 
   render() {

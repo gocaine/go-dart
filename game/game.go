@@ -67,7 +67,7 @@ func (game *BaseGame) BoardHasLeft(ctx common.GameContext, board string) bool {
 			log.Infof("game is over because the board %s from player %s has been disconnected", board, p.Name)
 			// end the game has one player has left
 			game.state.Ongoing = common.OVER
-			game.state.LastMsg = i18n.Translation("game.message.disconnect", ctx.Locale)
+			ctx.MessageHandler("game.message.disconnect")
 			return false
 		}
 	}
@@ -110,11 +110,10 @@ func commonNextDart(ctx common.GameContext, game Game) {
 func commonHoldOrNextPlayer(ctx common.GameContext, game Game) {
 	if game.State().Ongoing == common.PLAYING || game.State().Ongoing == common.READY {
 		game.State().Ongoing = common.ONHOLD
-		game.State().LastMsg = i18n.Translation("game.message.player.next", ctx.Locale)
+		ctx.MessageHandler("game.message.player.next")
 		game.State().LastSector = common.Sector{}
 	} else if game.State().Ongoing == common.ONHOLD {
 		game.State().Ongoing = common.PLAYING
-		game.State().LastMsg = ""
 		game.NextPlayer(ctx)
 	}
 }

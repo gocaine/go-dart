@@ -88,7 +88,7 @@ func (game *Gamex01) HandleDart(ctx common.GameContext, sector common.Sector) (r
 
 	if state.Players[state.CurrentPlayer].Score > 0 {
 		if game.doubleOut && state.Players[state.CurrentPlayer].Score == 1 {
-			state.LastMsg = i18n.Translation("game.x01.message.doubleout", ctx.Locale)
+			ctx.MessageHandler("game.x01.message.doubleout")
 			game.resetVisit()
 			game.HoldOrNextPlayer(ctx)
 		} else {
@@ -97,7 +97,7 @@ func (game *Gamex01) HandleDart(ctx common.GameContext, sector common.Sector) (r
 
 	} else if state.Players[state.CurrentPlayer].Score == 0 {
 		if game.doubleOut && sector.Pos != 2 {
-			state.LastMsg = i18n.Translation("game.x01.message.doubleout", ctx.Locale)
+			ctx.MessageHandler("game.x01.message.doubleout")
 			game.resetVisit()
 			game.HoldOrNextPlayer(ctx)
 		} else {
@@ -108,7 +108,7 @@ func (game *Gamex01) HandleDart(ctx common.GameContext, sector common.Sector) (r
 		}
 
 	} else {
-		state.LastMsg = i18n.Translation("game.x01.message.overscore", ctx.Locale)
+		ctx.MessageHandler("game.x01.message.overscore")
 		game.resetVisit()
 		game.HoldOrNextPlayer(ctx)
 	}
@@ -119,7 +119,7 @@ func (game *Gamex01) HandleDart(ctx common.GameContext, sector common.Sector) (r
 func (game *Gamex01) winner(ctx common.GameContext) {
 	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg = fmt.Sprintf(i18n.Translation("game.message.rank", ctx.Locale), state.CurrentPlayer, game.rank+1)
+	ctx.MessageHandler("game.message.rank", state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER

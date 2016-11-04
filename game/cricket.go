@@ -2,7 +2,6 @@ package game
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 	"strconv"
 
@@ -113,9 +112,9 @@ func (game *Cricket) HandleDart(ctx common.GameContext, sector common.Sector) (r
 				game.memory[sVal] = game.memory[sVal] - 1
 				open := game.memory[sVal] > 0
 				if open {
-					state.LastMsg = fmt.Sprintf(i18n.Translation("game.cricket.message.open", ctx.Locale), sVal)
+					ctx.MessageHandler("game.cricket.message.open", sVal)
 				} else {
-					state.LastMsg = fmt.Sprintf(i18n.Translation("game.cricket.message.close", ctx.Locale), sVal)
+					ctx.MessageHandler("game.cricket.message.close", sVal)
 				}
 				if open && remain > 0 {
 					game.score(ctx, sector.Val, remain)
@@ -123,7 +122,7 @@ func (game *Cricket) HandleDart(ctx common.GameContext, sector common.Sector) (r
 					game.checkWinner(ctx)
 				}
 			} else {
-				state.LastMsg = fmt.Sprintf(i18n.Translation("game.cricket.message.hit", ctx.Locale), sector.Pos, sVal)
+				ctx.MessageHandler("game.cricket.message.hit", sector.Pos, sVal)
 				game.NextDart(ctx)
 			}
 		}
@@ -140,7 +139,7 @@ func (game *Cricket) score(ctx common.GameContext, val, pos int) {
 		// no score at all
 	} else {
 		points := val * pos
-		game.state.LastMsg = fmt.Sprintf(i18n.Translation("game.message.score", ctx.Locale), points)
+		ctx.MessageHandler("game.message.score", points)
 		if game.cutThroat {
 			for key := range game.state.Players {
 				if game.state.Players[key].Histo[strconv.Itoa(val)] < 3 {
@@ -190,9 +189,9 @@ func (game *Cricket) checkWinner(ctx common.GameContext) {
 func (game *Cricket) winner(ctx common.GameContext) {
 	log.Info("winner")
 	state := game.state
-	game.state.LastMsg = fmt.Sprintf(i18n.Translation("game.message.winner", ctx.Locale), state.Players[state.CurrentPlayer].Name)
+	ctx.MessageHandler("game.message.winner", state.Players[state.CurrentPlayer].Name)
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg += "\n" + fmt.Sprintf(i18n.Translation("game.message.rank", ctx.Locale), state.CurrentPlayer, game.rank+1)
+	ctx.MessageHandler("game.message.rank", state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER

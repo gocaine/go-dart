@@ -72,7 +72,7 @@ func (game *CountUp) HandleDart(ctx common.GameContext, sector common.Sector) (r
 func (game *CountUp) winner(ctx common.GameContext) {
 	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg = fmt.Sprintf(i18n.Translation("game.message.rank", ctx.Locale), state.CurrentPlayer, game.rank+1)
+	ctx.MessageHandler("game.message.rank", state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER

@@ -23,6 +23,11 @@ type HubClient struct {
 	ws     *websocket.Conn
 }
 
+type WsMessage struct {
+	Kind string
+	Data interface{}
+}
+
 // NewGameHub is GameHub constructor
 func NewGameHub(game game.Game) *GameHub {
 	hub := GameHub{game: game, clients: make([]HubClient, 0)}
@@ -33,19 +38,15 @@ func (gh *GameHub) handle(locale string) func(*websocket.Conn) {
 	return func(connection *websocket.Conn) {
 		log.Infof("new ws connection for this user")
 		gh.clients = append(gh.clients, HubClient{ws: connection, locale: locale})
-		status, _ := json.Marshal(gh.game.State())
-		connection.Write([]byte(status))
+		statusAsBytes := dataAsBytes("status", gh.game.State())
+		connection.Write([]byte(statusAsBytes))
 		// lock until the end of the world
 		connection.Read(make([]byte, 0))
 	}
 }
 
 func (gh *GameHub) refresh() {
-	status, err := json.Marshal(gh.game.State())
-	if err != nil {
-		log.Info("cannot serialize status")
-	}
-	statusAsBytes := []byte(status)
+	statusAsBytes := dataAsBytes("status", gh.game.State())
 	for _, client := range gh.clients {
 		log.Info("sending status")
 		_, err := client.ws.Write(statusAsBytes)
@@ -65,12 +66,20 @@ func (gh *GameHub) close() {
 func (gh *GameHub) sendMessage(key string, args ...interface{}) {
 	for _, client := range gh.clients {
 		log.Info("sending message")
-		msgAsBytes := []byte(fmt.Sprintf(i18n.Translation(key, client.locale), args...))
+		msgAsBytes := dataAsBytes("message", fmt.Sprintf(i18n.Translation(key, client.locale), args...))
 		_, err := client.ws.Write(msgAsBytes)
 		if err != nil {
 			log.Infof("error writing %v", err)
 		}
 	}
+}
+
+func dataAsBytes(kind string, data interface{}) []byte {
+	dataAsBytes, err := json.Marshal(WsMessage{Kind: kind, Data: data})
+	if err != nil {
+		log.Infof("cannot serialize data : %v", data)
+	}
+	return dataAsBytes
 }
 
 // Start start the game, Darts will be handled

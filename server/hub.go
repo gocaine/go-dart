@@ -13,31 +13,31 @@ import (
 
 // GameHub handle websocket connections for a Game
 type GameHub struct {
-	clients []HubClient
+	clients []hubClient
 	output  chan bool
 	game    game.Game
 }
 
-type HubClient struct {
+type hubClient struct {
 	locale string
 	ws     *websocket.Conn
 }
 
-type WsMessage struct {
+type wsMessage struct {
 	Kind string
 	Data interface{}
 }
 
 // NewGameHub is GameHub constructor
 func NewGameHub(game game.Game) *GameHub {
-	hub := GameHub{game: game, clients: make([]HubClient, 0)}
+	hub := GameHub{game: game, clients: make([]hubClient, 0)}
 	return &hub
 }
 
 func (gh *GameHub) handle(locale string) func(*websocket.Conn) {
 	return func(connection *websocket.Conn) {
 		log.Infof("new ws connection for this user")
-		gh.clients = append(gh.clients, HubClient{ws: connection, locale: locale})
+		gh.clients = append(gh.clients, hubClient{ws: connection, locale: locale})
 		statusAsBytes := dataAsBytes("status", gh.game.State())
 		connection.Write([]byte(statusAsBytes))
 		// lock until the end of the world
@@ -75,7 +75,7 @@ func (gh *GameHub) sendMessage(key string, args ...interface{}) {
 }
 
 func dataAsBytes(kind string, data interface{}) []byte {
-	dataAsBytes, err := json.Marshal(WsMessage{Kind: kind, Data: data})
+	dataAsBytes, err := json.Marshal(wsMessage{Kind: kind, Data: data})
 	if err != nil {
 		log.Infof("cannot serialize data : %v", data)
 	}
@@ -100,7 +100,7 @@ func (gh *GameHub) HandleDart(ctx common.GameContext, sector common.Sector) (*co
 	return gh.game.HandleDart(ctx, sector)
 }
 
-// GetState, get the current GameState
+// State returns the current GameState
 func (gh *GameHub) State() *common.GameState {
 	return gh.game.State()
 }

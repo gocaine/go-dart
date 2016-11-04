@@ -64,7 +64,7 @@ func (game *Highest) HandleDart(ctx common.GameContext, sector common.Sector) (r
 		}
 
 	} else {
-		game.nextDart(ctx)
+		game.NextDart(ctx)
 	}
 	result = state
 	return
@@ -96,11 +96,13 @@ func (game *Highest) HoldOrNextPlayer(ctx common.GameContext) {
 	commonHoldOrNextPlayer(ctx, game)
 }
 
-func (game *Highest) nextDart(ctx common.GameContext) {
+// NextDart is called after each dart when the same palyer play again
+func (game *Highest) NextDart(ctx common.GameContext) {
 	commonNextDart(ctx, game)
 }
 
-func (game *Highest) nextPlayer(ctx common.GameContext) {
+// NextPlayer is called when the current player end his visit
+func (game *Highest) NextPlayer(ctx common.GameContext) {
 	commonNextPlayer(ctx, game)
 }
 

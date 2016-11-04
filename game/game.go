@@ -24,8 +24,10 @@ type Game interface {
 	BoardHasLeft(ctx common.GameContext, board string) bool
 	// HoldOrNextPlayer switch game state between ONHOLD and PLAYING with side effects according to game implementation
 	HoldOrNextPlayer(ctx common.GameContext)
-	nextPlayer(ctx common.GameContext)
-	nextDart(ctx common.GameContext)
+	// NextPlayer is called when the current player end his visit
+	NextPlayer(ctx common.GameContext)
+	// NextDart is called after each dart when the same palyer play again
+	NextDart(ctx common.GameContext)
 }
 
 // BaseGame common Game struct
@@ -113,7 +115,7 @@ func commonHoldOrNextPlayer(ctx common.GameContext, game Game) {
 	} else if game.State().Ongoing == common.ONHOLD {
 		game.State().Ongoing = common.PLAYING
 		game.State().LastMsg = ""
-		game.nextPlayer(ctx)
+		game.NextPlayer(ctx)
 	}
 }
 

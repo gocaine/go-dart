@@ -92,7 +92,7 @@ func (game *Gamex01) HandleDart(ctx common.GameContext, sector common.Sector) (r
 			game.resetVisit()
 			game.HoldOrNextPlayer(ctx)
 		} else {
-			game.nextDart(ctx)
+			game.NextDart(ctx)
 		}
 
 	} else if state.Players[state.CurrentPlayer].Score == 0 {
@@ -140,7 +140,8 @@ func (game *Gamex01) AddPlayer(ctx common.GameContext, board string, name string
 	return commonAddPlayer(ctx, game, board, name)
 }
 
-func (game *Gamex01) nextPlayer(ctx common.GameContext) {
+// NextPlayer is called when the current player end his visit
+func (game *Gamex01) NextPlayer(ctx common.GameContext) {
 
 	game.accu = 0
 	state := game.State()
@@ -156,7 +157,8 @@ func (game *Gamex01) nextPlayer(ctx common.GameContext) {
 	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
 }
 
-func (game *Gamex01) nextDart(ctx common.GameContext) {
+// NextDart is called after each dart when the same palyer play again
+func (game *Gamex01) NextDart(ctx common.GameContext) {
 	state := game.state
 	if state.CurrentDart == 2 {
 		game.HoldOrNextPlayer(ctx)

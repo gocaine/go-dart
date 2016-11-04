@@ -63,7 +63,7 @@ func (game *CountUp) HandleDart(ctx common.GameContext, sector common.Sector) (r
 		}
 
 	} else {
-		game.nextDart(ctx)
+		game.NextDart(ctx)
 	}
 	result = state
 	return
@@ -98,11 +98,13 @@ func (game *CountUp) Start(ctx common.GameContext) error {
 	return commonStart(ctx, game)
 }
 
-func (game *CountUp) nextDart(ctx common.GameContext) {
+// NextDart is called after each dart when the same palyer play again
+func (game *CountUp) NextDart(ctx common.GameContext) {
 	commonNextDart(ctx, game)
 }
 
-func (game *CountUp) nextPlayer(ctx common.GameContext) {
+// NextPlayer is called when the current player end his visit
+func (game *CountUp) NextPlayer(ctx common.GameContext) {
 	commonNextPlayer(ctx, game)
 }
 

@@ -115,7 +115,8 @@ type GameOption struct {
 
 // GameContext contains useful data from request
 type GameContext struct {
-	Locale string
+	Locale         string
+	MessageHandler func(key string, args ...interface{})
 }
 
 const (

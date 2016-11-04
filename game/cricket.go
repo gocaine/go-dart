@@ -99,7 +99,7 @@ func (game *Cricket) HandleDart(ctx common.GameContext, sector common.Sector) (r
 			if open {
 				game.score(ctx, sector.Val, sector.Pos)
 			} else {
-				game.nextDart(ctx)
+				game.NextDart(ctx)
 			}
 		} else {
 			remain := 0
@@ -124,11 +124,11 @@ func (game *Cricket) HandleDart(ctx common.GameContext, sector common.Sector) (r
 				}
 			} else {
 				state.LastMsg = fmt.Sprintf(i18n.Translation("game.cricket.message.hit", ctx.Locale), sector.Pos, sVal)
-				game.nextDart(ctx)
+				game.NextDart(ctx)
 			}
 		}
 	} else {
-		game.nextDart(ctx)
+		game.NextDart(ctx)
 	}
 	result = state
 	return
@@ -172,18 +172,18 @@ func (game *Cricket) checkWinner(ctx common.GameContext) {
 				if lowest(game.state.Players, game.state.CurrentPlayer) {
 					game.winner(ctx)
 				} else {
-					game.nextDart(ctx)
+					game.NextDart(ctx)
 				}
 			} else {
 				if highest(game.state.Players, game.state.CurrentPlayer) {
 					game.winner(ctx)
 				} else {
-					game.nextDart(ctx)
+					game.NextDart(ctx)
 				}
 			}
 		}
 	} else {
-		game.nextDart(ctx)
+		game.NextDart(ctx)
 	}
 }
 
@@ -201,7 +201,7 @@ func (game *Cricket) winner(ctx common.GameContext) {
 			state.Players[len(state.Players)-1].Rank = game.rank + 1
 		}
 	} else {
-		game.nextPlayer(ctx)
+		game.NextPlayer(ctx)
 	}
 }
 
@@ -210,11 +210,13 @@ func (game *Cricket) HoldOrNextPlayer(ctx common.GameContext) {
 	commonHoldOrNextPlayer(ctx, game)
 }
 
-func (game *Cricket) nextDart(ctx common.GameContext) {
+// NextDart is called after each dart when the same palyer play again
+func (game *Cricket) NextDart(ctx common.GameContext) {
 	commonNextDart(ctx, game)
 }
 
-func (game *Cricket) nextPlayer(ctx common.GameContext) {
+// NextPlayer is called when the current player end his visit
+func (game *Cricket) NextPlayer(ctx common.GameContext) {
 	commonNextPlayer(ctx, game)
 }
 

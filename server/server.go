@@ -18,7 +18,6 @@ import (
 // Server is used to handle games
 type Server struct {
 	boards      map[string]*board
-	games       map[int]game.Game
 	hubs        map[int]*GameHub
 	activeGames map[string]int
 }
@@ -32,7 +31,6 @@ type board struct {
 func NewServer() *Server {
 	server := new(Server)
 	server.boards = make(map[string]*board)
-	server.games = make(map[int]game.Game)
 	server.hubs = make(map[int]*GameHub)
 	server.activeGames = make(map[string]int)
 	server.watchdog()
@@ -88,7 +86,7 @@ func (server *Server) wsHandler(c *gin.Context) {
 		return
 	}
 
-	_, ok := server.games[gameID]
+	_, ok := server.hubs[gameID]
 	if !ok {
 		c.JSON(http.StatusNotFound, nil)
 		return
@@ -102,8 +100,8 @@ func (server *Server) wsHandler(c *gin.Context) {
 
 func (server *Server) listeGamesHandler(c *gin.Context) {
 	server.removeEndedGame()
-	ids := make([]int, 0, len(server.games))
-	for k := range server.games {
+	ids := make([]int, 0, len(server.hubs))
+	for k := range server.hubs {
 		ids = append(ids, k)
 	}
 	c.JSON(http.StatusOK, ids)
@@ -155,7 +153,7 @@ func (server *Server) watchdog() {
 					hasEndedGame := false
 					gc := common.GameContext{}
 					gc.Locale = i18n.GetLocale("eng")
-					for gameID, game := range server.games {
+					for gameID, game := range server.hubs {
 						if !game.BoardHasLeft(gc, board.name) {
 							server.publishUpdate(gameID)
 							hasEndedGame = true
@@ -186,7 +184,7 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 	server.removeEndedGame()
 	var g common.NewGameRepresentation
 	if c.BindJSON(&g) == nil {
-		nextID := len(server.games) + 1
+		nextID := len(server.hubs) + 1
 
 		gc := createContext(c)
 
@@ -196,7 +194,6 @@ func (server *Server) createNewGameHandler(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "illegal content", "error": err.Error()})
 			return
 		}
-		server.games[nextID] = theGame
 		server.hubs[nextID] = NewGameHub(theGame)
 
 		c.JSON(http.StatusCreated, gin.H{"id": nextID, "game": theGame})
@@ -269,7 +266,7 @@ func (server *Server) holdOrNextPlayerHandler(c *gin.Context) {
 		return
 	}
 
-	currentGame, ok := server.games[gameID]
+	currentGame, ok := server.hubs[gameID]
 	if !ok {
 		c.JSON(http.StatusNotFound, nil)
 		return
@@ -290,7 +287,7 @@ func (server *Server) dartHandler(c *gin.Context) {
 
 		var currentGame game.Game
 		var currentGameID int
-		for gameID, game := range server.games {
+		for gameID, game := range server.hubs {
 			if game.State().Players[game.State().CurrentPlayer].Board == d.Board {
 				currentGame = game
 				currentGameID = gameID
@@ -327,7 +324,7 @@ func (server *Server) findGame(c *gin.Context) (gameID int, currentGame game.Gam
 	}
 	log.WithFields(log.Fields{"gameID": gameID}).Info("flushing game w/ id")
 
-	currentGame, ok = server.games[gameID]
+	currentGame, ok = server.hubs[gameID]
 	if !ok {
 		c.JSON(http.StatusNotFound, nil)
 		return
@@ -353,9 +350,9 @@ func (server *Server) isBoardRegistered(board string) bool {
 
 func (server *Server) removeEndedGame() {
 	log.Info("removeEndedGame")
-	for gameID, game := range server.games {
+	for gameID, hub := range server.hubs {
 		// Game is over so we delete it
-		if game.State().Ongoing == common.OVER {
+		if hub.State().Ongoing == common.OVER {
 			log.WithFields(log.Fields{"gameID": gameID}).Info("removeEndedGame")
 			// we remove it from active Games
 			for board, idGame := range server.activeGames {
@@ -363,12 +360,8 @@ func (server *Server) removeEndedGame() {
 					delete(server.activeGames, board)
 				}
 			}
-			hub, ok := server.hubs[gameID]
-			if ok {
-				hub.close()
-				delete(server.hubs, gameID)
-			}
-			delete(server.games, gameID)
+			hub.close()
+			delete(server.hubs, gameID)
 		}
 	}
 }

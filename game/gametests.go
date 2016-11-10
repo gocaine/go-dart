@@ -58,6 +58,16 @@ func AssertError(t *testing.T, err error, expected string) {
 
 }
 
+func createContext(lang string) common.GameContext {
+	gc := common.GameContext{}
+	gc.Locale = lang
+	gc.MessageHandler = func(key string, args ...interface{}) {
+		log.Print(key, args)
+	}
+	return gc
+
+}
+
 func fatalStack(t *testing.T, format string, args ...interface{}) {
 	//stack trace
 	var stack [4096]byte

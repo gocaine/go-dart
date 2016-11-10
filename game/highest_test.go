@@ -11,14 +11,14 @@ func TestGameHighestEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd")
 
-	game, err := NewGameHighest(map[string]interface{}{"Rounds": 0})
+	ctx := createContext("eng")
+
+	game, err := NewGameHighest(ctx, map[string]interface{}{"Rounds": 0})
 
 	expected := "Rounds should be at least 1"
-	if err.Error() != expected {
-		t.Errorf("Expected %s, but was %s", expected, err)
-	}
+	AssertError(t, err, expected)
 
-	game, _ = NewGameHighest(map[string]interface{}{"Rounds": 1})
+	game, _ = NewGameHighest(ctx, map[string]interface{}{"Rounds": 1})
 
 	state := game.State()
 
@@ -26,7 +26,7 @@ func TestGameHighestEnd(t *testing.T) {
 		t.Error("Game should be in initializing mode")
 	}
 
-	game.AddPlayer("test_board", "Bob")
+	game.AddPlayer(ctx, "test_board", "Bob")
 
 	state = game.State()
 
@@ -34,9 +34,9 @@ func TestGameHighestEnd(t *testing.T) {
 		t.Error("Game should be in ready mode")
 	}
 
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 
 	if state.Ongoing != common.OVER {
 		t.Errorf("Game should be in OVER mode -- %+v", state)
@@ -51,7 +51,9 @@ func TestGameHighestEnd2Player(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestEnd2Player")
 
-	game, _ := NewGameHighest(map[string]interface{}{"Rounds": 1})
+	ctx := createContext("eng")
+
+	game, _ := NewGameHighest(ctx, map[string]interface{}{"Rounds": 1})
 
 	state := game.State()
 
@@ -59,20 +61,20 @@ func TestGameHighestEnd2Player(t *testing.T) {
 		t.Error("Game should be in initializing mode")
 	}
 
-	game.AddPlayer("test_board", "Alice")
-	game.AddPlayer("test_board", "Bob")
+	game.AddPlayer(ctx, "test_board", "Alice")
+	game.AddPlayer(ctx, "test_board", "Bob")
 
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 2})
-	game.HandleDart(common.Sector{Val: 20, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 2})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 1})
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 2})
-	game.HandleDart(common.Sector{Val: 20, Pos: 2})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 2})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 2})
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	player := state.Players[0]
 
@@ -91,32 +93,34 @@ func TestGameHighestOnHold(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGameHighestOnHold")
 
-	game, _ := NewGameHighest(map[string]interface{}{"Rounds": 3})
-	game.AddPlayer("test_board", "Alice")
-	game.AddPlayer("test_board", "Bob")
+	ctx := createContext("eng")
 
-	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
-	game.HoldOrNextPlayer()
+	game, _ := NewGameHighest(ctx, map[string]interface{}{"Rounds": 3})
+	game.AddPlayer(ctx, "test_board", "Alice")
+	game.AddPlayer(ctx, "test_board", "Bob")
+
+	state, _ := game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
+	game.HoldOrNextPlayer(ctx)
 
 	AssertGameState(t, state, common.ONHOLD)
 	AssertCurrents(t, state, 0, 1)
 
-	_, err := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	_, err := game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
 	AssertError(t, err, "Game is on hold and not ready to handle darts")
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	AssertGameState(t, state, common.PLAYING)
 	AssertCurrents(t, state, 1, 0)
 
-	game.HandleDart(common.Sector{Val: 5, Pos: 1})
-	game.HandleDart(common.Sector{Val: 5, Pos: 1})
-	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
 
 	AssertGameState(t, state, common.ONHOLD)
 	AssertCurrents(t, state, 1, 2)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	AssertGameState(t, state, common.PLAYING)
 	AssertCurrents(t, state, 0, 0)

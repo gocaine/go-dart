@@ -82,7 +82,6 @@ type GameState struct {
 	Ongoing       State
 	CurrentPlayer int
 	CurrentDart   int
-	LastMsg       string
 	LastSector    Sector
 	Round         int
 }
@@ -111,6 +110,12 @@ type GameOption struct {
 	Type    string
 	Desc    string
 	Default interface{}
+}
+
+// GameContext contains useful data from request
+type GameContext struct {
+	Locale         string
+	MessageHandler func(key string, args ...interface{})
 }
 
 const (

@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/i18n"
 )
 
 // Gamex01 is a x01 series Game (301, 501-Double-Out, ...)
@@ -24,13 +25,13 @@ type Optionx01 struct {
 }
 
 // NewGamex01 : Gamex01 constructor
-func NewGamex01(opts map[string]interface{}) (g *Gamex01, err error) {
+func NewGamex01(ctx common.GameContext, opts map[string]interface{}) (g *Gamex01, err error) {
 	opt, err := newOptionx01(opts)
 	if err != nil {
 		return
 	}
 	if opt.Score < 61 {
-		err = errors.New("Score should be at least 61")
+		err = errors.New(i18n.Translation("game.x01.error.score", ctx.Locale))
 		return
 	}
 	g = new(Gamex01)
@@ -38,17 +39,17 @@ func NewGamex01(opts map[string]interface{}) (g *Gamex01, err error) {
 	g.score = opt.Score
 	g.state = common.NewGameState()
 
-	dStyle := ""
+	dStyle := "game.x01.display.x01"
 	if opt.DoubleOut {
-		dStyle = " Double-Out"
+		dStyle = "game.x01.display.doubleout"
 	}
-	g.DisplayStyle = fmt.Sprintf("%d%s", opt.Score, dStyle)
+	g.DisplayStyle = fmt.Sprintf(i18n.Translation(dStyle, ctx.Locale), opt.Score)
 
 	return
 }
 
 // Start start the game, Darts will be handled
-func (game *Gamex01) Start() (error error) {
+func (game *Gamex01) Start(ctx common.GameContext) (error error) {
 	if game.state.Ongoing == common.READY && len(game.state.Players) > 0 && game.score > 0 {
 		state := game.state
 		state.Ongoing = common.PLAYING
@@ -59,15 +60,15 @@ func (game *Gamex01) Start() (error error) {
 		}
 		log.Infof("The game is now started")
 	} else {
-		error = errors.New("Game cannot start")
+		error = errors.New(i18n.Translation("game.error.cantstart", ctx.Locale))
 	}
 	return
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the rules of x01, and the context. Return a GameState
-func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *Gamex01) HandleDart(ctx common.GameContext, sector common.Sector) (result *common.GameState, error error) {
 
-	error = commonHandleDartChecks(game, sector)
+	error = commonHandleDartChecks(ctx, game, sector)
 	if error != nil {
 		return
 	}
@@ -87,38 +88,38 @@ func (game *Gamex01) HandleDart(sector common.Sector) (result *common.GameState,
 
 	if state.Players[state.CurrentPlayer].Score > 0 {
 		if game.doubleOut && state.Players[state.CurrentPlayer].Score == 1 {
-			state.LastMsg = "You should end with a double"
+			ctx.MessageHandler("game.x01.message.doubleout")
 			game.resetVisit()
-			game.HoldOrNextPlayer()
+			game.HoldOrNextPlayer(ctx)
 		} else {
-			game.nextDart()
+			game.NextDart(ctx)
 		}
 
 	} else if state.Players[state.CurrentPlayer].Score == 0 {
 		if game.doubleOut && sector.Pos != 2 {
-			state.LastMsg = "You should end with a double"
+			ctx.MessageHandler("game.x01.message.doubleout")
 			game.resetVisit()
-			game.HoldOrNextPlayer()
+			game.HoldOrNextPlayer(ctx)
 		} else {
-			game.winner()
+			game.winner(ctx)
 			if game.state.Ongoing == common.PLAYING {
-				game.HoldOrNextPlayer()
+				game.HoldOrNextPlayer(ctx)
 			}
 		}
 
 	} else {
-		state.LastMsg = "You went beyond the target dude !"
+		ctx.MessageHandler("game.x01.message.overscore")
 		game.resetVisit()
-		game.HoldOrNextPlayer()
+		game.HoldOrNextPlayer(ctx)
 	}
 	result = state
 	return
 }
 
-func (game *Gamex01) winner() {
+func (game *Gamex01) winner(ctx common.GameContext) {
 	state := game.state
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
+	ctx.MessageHandler("game.message.rank", state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER
@@ -130,16 +131,17 @@ func (game *Gamex01) winner() {
 }
 
 // HoldOrNextPlayer switch game state between ONHOLD and PLAYING
-func (game *Gamex01) HoldOrNextPlayer() {
-	commonHoldOrNextPlayer(game)
+func (game *Gamex01) HoldOrNextPlayer(ctx common.GameContext) {
+	commonHoldOrNextPlayer(ctx, game)
 }
 
 // AddPlayer add a new player to the game
-func (game *Gamex01) AddPlayer(board string, name string) error {
-	return commonAddPlayer(game, board, name)
+func (game *Gamex01) AddPlayer(ctx common.GameContext, board string, name string) error {
+	return commonAddPlayer(ctx, game, board, name)
 }
 
-func (game *Gamex01) nextPlayer() {
+// NextPlayer is called when the current player end his visit
+func (game *Gamex01) NextPlayer(ctx common.GameContext) {
 
 	game.accu = 0
 	state := game.State()
@@ -155,10 +157,11 @@ func (game *Gamex01) nextPlayer() {
 	log.WithFields(log.Fields{"player": state.CurrentPlayer}).Info("Next player")
 }
 
-func (game *Gamex01) nextDart() {
+// NextDart is called after each dart when the same palyer play again
+func (game *Gamex01) NextDart(ctx common.GameContext) {
 	state := game.state
 	if state.CurrentDart == 2 {
-		game.HoldOrNextPlayer()
+		game.HoldOrNextPlayer(ctx)
 	} else {
 		state.CurrentDart++
 		log.WithFields(log.Fields{"player": state.CurrentPlayer, "dart": state.CurrentDart}).Info("One more dart")
@@ -171,16 +174,14 @@ func (game *Gamex01) resetVisit() {
 }
 
 var gsX01Options = []common.GameOption{
-	{"Score", "int", "The score from which to reach 0", 501},
-	{"DoubleOut", "bool", "If set to true, the players have to end with a double (and so reach 0)", false}}
+	{"Score", "int", "game.x01.options.score", 501},
+	{"DoubleOut", "bool", "game.x01.options.doubleout", false}}
 
 // GsX01 GameStyle for X01 series
 var GsX01 = common.GameStyle{
-	"X01 : 301, 501,...",
+	"game.x01.name",
 	"X01",
-	"All players start with the same points (301 / 501 / ...) and attempt to reach zero. " +
-		"If a player scores more than the total required to reach zero, " +
-		"the player \"busts\" and the score returns to the score that was existing at the start of the turn.",
+	"game.x01.rules",
 	gsX01Options}
 
 func newOptionx01(opts map[string]interface{}) (o Optionx01, err error) {

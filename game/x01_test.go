@@ -11,29 +11,35 @@ func TestGamex01End(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01End")
 
-	game, err := NewGamex01(map[string]interface{}{"Score": "aa"})
+	ctx := createContext("eng")
+
+	game, err := NewGamex01(ctx, map[string]interface{}{"Score": "aa"})
 
 	expected := "aa is an invalid value for Score"
 	if err == nil || err.Error() != expected {
 		t.Errorf("Expected %s, but was %s", expected, err)
 	}
 
-	game, err = NewGamex01(map[string]interface{}{"Score": 1})
+	game, err = NewGamex01(ctx, map[string]interface{}{"Score": 1})
 
 	expected = "Score should be at least 61"
-	if err.Error() != expected {
-		t.Errorf("Expected %s, but was %s", expected, err)
-	}
+	AssertError(t, err, expected)
 
-	game, _ = NewGamex01(map[string]interface{}{"Score": 61})
-	game.AddPlayer("test_board", "Alice")
-	game.AddPlayer("test_board", "Bob")
-	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game, _ = NewGamex01(ctx, map[string]interface{}{"Score": 61})
+
+	err = game.Start(ctx)
+	AssertError(t, err, "Game cannot start")
+	_, err = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	AssertError(t, err, "Game is not started or is ended")
+
+	game.AddPlayer(ctx, "test_board", "Alice")
+	game.AddPlayer(ctx, "test_board", "Bob")
+	state, _ := game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
 
 	AssertGameState(t, state, common.ONHOLD)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 	AssertGameState(t, state, common.PLAYING)
 
 	alice := state.Players[0]
@@ -43,8 +49,8 @@ func TestGamex01End(t *testing.T) {
 	if state.CurrentPlayer != 1 || state.CurrentDart != 0 {
 		t.Errorf("Should be bob's turn, first Dart (%d, %d)", state.CurrentPlayer, state.CurrentDart)
 	}
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 1, Pos: 1})
 
 	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
@@ -62,24 +68,26 @@ func TestGamex01SoloEnd(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01SoloEnd")
 
-	game, _ := NewGamex01(map[string]interface{}{"Score": 501, "DoubleOut": true})
-	game.AddPlayer("test_board", "Jack")
+	ctx := createContext("eng")
 
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game, _ := NewGamex01(ctx, map[string]interface{}{"Score": 501, "DoubleOut": true})
+	game.AddPlayer(ctx, "test_board", "Jack")
 
-	game.HoldOrNextPlayer()
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	game.HoldOrNextPlayer(ctx)
 
-	game.HoldOrNextPlayer()
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 
-	game.HandleDart(common.Sector{Val: 20, Pos: 3})
-	game.HandleDart(common.Sector{Val: 19, Pos: 3})
-	state, _ := game.HandleDart(common.Sector{Val: 12, Pos: 2})
+	game.HoldOrNextPlayer(ctx)
+
+	game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
+	game.HandleDart(ctx, common.Sector{Val: 19, Pos: 3})
+	state, _ := game.HandleDart(ctx, common.Sector{Val: 12, Pos: 2})
 
 	AssertGameState(t, state, common.OVER)
 
@@ -93,152 +101,154 @@ func TestGame301(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301")
 
-	game, _ := NewGamex01(map[string]interface{}{"Score": 301})
-	game.AddPlayer("test_board", "Alice")
-	game.AddPlayer("test_board", "Bob")
-	game.AddPlayer("test_board", "Charly")
-	game.AddPlayer("test_board", "Dan")
+	ctx := createContext("eng")
+
+	game, _ := NewGamex01(ctx, map[string]interface{}{"Score": 301})
+	game.AddPlayer(ctx, "test_board", "Alice")
+	game.AddPlayer(ctx, "test_board", "Bob")
+	game.AddPlayer(ctx, "test_board", "Charly")
+	game.AddPlayer(ctx, "test_board", "Dan")
 
 	// Visit 1, Player 0
-	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ := game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 121)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 1, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 151)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 1, Player 2
-	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 19, Pos: 2})
 	AssertCurrents(t, state, 2, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 2, 2)
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 	AssertScore(t, state.Players[2], 213)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 1, Player 3
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 	AssertCurrents(t, state, 3, 0)
 	AssertScore(t, state.Players[3], 301)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 2, Player 0
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 7, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 7, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 2})
 	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 0)
 	AssertRank(t, state.Players[0], 1)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 2, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 1, 1)
 	AssertScore(t, state.Players[1], 91)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 31)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 2})
 	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 151)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 2, Player 2
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 2, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 2, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 2, 2)
 	AssertScore(t, state.Players[2], 33)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 2, Player 3
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 	AssertCurrents(t, state, 3, 0)
 	AssertScore(t, state.Players[3], 301)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 3, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 1, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 1, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 1})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 1})
 	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 11)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 3, Player 2
-	state, _ = game.HandleDart(common.Sector{Val: 10, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 10, Pos: 3})
 	AssertCurrents(t, state, 2, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 1})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 1, Pos: 1})
 	AssertCurrents(t, state, 2, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 1, Pos: 2})
 	AssertCurrents(t, state, 2, 2)
 	AssertScore(t, state.Players[2], 0)
 	AssertRank(t, state.Players[2], 2)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 3, Player 3
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 2)
 	AssertScore(t, state.Players[3], 121)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 4, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 1, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 1, Pos: 3})
 	AssertCurrents(t, state, 1, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 5, Pos: 2})
 	AssertCurrents(t, state, 1, 1)
 	AssertScore(t, state.Players[1], 11)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 4, Player 3
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 3, 2)
 	AssertScore(t, state.Players[3], 121)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 5, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 3, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 3, Pos: 2})
 	AssertCurrents(t, state, 1, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
 
 	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
@@ -265,65 +275,67 @@ func TestGame301DoubleOut(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGame301DoubleOut")
 
-	game, _ := NewGamex01(map[string]interface{}{"Score": 301, "DoubleOut": true})
-	game.AddPlayer("test_board", "Alice")
-	game.AddPlayer("test_board", "Bob")
+	ctx := createContext("eng")
+
+	game, _ := NewGamex01(ctx, map[string]interface{}{"Score": 301, "DoubleOut": true})
+	game.AddPlayer(ctx, "test_board", "Alice")
+	game.AddPlayer(ctx, "test_board", "Bob")
 
 	// Visit 1, Player 0
-	state, _ := game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ := game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 121)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 1, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 25, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 25, Pos: 2})
 	AssertCurrents(t, state, 1, 2)
 	AssertScore(t, state.Players[1], 151)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 2, Player 0
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 1)
 	AssertScore(t, state.Players[0], 121)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 2, Player 1
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 	AssertCurrents(t, state, 1, 0)
 	AssertScore(t, state.Players[1], 151)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 3, Player 0
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 0, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 19, Pos: 3})
 	AssertCurrents(t, state, 0, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 4, Pos: 1})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 4, Pos: 1})
 	AssertCurrents(t, state, 0, 2)
 	AssertScore(t, state.Players[0], 121)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	// Visit 3, Player 1
-	state, _ = game.HandleDart(common.Sector{Val: 19, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 19, Pos: 3})
 	AssertCurrents(t, state, 1, 1)
-	state, _ = game.HandleDart(common.Sector{Val: 20, Pos: 3})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 20, Pos: 3})
 	AssertCurrents(t, state, 1, 2)
-	state, _ = game.HandleDart(common.Sector{Val: 17, Pos: 2})
+	state, _ = game.HandleDart(ctx, common.Sector{Val: 17, Pos: 2})
 
 	if state.Ongoing != common.OVER {
 		t.Error("Game should be ended")
@@ -344,32 +356,34 @@ func TestGamex01OnHold(t *testing.T) {
 	fmt.Println()
 	fmt.Println("TestGamex01OnHold")
 
-	game, _ := NewGamex01(map[string]interface{}{"Score": 301})
-	game.AddPlayer("test_board", "Alice")
-	game.AddPlayer("test_board", "Bob")
+	ctx := createContext("eng")
 
-	state, _ := game.HandleDart(common.Sector{Val: 5, Pos: 1})
-	game.HoldOrNextPlayer()
+	game, _ := NewGamex01(ctx, map[string]interface{}{"Score": 301})
+	game.AddPlayer(ctx, "test_board", "Alice")
+	game.AddPlayer(ctx, "test_board", "Bob")
+
+	state, _ := game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
+	game.HoldOrNextPlayer(ctx)
 
 	AssertGameState(t, state, common.ONHOLD)
 	AssertCurrents(t, state, 0, 1)
 
-	_, err := game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	_, err := game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
 	AssertError(t, err, "Game is on hold and not ready to handle darts")
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	AssertGameState(t, state, common.PLAYING)
 	AssertCurrents(t, state, 1, 0)
 
-	game.HandleDart(common.Sector{Val: 5, Pos: 1})
-	game.HandleDart(common.Sector{Val: 5, Pos: 1})
-	game.HandleDart(common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
+	game.HandleDart(ctx, common.Sector{Val: 5, Pos: 1})
 
 	AssertGameState(t, state, common.ONHOLD)
 	AssertCurrents(t, state, 1, 2)
 
-	game.HoldOrNextPlayer()
+	game.HoldOrNextPlayer(ctx)
 
 	AssertGameState(t, state, common.PLAYING)
 	AssertCurrents(t, state, 0, 0)

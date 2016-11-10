@@ -2,12 +2,12 @@ package game
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gocaine/go-dart/common"
+	"github.com/gocaine/go-dart/i18n"
 )
 
 var sectors = [...]string{"15", "16", "17", "18", "19", "20", "25"}
@@ -27,32 +27,32 @@ type OptionCricket struct {
 }
 
 // NewGameCricket : GameCricket constructor using a OptionCricket
-func NewGameCricket(opts map[string]interface{}) (g *Cricket, err error) {
+func NewGameCricket(ctx common.GameContext, opts map[string]interface{}) (g *Cricket, err error) {
 	opt := newOptionCricket(opts)
 	if opt.CutThroat && opt.NoScore {
-		err = errors.New("CutThroat and NoScore options are not compatible")
+		err = errors.New(i18n.Translation("game.cricket.error.incompatible", ctx.Locale))
 		return
 	}
 	g = new(Cricket)
 	g.noScore = opt.NoScore
 	g.cutThroat = opt.CutThroat
 	g.state = common.NewGameState()
-	dStyle := "Cricket"
+	dStyle := "game.cricket.display.cricket"
 	if opt.CutThroat {
-		dStyle = "Cut-Throat Cricket"
+		dStyle = "game.cricket.display.cutthroat"
 	} else if opt.NoScore {
-		dStyle = "No Score Cricket"
+		dStyle = "game.cricket.display.noscore"
 	}
-	g.DisplayStyle = dStyle
+	g.DisplayStyle = i18n.Translation(dStyle, ctx.Locale)
 	g.memory = make(map[string]int)
 
 	return
 }
 
 // AddPlayer add a new player to the game
-func (game *Cricket) AddPlayer(board string, name string) (error error) {
+func (game *Cricket) AddPlayer(ctx common.GameContext, board string, name string) (error error) {
 
-	error = commonAddPlayer(game, board, name)
+	error = commonAddPlayer(ctx, game, board, name)
 	if error == nil {
 		game.state.Players[len(game.state.Players)-1].Histo = make(map[string]int)
 	}
@@ -61,9 +61,9 @@ func (game *Cricket) AddPlayer(board string, name string) (error error) {
 }
 
 // Start start the game, Darts will be handled
-func (game *Cricket) Start() (error error) {
+func (game *Cricket) Start(ctx common.GameContext) (error error) {
 
-	error = commonStart(game)
+	error = commonStart(ctx, game)
 	if error == nil {
 		for _, key := range sectors {
 			game.memory[key] = len(game.state.Players)
@@ -74,9 +74,9 @@ func (game *Cricket) Start() (error error) {
 }
 
 // HandleDart the implementation has to handle the Dart regarding the current player, the cricket rules, and the context. Return a GameState
-func (game *Cricket) HandleDart(sector common.Sector) (result *common.GameState, error error) {
+func (game *Cricket) HandleDart(ctx common.GameContext, sector common.Sector) (result *common.GameState, error error) {
 
-	error = commonHandleDartChecks(game, sector)
+	error = commonHandleDartChecks(ctx, game, sector)
 	if error != nil {
 		return
 	}
@@ -96,9 +96,9 @@ func (game *Cricket) HandleDart(sector common.Sector) (result *common.GameState,
 		if count == 3 {
 			open := game.memory[sVal] > 0
 			if open {
-				game.score(sector.Val, sector.Pos)
+				game.score(ctx, sector.Val, sector.Pos)
 			} else {
-				game.nextDart()
+				game.NextDart(ctx)
 			}
 		} else {
 			remain := 0
@@ -112,34 +112,34 @@ func (game *Cricket) HandleDart(sector common.Sector) (result *common.GameState,
 				game.memory[sVal] = game.memory[sVal] - 1
 				open := game.memory[sVal] > 0
 				if open {
-					state.LastMsg = fmt.Sprintf("Opened : %s", sVal)
+					ctx.MessageHandler("game.cricket.message.open", sVal)
 				} else {
-					state.LastMsg = fmt.Sprintf("Closed : %s", sVal)
+					ctx.MessageHandler("game.cricket.message.close", sVal)
 				}
 				if open && remain > 0 {
-					game.score(sector.Val, remain)
+					game.score(ctx, sector.Val, remain)
 				} else {
-					game.checkWinner()
+					game.checkWinner(ctx)
 				}
 			} else {
-				state.LastMsg = fmt.Sprintf("Hit : %d x %s", sector.Pos, sVal)
-				game.nextDart()
+				ctx.MessageHandler("game.cricket.message.hit", sector.Pos, sVal)
+				game.NextDart(ctx)
 			}
 		}
 	} else {
-		game.nextDart()
+		game.NextDart(ctx)
 	}
 	result = state
 	return
 }
 
-func (game *Cricket) score(val, pos int) {
+func (game *Cricket) score(ctx common.GameContext, val, pos int) {
 	log.WithFields(log.Fields{"sector": val, "number": pos}).Info("score")
 	if game.noScore {
 		// no score at all
 	} else {
 		points := val * pos
-		game.state.LastMsg = fmt.Sprintf("Scored : %d", points)
+		ctx.MessageHandler("game.message.score", points)
 		if game.cutThroat {
 			for key := range game.state.Players {
 				if game.state.Players[key].Histo[strconv.Itoa(val)] < 3 {
@@ -151,10 +151,10 @@ func (game *Cricket) score(val, pos int) {
 		}
 	}
 
-	game.checkWinner()
+	game.checkWinner(ctx)
 }
 
-func (game *Cricket) checkWinner() {
+func (game *Cricket) checkWinner(ctx common.GameContext) {
 	log.WithFields(log.Fields{"state": game.state}).Info("checkWinner")
 	player := game.state.Players[game.state.CurrentPlayer]
 	remain := false
@@ -165,33 +165,33 @@ func (game *Cricket) checkWinner() {
 	if !remain {
 		// if we are in noScore mode, no more hit remaining is a sufficient condition
 		if game.noScore {
-			game.winner()
+			game.winner(ctx)
 		} else {
 			if game.cutThroat {
 				if lowest(game.state.Players, game.state.CurrentPlayer) {
-					game.winner()
+					game.winner(ctx)
 				} else {
-					game.nextDart()
+					game.NextDart(ctx)
 				}
 			} else {
 				if highest(game.state.Players, game.state.CurrentPlayer) {
-					game.winner()
+					game.winner(ctx)
 				} else {
-					game.nextDart()
+					game.NextDart(ctx)
 				}
 			}
 		}
 	} else {
-		game.nextDart()
+		game.NextDart(ctx)
 	}
 }
 
-func (game *Cricket) winner() {
+func (game *Cricket) winner(ctx common.GameContext) {
 	log.Info("winner")
 	state := game.state
-	game.state.LastMsg = fmt.Sprintf("Winner : %s", state.Players[state.CurrentPlayer].Name)
+	ctx.MessageHandler("game.message.winner", state.Players[state.CurrentPlayer].Name)
 	state.Players[state.CurrentPlayer].Rank = game.rank + 1
-	state.LastMsg = fmt.Sprintf("Player %d end at rank #%d", state.CurrentPlayer, game.rank+1)
+	ctx.MessageHandler("game.message.rank", state.CurrentPlayer, game.rank+1)
 	game.rank++
 	if game.rank >= len(state.Players)-1 {
 		game.state.Ongoing = common.OVER
@@ -200,21 +200,23 @@ func (game *Cricket) winner() {
 			state.Players[len(state.Players)-1].Rank = game.rank + 1
 		}
 	} else {
-		game.nextPlayer()
+		game.NextPlayer(ctx)
 	}
 }
 
 // HoldOrNextPlayer switch game state between ONHOLD and PLAYING
-func (game *Cricket) HoldOrNextPlayer() {
-	commonHoldOrNextPlayer(game)
+func (game *Cricket) HoldOrNextPlayer(ctx common.GameContext) {
+	commonHoldOrNextPlayer(ctx, game)
 }
 
-func (game *Cricket) nextDart() {
-	commonNextDart(game)
+// NextDart is called after each dart when the same palyer play again
+func (game *Cricket) NextDart(ctx common.GameContext) {
+	commonNextDart(ctx, game)
 }
 
-func (game *Cricket) nextPlayer() {
-	commonNextPlayer(game)
+// NextPlayer is called when the current player end his visit
+func (game *Cricket) NextPlayer(ctx common.GameContext) {
+	commonNextPlayer(ctx, game)
 }
 
 // check if current player has the highest score
@@ -240,18 +242,14 @@ func lowest(players []common.PlayerState, current int) bool {
 }
 
 var gsCricketOptions = []common.GameOption{
-	{"NoScore", "bool", "If set to true, no point is scored, the winner is the first player to close all sectors", false},
-	{"CutThroat", "bool", "If set to true, when a player hit a sector for the 4th time or more, the points go to the players who havent close the sector. " +
-		"In the end, the winner is the first to close every sector with the smallest score", false}}
+	{"NoScore", "bool", "game.cricket.options.noscore", false},
+	{"CutThroat", "bool", "game.cricket.options.cutthroat", false}}
 
 // GsCricket GameStyle for Cricket games
 var GsCricket = common.GameStyle{
-	"Cricket",
+	"game.cricket.name",
 	"CRICKET",
-	"The main purpose is to open (or close) all the sectors. The sectors are 15, 16, 17, 18, 19, 20 and bull's eye." +
-		" To open a sector a player has to hit it 3 times (a Triple counts for 3 hits, a Double for 2). When a sector is open for a player, he can score in it (the points are the real value). " +
-		"When all players have open a given sector it is close, and no more point are scored in it. " +
-		"The winner is the first player to both have open all the sectors and the highest score",
+	"game.cricket.rules",
 	gsCricketOptions}
 
 func newOptionCricket(opts map[string]interface{}) OptionCricket {

@@ -4,11 +4,10 @@
 [![codecov](https://codecov.io/gh/gocaine/go-dart/branch/master/graph/badge.svg)](https://codecov.io/gh/gocaine/go-dart)
 
 
-# Authors
+# Contributors
 
-- Guillaume GERBAUD
-- Mathieu POUSSE
-- Erwann THEBAULT
+ https://github.com/gocaine/go-dart/graphs/contributors
+
 
 # Build
 
